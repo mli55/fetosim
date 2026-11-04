@@ -1,8 +1,8 @@
 """Python interface to jongen.c, the forward-Euler core of the Jongen et al. 2016 CTG model (Parts A and B).
 Parameter values are those of the papers' tables (source tag per parameter in PARAMS); DERIVED values are marked.
-Compiles jongen.c with the system C compiler on first use (into build/ next to this file).
+Compiles jongen.c with the system C compiler on first use (into build/ next to this file; not tracked by git).
 
-    from ctg_lumped.jongen import jongen as J
+    from jongen2016 import jongen as J          # with the repo root on sys.path
     P = J.params(); S = J.steady_state(P)
     out, S_end, ok = J.run(P, S, put=J.contraction(600, 0.02), dt=0.02, du=0.02)   # dict of output arrays
 """

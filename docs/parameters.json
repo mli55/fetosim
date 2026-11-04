@@ -1,5 +1,5 @@
 {
- "generated_by": "ctg_lumped.jongen.model.parameter_table()",
+ "generated_by": "jongen2016/model.py parameter_table()",
  "classes": {
   "1": "fixed at the paper's value",
   "2": "fixed by our choice",

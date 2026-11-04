@@ -1,7 +1,12 @@
-"""Quick checks against values printed in Jongen et al. 2016 (run: python -m pytest tests, or python tests/test_jongen.py)."""
+"""Quick checks against values printed in Jongen et al. 2016 (run: python tests/test_jongen.py, or pytest tests)."""
+import sys
+from pathlib import Path
+
 import numpy as np
 
-from ctg_lumped.jongen import model as M
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))     # repo root, no install needed
+
+from jongen2016 import model as M  # noqa: E402
 
 
 def _contraction(w_um):

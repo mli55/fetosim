@@ -21,7 +21,7 @@ Layers (each function names the equations it implements):
                   (1 fixed at the paper's value, 2 fixed by our choice, 3 fitted per window).
 
 Entry point for any recording given as 2-s bins (NaN = missing):
-    from ctg_lumped.jongen import model as M
+    from jongen2016 import model as M        # with the repo root on sys.path
     res = M.fit(fhr_bins, toco_bins)        # dict: a, w_um, g, b, fhr_model, p_ut, peaks_s, ...
 """
 import json
@@ -33,7 +33,11 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.signal import find_peaks, medfilt
 
-from . import jongen as J
+try:
+    from . import jongen as J
+except ImportError:                     # run as a script: python jongen2016/model.py
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from jongen2016 import jongen as J
 
 # ---- numerics and window layout -------------------------------------------------------------------------------
 DT = 2                          # 2-s bins (8 samples at 4 Hz)
@@ -558,10 +562,10 @@ def export(path):
     rows = parameter_table()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     counts = {str(k): sum(r['cls'] == k for r in rows) for k in CLASS}
-    out = dict(generated_by='ctg_lumped.jongen.model.parameter_table()', classes=CLASS, counts=counts, parameters=rows)
+    out = dict(generated_by='jongen2016/model.py parameter_table()', classes=CLASS, counts=counts, parameters=rows)
     path.write_text(json.dumps(out, indent=1, ensure_ascii=False) + '\n')
     return counts
 
 
 if __name__ == '__main__':
-    print(export(sys.argv[1] if len(sys.argv) > 1 else 'parameters.json'))
+    print(export(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / 'docs/parameters.json'))

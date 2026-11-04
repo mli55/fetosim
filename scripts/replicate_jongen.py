@@ -15,11 +15,14 @@ Known differences from the papers:
   - IVS V_max, p_0, p_1 are derived from the stated rules (not printed in the tables).
 """
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
-from ctg_lumped.jongen import model as M
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))     # repo root, no install needed
+
+from jongen2016 import model as M  # noqa: E402
 
 DT, TT = 0.02, 300.0
 
