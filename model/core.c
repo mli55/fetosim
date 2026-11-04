@@ -1,12 +1,12 @@
 /* Jongen, van der Hout-van der Jagt et al. (J Biomech 2016, Part A/B; thesis Ch. 4 noise) CTG model.
    Reimplemented from the papers; equation tags A(n)/B(n) = Part A / Part B equation n.
-   Forward Euler. Gap-filling choices are listed in the parameter notes (model.parameter_table()).
-   Parameters P[] and state S[] use the index order defined in jongen.py (NAMES / STATE). */
+   Forward Euler. Gap-filling choices are listed in the parameter notes (model/parameters/jongen2016.json).
+   Parameters P[] and state S[] use the index order of model/parameters/jongen2016.json and STATE in model/simulate.py. */
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
 
-enum {  /* parameters, same order as jongen.py PARAMS */
+enum {  /* parameters, same order as model/parameters/jongen2016.json */
   /* fetal hemodynamics */
   F_TREF, F_VART0, F_VVEN0, F_VTIS0, F_VCER0, F_VVIL0, F_CART, F_CVEN, F_CTIS, F_CCER, F_CVIL,
   F_RTISA, F_RTISV, F_RCERA, F_RCERV, F_RUMA, F_RUMV, F_EMAX, F_EMIN, F_V0MAX, F_V0MIN,

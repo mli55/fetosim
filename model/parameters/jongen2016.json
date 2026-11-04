@@ -1,14 +1,10 @@
 {
- "generated_by": "jongen2016/model.py parameter_table()",
+ "model": "Jongen et al. 2016, Parts A and B (J Biomech 49(12):2466-2473 and 2474-2480)",
+ "order": "Entries are in the index order of model/core.c (parameter vector P[]); do not reorder.",
  "classes": {
-  "1": "fixed at the paper's value",
-  "2": "fixed by our choice",
-  "3": "fitted per 20-min window"
- },
- "counts": {
-  "1": 99,
-  "2": 21,
-  "3": 4
+  "paper": "fixed at the paper's value",
+  "our choice": "fixed by our choice",
+  "fitted": "fitted per 20-min window"
  },
  "parameters": [
   {
@@ -19,8 +15,9 @@
    "meaning": "fetal reference heart period (60/135 s = 135 bpm)",
    "part": "heart",
    "equations": "A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -31,8 +28,9 @@
    "meaning": "fetal arterial unstressed volume",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -43,8 +41,9 @@
    "meaning": "fetal venous unstressed volume (reference; sympathetically regulated)",
    "part": "heart",
    "equations": "A(1), A(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -55,8 +54,9 @@
    "meaning": "fetal body-tissue unstressed volume",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -67,8 +67,9 @@
    "meaning": "fetal brain unstressed volume",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -79,8 +80,9 @@
    "meaning": "placental villi unstressed volume (fetal side of the placenta)",
    "part": "placenta",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -91,8 +93,9 @@
    "meaning": "fetal arterial compliance",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -103,8 +106,9 @@
    "meaning": "fetal venous compliance",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -115,8 +119,9 @@
    "meaning": "fetal body-tissue compliance",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -127,8 +132,9 @@
    "meaning": "fetal brain compliance",
    "part": "heart",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -139,8 +145,9 @@
    "meaning": "villi compliance",
    "part": "placenta",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -151,8 +158,9 @@
    "meaning": "fetal body arterial resistance (reference; sympathetically regulated)",
    "part": "heart",
    "equations": "A(5), A(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -163,8 +171,9 @@
    "meaning": "fetal body venous resistance",
    "part": "heart",
    "equations": "A(5)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -175,8 +184,9 @@
    "meaning": "fetal brain arterial resistance (reference; autoregulated)",
    "part": "heart",
    "equations": "A(18)-(19)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -187,8 +197,9 @@
    "meaning": "fetal brain venous resistance",
    "part": "heart",
    "equations": "A(5)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -199,8 +210,9 @@
    "meaning": "umbilical artery resistance at rest",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -211,8 +223,9 @@
    "meaning": "umbilical vein resistance at rest",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -223,8 +236,9 @@
    "meaning": "fetal ventricle end-ejection elastance (reference; regulated)",
    "part": "heart",
    "equations": "A(9), A(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -235,8 +249,9 @@
    "meaning": "fetal ventricle end-diastolic elastance",
    "part": "heart",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -247,8 +262,9 @@
    "meaning": "fetal ventricle unstressed volume at end-ejection",
    "part": "heart",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -259,8 +275,9 @@
    "meaning": "fetal ventricle unstressed volume at end-diastole",
    "part": "heart",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1a",
+   "source_detail": "A-T1a",
    "note": ""
   },
   {
@@ -271,44 +288,48 @@
    "meaning": "maternal heart period (60/80 s = 80 bpm, not regulated)",
    "part": "mother",
    "equations": "A(10)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
    "name": "M_VART0",
    "symbol": "V_art,0",
-   "value": 721.0,
+   "value": 721,
    "unit": "ml",
    "meaning": "maternal arterial unstressed volume",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
    "name": "M_VVEN0",
    "symbol": "V_ven,0",
-   "value": 3604.0,
+   "value": 3604,
    "unit": "ml",
    "meaning": "maternal venous unstressed volume",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
    "name": "M_VTIS0",
    "symbol": "V_tis,0",
-   "value": 504.0,
+   "value": 504,
    "unit": "ml",
    "meaning": "maternal tissue unstressed volume",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -319,8 +340,9 @@
    "meaning": "maternal arterial compliance",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -331,8 +353,9 @@
    "meaning": "maternal venous compliance",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -343,8 +366,9 @@
    "meaning": "maternal tissue compliance",
    "part": "mother",
    "equations": "A(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -355,8 +379,9 @@
    "meaning": "maternal tissue arterial resistance",
    "part": "mother",
    "equations": "A(5)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -367,8 +392,9 @@
    "meaning": "maternal tissue venous resistance",
    "part": "mother",
    "equations": "A(5)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -379,8 +405,9 @@
    "meaning": "uterine (spiral) artery resistance; NOT squeezed by contractions",
    "part": "spiral",
    "equations": "A(5)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -391,8 +418,9 @@
    "meaning": "uterine vein resistance at rest",
    "part": "uterus",
    "equations": "A(6)-(7)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -403,8 +431,9 @@
    "meaning": "uterine vein collapse law: base resistance",
    "part": "uterus",
    "equations": "A(6)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -415,8 +444,9 @@
    "meaning": "uterine vein collapse law: midpoint transmural pressure",
    "part": "uterus",
    "equations": "A(6)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -427,8 +457,9 @@
    "meaning": "uterine vein collapse law: width",
    "part": "uterus",
    "equations": "A(6)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -439,8 +470,9 @@
    "meaning": "maternal ventricle end-ejection elastance",
    "part": "mother",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -451,8 +483,9 @@
    "meaning": "maternal ventricle end-diastolic elastance",
    "part": "mother",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -463,8 +496,9 @@
    "meaning": "maternal ventricle unstressed volume at end-ejection",
    "part": "mother",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -475,8 +509,9 @@
    "meaning": "maternal ventricle unstressed volume at end-diastole",
    "part": "mother",
    "equations": "A(9)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 1b",
+   "source_detail": "A-T1b",
    "note": ""
   },
   {
@@ -487,8 +522,9 @@
    "meaning": "intervillous space: maximal blood volume (2 x 175 ml, B p.2475 rule)",
    "part": "placenta",
    "equations": "A(3)",
-   "cls": 1,
+   "class": "paper",
    "source": "DERIVED",
+   "source_detail": "DERIVED: 2 x 175 ml (B p.2475)",
    "note": "Not printed in any table; derived from the paper's stated rule (B p.2475)."
   },
   {
@@ -499,8 +535,9 @@
    "meaning": "intervillous space: transmural pressure at rest (B p.2475 rule)",
    "part": "placenta",
    "equations": "A(3)",
-   "cls": 1,
+   "class": "paper",
    "source": "DERIVED",
+   "source_detail": "DERIVED: steady-state IVS transmural",
    "note": "Not printed in any table; derived from the paper's stated rule (B p.2475)."
   },
   {
@@ -511,8 +548,9 @@
    "meaning": "intervillous space: stiffness width, V_max / (pi C_ivs,max) (B p.2475 rule)",
    "part": "placenta",
    "equations": "A(3)",
-   "cls": 1,
+   "class": "paper",
    "source": "DERIVED",
+   "source_detail": "DERIVED: Vmax/(pi*Civs,max)",
    "note": "Not printed in any table; derived from the paper's stated rule (B p.2475)."
   },
   {
@@ -523,8 +561,9 @@
    "meaning": "umbilical vein collapse law: base resistance",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -535,8 +574,9 @@
    "meaning": "umbilical vein collapse law: midpoint",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -547,8 +587,9 @@
    "meaning": "umbilical vein collapse law: width",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -559,8 +600,9 @@
    "meaning": "umbilical artery collapse law: base resistance",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -571,8 +613,9 @@
    "meaning": "umbilical artery collapse law: midpoint",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -583,8 +626,9 @@
    "meaning": "umbilical artery collapse law: width",
    "part": "cord",
    "equations": "A(6), B(1)",
-   "cls": 1,
+   "class": "paper",
    "source": "B Table 1",
+   "source_detail": "B-T1",
    "note": ""
   },
   {
@@ -595,8 +639,9 @@
    "meaning": "placental O2 diffusion capacity, intervillous blood -> villi",
    "part": "placenta",
    "equations": "A(16)",
-   "cls": 1,
+   "class": "paper",
    "source": "B §2.2.2 rule",
+   "source_detail": "B s2.2.2 rule (steady-state fetal arterial pO2 18.5 mmHg); table A-T2 prints 0.082, which gives 18.25 here",
    "note": "Set by the paper's rule (steady-state fetal arterial pO2 = 18.5 mmHg, B §2.2.2). The table prints 0.082, which gives 18.25 mmHg in our implementation."
   },
   {
@@ -607,8 +652,9 @@
    "meaning": "maternal lung O2 uptake capacity",
    "part": "mother",
    "equations": "A(16)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -619,8 +665,9 @@
    "meaning": "fetal body O2 consumption",
    "part": "heart",
    "equations": "A(17)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -631,8 +678,9 @@
    "meaning": "fetal brain O2 consumption",
    "part": "heart",
    "equations": "A(17)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -643,8 +691,9 @@
    "meaning": "maternal O2 consumption",
    "part": "mother",
    "equations": "A(17)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -655,8 +704,9 @@
    "meaning": "fetal brain: pO2 below which consumption falls",
    "part": "heart",
    "equations": "A(17)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -667,8 +717,9 @@
    "meaning": "fetal body: pO2 below which consumption falls",
    "part": "heart",
    "equations": "A(17)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -679,8 +730,9 @@
    "meaning": "maternal threshold: not stated, \"irrelevant\" (B p.2475); we use constant uptake",
    "part": "mother",
    "equations": "A(17)",
-   "cls": 2,
+   "class": "our choice",
    "source": "ours",
+   "source_detail": "NOT STATED: maternal threshold irrelevant (B p.2475); constant uptake",
    "note": "Not stated in the papers."
   },
   {
@@ -691,8 +743,9 @@
    "meaning": "inspired-air pO2",
    "part": "mother",
    "equations": "A(16)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -703,8 +756,9 @@
    "meaning": "O2 binding capacity of haemoglobin",
    "part": "placenta",
    "equations": "A(12)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -715,8 +769,9 @@
    "meaning": "dissolved O2 solubility",
    "part": "placenta",
    "equations": "A(12)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -727,8 +782,9 @@
    "meaning": "fetal haemoglobin concentration",
    "part": "heart",
    "equations": "A(12)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -739,8 +795,9 @@
    "meaning": "maternal haemoglobin concentration",
    "part": "mother",
    "equations": "A(12)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -751,8 +808,9 @@
    "meaning": "fetal O2 dissociation curve constant (left-shifted)",
    "part": "heart",
    "equations": "A(13)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -763,8 +821,9 @@
    "meaning": "maternal O2 dissociation curve constant",
    "part": "mother",
    "equations": "A(13)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -775,8 +834,9 @@
    "meaning": "fetal O2 dissociation curve constant",
    "part": "heart",
    "equations": "A(13)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -787,8 +847,9 @@
    "meaning": "maternal O2 dissociation curve constant",
    "part": "mother",
    "equations": "A(13)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 2",
+   "source_detail": "A-T2",
    "note": ""
   },
   {
@@ -799,8 +860,9 @@
    "meaning": "brain autoregulation: reference arterial O2 content",
    "part": "heart",
    "equations": "A(19)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -811,8 +873,9 @@
    "meaning": "brain autoregulation strength",
    "part": "heart",
    "equations": "A(19)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -823,8 +886,9 @@
    "meaning": "brain autoregulation time constant",
    "part": "heart",
    "equations": "A(18)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -835,8 +899,9 @@
    "meaning": "baroreceptor curve offset, ln 0.5 exact from B(3)",
    "part": "baro",
    "equations": "A(21), B(3)",
-   "cls": 1,
+   "class": "paper",
    "source": "B(3) exact",
+   "source_detail": "B(3) exact (table -0.69)",
    "note": "Exact value from B(3) so the receptor output is 0 at its set point; the table prints it rounded."
   },
   {
@@ -847,8 +912,9 @@
    "meaning": "baroreceptor curve slope",
    "part": "baro",
    "equations": "A(21), B(4)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -859,8 +925,9 @@
    "meaning": "baroreceptor output minimum",
    "part": "baro",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -871,8 +938,9 @@
    "meaning": "baroreceptor output maximum",
    "part": "baro",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -883,8 +951,9 @@
    "meaning": "baroreceptor low-pass time constant",
    "part": "baro",
    "equations": "A(20)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3 (0 = no low-pass, thesis Ch.4)",
    "note": ""
   },
   {
@@ -895,8 +964,9 @@
    "meaning": "baroreceptor set point: fetal arterial transmural pressure",
    "part": "baro",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -907,8 +977,9 @@
    "meaning": "chemoreceptor curve offset, ln(0.001/1.001) exact from B(3)",
    "part": "chemo",
    "equations": "A(21), B(3)",
-   "cls": 1,
+   "class": "paper",
    "source": "B(3) exact",
+   "source_detail": "B(3) exact (table -6.91)",
    "note": "Exact value from B(3) so the receptor output is 0 at its set point; the table prints it rounded."
   },
   {
@@ -919,8 +990,9 @@
    "meaning": "chemoreceptor curve slope",
    "part": "chemo",
    "equations": "A(21), B(4)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -931,8 +1003,9 @@
    "meaning": "chemoreceptor output minimum",
    "part": "chemo",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -943,8 +1016,9 @@
    "meaning": "chemoreceptor output maximum",
    "part": "chemo",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -955,8 +1029,9 @@
    "meaning": "chemoreceptor low-pass time constant",
    "part": "chemo",
    "equations": "A(20)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -967,8 +1042,9 @@
    "meaning": "chemoreceptor set point: fetal arterial pO2",
    "part": "chemo",
    "equations": "A(21)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -979,8 +1055,9 @@
    "meaning": "sympathetic weight of the baroreceptor (inhibitory)",
    "part": "baro",
    "equations": "A(22)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -991,8 +1068,9 @@
    "meaning": "sympathetic weight of the chemoreceptor",
    "part": "chemo",
    "equations": "A(22)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1003,8 +1081,9 @@
    "meaning": "vagal weight of the baroreceptor",
    "part": "baro",
    "equations": "A(22)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1015,8 +1094,9 @@
    "meaning": "vagal weight of the chemoreceptor",
    "part": "chemo",
    "equations": "A(22)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1027,8 +1107,9 @@
    "meaning": "vagal heart-period effector: delay",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1039,8 +1120,9 @@
    "meaning": "vagal heart-period effector: time constant",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1051,8 +1133,9 @@
    "meaning": "vagal heart-period effector: gain (x g)",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1063,8 +1146,9 @@
    "meaning": "sympathetic heart-period effector: delay",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1075,8 +1159,9 @@
    "meaning": "sympathetic heart-period effector: time constant",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1087,8 +1172,9 @@
    "meaning": "sympathetic heart-period effector: gain (x g)",
    "part": "heart",
    "equations": "A(23), A(25)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1099,8 +1185,9 @@
    "meaning": "contractility effector: delay",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1111,8 +1198,9 @@
    "meaning": "contractility effector: time constant",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1123,8 +1211,9 @@
    "meaning": "contractility effector: gain (x g)",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1135,8 +1224,9 @@
    "meaning": "peripheral-resistance effector: delay",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1147,8 +1237,9 @@
    "meaning": "peripheral-resistance effector: time constant",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1159,8 +1250,9 @@
    "meaning": "peripheral-resistance effector: gain (x g)",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1171,8 +1263,9 @@
    "meaning": "venous-volume effector: delay",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1183,8 +1276,9 @@
    "meaning": "venous-volume effector: time constant",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1195,8 +1289,9 @@
    "meaning": "venous-volume effector: gain (x g)",
    "part": "heart",
    "equations": "A(23)-(24)",
-   "cls": 1,
+   "class": "paper",
    "source": "A Table 3",
+   "source_detail": "A-T3",
    "note": ""
   },
   {
@@ -1207,8 +1302,35 @@
    "meaning": "resting uterine pressure in the model",
    "part": "uterus",
    "equations": "A(8), B(2)",
-   "cls": 1,
+   "class": "paper",
    "source": "A §2.4",
+   "source_detail": "A s2.4",
+   "note": ""
+  },
+  {
+   "name": "S_WUM",
+   "symbol": "w_um",
+   "value": 0.0,
+   "unit": "–",
+   "meaning": "how much of the uterine pressure squeezes the cord: p_um = w_um (p_ut − p_rest). 0 = Part A, 1 = Part B",
+   "part": "cord",
+   "equations": "B(1)-(2)",
+   "class": "fitted",
+   "source": "B(2), B §2.3 (paper uses 0 or 1)",
+   "source_detail": "B(2): 0 = Part A, 1 = Part B",
+   "note": ""
+  },
+  {
+   "name": "S_GAIN",
+   "symbol": "g",
+   "value": 1.0,
+   "unit": "–",
+   "meaning": "common multiplier of all five effector gains k; g = 1 is the published regulation",
+   "part": "heart",
+   "equations": "A(23)-(25)",
+   "class": "fitted",
+   "source": "ours (not in the paper)",
+   "source_detail": "Addition (not in the papers): common multiplier of all effector gains k (1 = published)",
    "note": ""
   },
   {
@@ -1219,8 +1341,9 @@
    "meaning": "thesis noise on R_tisa: off (no variability in fitting)",
    "part": "heart",
    "equations": "Th Eq. 4.1-4.2",
-   "cls": 2,
+   "class": "our choice",
    "source": "ours",
+   "source_detail": "Th 4.2 noise on R_tisa",
    "note": ""
   },
   {
@@ -1231,8 +1354,9 @@
    "meaning": "thesis noise on baroreceptor output: off",
    "part": "baro",
    "equations": "Th Eq. 4.1-4.2",
-   "cls": 2,
+   "class": "our choice",
    "source": "ours",
+   "source_detail": "Th 4.2 noise on r_b",
    "note": ""
   },
   {
@@ -1243,294 +1367,9 @@
    "meaning": "thesis noise on vagal efferent: off",
    "part": "heart",
    "equations": "Th Eq. 4.1-4.2",
-   "cls": 2,
+   "class": "our choice",
    "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "tone",
-   "symbol": "p_tone",
-   "value": 15.0,
-   "unit": "mmHg",
-   "meaning": "pressure between pulses in our TOCO-derived input; set to the paper's p_rest because TOCO has no absolute scale",
-   "part": "toco",
-   "equations": "A(8)",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "p_con_ref",
-   "symbol": "p_con",
-   "value": 70.0,
-   "unit": "mmHg",
-   "meaning": "reference pulse height above the tone; the fitted a multiplies it (a = 1 is the paper's reference contraction, peak 85 mmHg)",
-   "part": "toco",
-   "equations": "A(8)",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "sigma",
-   "symbol": "sigma",
-   "value": 15.0,
-   "unit": "s",
-   "meaning": "width of each Gaussian pulse (about 60 s from start to end, like the paper's 60 s sin² contraction)",
-   "part": "toco",
-   "equations": "replaces A(8)",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "peak_medfilt",
-   "symbol": "",
-   "value": 10,
-   "unit": "s",
-   "meaning": "TOCO median filter before peak detection",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "peak_prominence",
-   "symbol": "",
-   "value": 15,
-   "unit": "TOCO units",
-   "meaning": "minimum peak prominence to count as a contraction",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "peak_distance",
-   "symbol": "",
-   "value": 80,
-   "unit": "s",
-   "meaning": "minimum time between two contraction peaks",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "peak_width",
-   "symbol": "",
-   "value": 16,
-   "unit": "s",
-   "meaning": "minimum peak width",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "uc_carry",
-   "symbol": "",
-   "value": 10,
-   "unit": "s",
-   "meaning": "TOCO gaps up to this length are carried forward",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "uc_flat",
-   "symbol": "",
-   "value": 60,
-   "unit": "s",
-   "meaning": "TOCO = 0 is a valid reading, except an exactly constant value for at least this long (sensor off)",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "fhr_range",
-   "symbol": "",
-   "value": "50–210",
-   "unit": "bpm",
-   "meaning": "FHR samples outside are missing",
-   "part": "heart",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "fhr_jump",
-   "symbol": "",
-   "value": 25.0,
-   "unit": "bpm",
-   "meaning": "FHR cleaning: jumps larger than this from the last accepted value are artefacts unless sustained > 30 s",
-   "part": "heart",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "fhr_interp",
-   "symbol": "",
-   "value": 15,
-   "unit": "s",
-   "meaning": "FHR gaps up to this length are interpolated",
-   "part": "heart",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "window",
-   "symbol": "",
-   "value": "20 + 2 + 10",
-   "unit": "min",
-   "meaning": "fit on the first 20 min, skip 2 min, compare on the next 10 min",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "uc_history",
-   "symbol": "",
-   "value": 120,
-   "unit": "s",
-   "meaning": "a row is used only if TOCO has no gap in the previous 120 s",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "initial_state",
-   "symbol": "",
-   "value": "steady state",
-   "unit": "",
-   "meaning": "every window starts from the model's resting steady state (A §2.4 criterion)",
-   "part": "heart",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "dt_input",
-   "symbol": "",
-   "value": 0.5,
-   "unit": "s",
-   "meaning": "input grid for p_ut; the model itself steps at 0.02 s (A §2.4)",
-   "part": "toco",
-   "equations": "",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "observation",
-   "symbol": "",
-   "value": "2-s mean",
-   "unit": "",
-   "meaning": "model FHR averaged over each 2-s CTG bin",
-   "part": "heart",
-   "equations": "A(25)",
-   "cls": 2,
-   "source": "ours",
-   "note": ""
-  },
-  {
-   "name": "a",
-   "symbol": "a",
-   "value": null,
-   "range": [
-    0.25,
-    1.6
-   ],
-   "grid": [
-    0.5,
-    1.0,
-    1.4
-   ],
-   "unit": "× 70 mmHg",
-   "meaning": "contraction strength: pulse height = a × 70 mmHg above the 15 mmHg tone",
-   "part": "uterus",
-   "equations": "A(8)",
-   "cls": 3,
-   "source": "ours",
-   "method": "grid, then bounded Nelder-Mead (≤ 150 evaluations) on the training MSE (log scale)",
-   "note": ""
-  },
-  {
-   "name": "S_WUM",
-   "symbol": "w_um",
-   "value": null,
-   "range": [
-    0.0,
-    2.0
-   ],
-   "grid": [
-    0.0,
-    0.5,
-    1.0,
-    1.5,
-    2.0
-   ],
-   "unit": "–",
-   "meaning": "how much of the uterine pressure squeezes the cord: p_um = w_um (p_ut − p_rest). 0 = Part A, 1 = Part B",
-   "part": "cord",
-   "equations": "B(1)-(2)",
-   "cls": 3,
-   "source": "B(2), B §2.3 (paper uses 0 or 1)",
-   "method": "grid, then bounded Nelder-Mead (≤ 150 evaluations) on the training MSE",
-   "note": ""
-  },
-  {
-   "name": "S_GAIN",
-   "symbol": "g",
-   "value": null,
-   "range": [
-    0.25,
-    4.0
-   ],
-   "grid": [
-    0.5,
-    1.0,
-    2.0
-   ],
-   "unit": "–",
-   "meaning": "common multiplier of all five effector gains k; g = 1 is the published regulation",
-   "part": "heart",
-   "equations": "A(23)-(25)",
-   "cls": 3,
-   "source": "ours (not in the paper)",
-   "method": "grid, then bounded Nelder-Mead (≤ 150 evaluations) on the training MSE (log scale)",
-   "note": ""
-  },
-  {
-   "name": "b",
-   "symbol": "b",
-   "value": null,
-   "range": null,
-   "unit": "bpm",
-   "meaning": "baseline FHR: model FHR is shifted so its mean residual on the training rows is 0",
-   "part": "heart",
-   "equations": "",
-   "cls": 3,
-   "source": "ours",
-   "method": "closed form (least squares)",
+   "source_detail": "Th 4.2 noise on e_v",
    "note": ""
   }
  ]

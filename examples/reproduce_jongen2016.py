@@ -1,4 +1,4 @@
-"""Reproduce the published Jongen et al. 2016 scenarios at the published regulation (g = 1).
+"""Reproduce the published Jongen et al. 2016 scenarios (parameter set model/parameters/jongen2016.json) at the published regulation (g = 1).
 
 Part A (w_um = 0): uterine flow reduction only -> late deceleration (reference contraction, 110 mmHg, 120 s,
 uterine-artery block of 20 / 30 s). Part B (w_um = 1): + umbilical cord compression -> variable deceleration
@@ -6,7 +6,7 @@ uterine-artery block of 20 / 30 s). Part B (w_um = 1): + umbilical cord compress
 Published values: text values where the paper states them, otherwise figure readings (about +-2 bpm).
 Writes outputs/replication.json (relative to the current folder) and prints simulated vs published.
 
-    python scripts/replicate_jongen.py
+    python examples/reproduce_jongen2016.py        (from the repo root)
 
 Known differences from the papers:
   - D_plac = 0.0904 (paper's rule: steady-state fetal arterial pO2 18.5 mmHg) instead of the table's 0.082.
@@ -20,18 +20,18 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))     # repo root, no install needed
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # folder holding fetosim/; no install needed
 
-from jongen2016 import model as M  # noqa: E402
+from fetosim.model import simulate as S  # noqa: E402
 
 DT, TT = 0.02, 300.0
 
 
 def scenario(w_um=0.0, p_con=70.0, T_con=60.0, t_con=30.0, put=None, pum=None, ruta=None):
-    P = M.J.params(S_WUM=w_um)
-    S = M.steady()
-    put = M.contraction(TT, DT, t_con=t_con, T_con=T_con, p_con=p_con) if put is None else put
-    o, _, ok = M.J.run(P, S, put, dt=DT, pum=pum, ruta=ruta, out_every=5)
+    P = S.params(S_WUM=w_um)
+    S0 = S.steady()
+    put = S.contraction(TT, DT, t_con=t_con, T_con=T_con, p_con=p_con) if put is None else put
+    o, _, ok = S.run_core(P, S0, put, dt=DT, pum=pum, ruta=ruta, out_every=5)
     assert ok
     return o
 
@@ -53,7 +53,7 @@ def ramp(t_on, rise, hold, fall, peak, base=0.0):
 
 
 def main():
-    rest = np.full(int(round(TT / DT)) + 1, M.TONE)
+    rest = np.full(int(round(TT / DT)) + 1, S.TONE)
     R = {}
     R['A_ref'] = (scenario(), dict(decel=3, po2a_min=17.1, q_uta_min=180, v_ivs_min=121, ptm_max=45.4))
     R['A_110mmHg'] = (scenario(p_con=110), dict(decel=14, fhr_min=121, po2a_min=16.0))

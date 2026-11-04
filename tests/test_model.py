@@ -1,16 +1,17 @@
-"""Quick checks against values printed in Jongen et al. 2016 (run: python tests/test_jongen.py, or pytest tests)."""
+"""Checks against values printed in Jongen et al. 2016 (default parameter set). Run from the repo root: python tests/test_model.py, or pytest tests."""
 import sys
 from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))     # repo root, no install needed
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # folder holding fetosim/; no install needed
 
-from jongen2016 import model as M  # noqa: E402
+from fetosim.fit import fit_window as FW  # noqa: E402
+from fetosim.model import simulate as S  # noqa: E402
 
 
 def _contraction(w_um):
-    o, _, ok = M.run(M.contraction(300, 0.02), w_um=w_um, g=1.0, du=0.02)
+    o, _, ok = S.run(S.contraction(300, 0.02), w_um=w_um, g=1.0, du=0.02)
     assert ok
     return o
 
@@ -33,16 +34,16 @@ def test_part_b_variable_deceleration():
 
 def test_fit_runs_on_synthetic_window():
     rng = np.random.default_rng(0)
-    nb = 400; t = (np.arange(nb) + 1) * M.DT
+    nb = 400; t = (np.arange(nb) + 1) * 2
     toco = 10 + sum(40 * np.exp(-0.5 * ((t - c) / 20) ** 2) for c in range(120, 800, 180)) + rng.normal(0, 1, nb)
     fhr = 140 + rng.normal(0, 2, nb)
-    r = M.fit(fhr, toco, train=300)
+    r = FW.fit(fhr, toco, train=300)
     assert len(r['peaks_s']) >= 3 and np.isfinite(r['fhr_model']).all()
-    assert M.A_BOUNDS[0] <= r['a'] <= M.A_BOUNDS[1] and M.W_BOUNDS[0] <= r['w_um'] <= M.W_BOUNDS[1]
+    assert FW.A_BOUNDS[0] <= r['a'] <= FW.A_BOUNDS[1] and FW.W_BOUNDS[0] <= r['w_um'] <= FW.W_BOUNDS[1]
 
 
 def test_parameter_classes():
-    rows = M.parameter_table()
+    rows = FW.parameter_table()
     fitted = sorted(r['symbol'] for r in rows if r['cls'] == 3)
     assert fitted == ['a', 'b', 'g', 'w_um']
 
