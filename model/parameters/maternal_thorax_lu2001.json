@@ -1,0 +1,123 @@
+{
+ "model": "Maternal thorax after Lu et al. 2001 (lumped graft onto Jongen 2016); appended after maternal_hr_randall2019.json",
+ "order": "Entries continue the index order of model/core.c after MR_DS; do not reorder.",
+ "parameters": [
+  {
+   "name": "MT_MODE",
+   "symbol": "mode",
+   "value": 0.0,
+   "unit": "–",
+   "meaning": "maternal thorax: 0 off (Jongen 2016), 1 on",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "off by default",
+   "note": ""
+  },
+  {
+   "name": "MT_FA",
+   "symbol": "f_a",
+   "value": 0.45,
+   "unit": "–",
+   "meaning": "intrathoracic share of maternal arterial compliance",
+   "part": "mother",
+   "equations": "",
+   "class": "fitted",
+   "source": "ours",
+   "source_detail": "fitted to the phase-1 SBP rise of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)",
+   "note": "Lu/VS001 itself: Caop/(Caop+Caod+Csap) = 0.11"
+  },
+  {
+   "name": "MT_FVAB",
+   "symbol": "f_v,ab",
+   "value": 0.805,
+   "unit": "–",
+   "meaning": "abdominal share of maternal venous compliance",
+   "part": "mother",
+   "equations": "",
+   "class": "fitted",
+   "source": "ours",
+   "source_detail": "fitted to the phase-2 cardiac output of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)",
+   "note": "Lu 2001 has no abdomen; its stiff venous P-V curve plays this role"
+  },
+  {
+   "name": "MT_KAB",
+   "symbol": "k_ab",
+   "value": 1.0,
+   "unit": "–",
+   "meaning": "abdominal pressure rise per thoracic pressure rise",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "strain and pushing are held with the abdominal wall; intra-abdominal and intrathoracic pressures rise together",
+   "note": ""
+  },
+  {
+   "name": "MT_CTH",
+   "symbol": "C_th",
+   "value": 35.71666666666667,
+   "unit": "ml/mmHg",
+   "meaning": "intrathoracic venous + pulmonary compliance",
+   "part": "mother",
+   "equations": "",
+   "class": "paper",
+   "source": "Lu 2001 / Physiome VS001 (.mod)",
+   "source_detail": "1/K1 (vena cava) + Ctpap + Ctpad + Cpa + Cpc + Cpv",
+   "note": ""
+  },
+  {
+   "name": "MT_VTH",
+   "symbol": "V_th",
+   "value": 634.99,
+   "unit": "ml",
+   "meaning": "intrathoracic venous + pulmonary blood volume at rest (moved from the venous pool)",
+   "part": "mother",
+   "equations": "",
+   "class": "paper",
+   "source": "Lu 2001 / Physiome VS001 (.mod)",
+   "source_detail": "initial Vvc + Vpap + Vpad + Vpa + Vpc + Vpv",
+   "note": "bookkeeping only; does not change dynamics"
+  },
+  {
+   "name": "MT_V0TH",
+   "symbol": "V_0,th",
+   "value": 568.9939641067258,
+   "unit": "ml",
+   "meaning": "reservoir unstressed volume",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "MT_VTH - MT_CTH (p_v,m - MT_DPF) at rest",
+   "note": "recomputed by simulate.run"
+  },
+  {
+   "name": "MT_DPF",
+   "symbol": "Delta p_f",
+   "value": 3.179056277465508,
+   "unit": "mmHg",
+   "meaning": "resting pressure drop across MT_RVR, added back to the filling pressure",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "MT_RVR x resting maternal CO",
+   "note": "recomputed by simulate.run"
+  },
+  {
+   "name": "MT_RVR",
+   "symbol": "R_vr",
+   "value": 0.02804269037415094,
+   "unit": "mmHg·s/ml",
+   "meaning": "venous return resistance into the thorax",
+   "part": "mother",
+   "equations": "",
+   "class": "paper",
+   "source": "Lu 2001 / Physiome VS001 (.mod)",
+   "source_detail": "Rvc = KR (Vmax_vc/Vvc)^2 + Ro at the initial Vvc",
+   "note": ""
+  }
+ ]
+}

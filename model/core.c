@@ -28,6 +28,8 @@ enum {  /* parameters, same order as model/parameters/jongen2016.json */
   MR_MODE, MR_SBP_OFF, MR_PTH_REST,
   MR_A, MR_B, MR_KB, MR_KPB, MR_KPR, MR_KS, MR_TAUB, MR_TAUPB, MR_TAUPR, MR_TAUS, MR_TAUH,
   MR_QW, MR_QPB, MR_QPR, MR_QS, MR_SW, MR_SPB, MR_SPR, MR_SS, MR_HI, MR_HPB, MR_HPR, MR_HS, MR_DS,
+  /* maternal thorax (after Lu et al. 2001; model/parameters/maternal_thorax_lu2001.json, appended) */
+  MT_MODE, MT_FA, MT_FVAB, MT_KAB, MT_CTH, MT_VTH, MT_V0TH, MT_DPF, MT_RVR,
   NPAR
 };
 
@@ -37,10 +39,11 @@ enum {  /* state */
   HM_PREV, HF_PREV, RCERA, RB, RC, XTV, XTS, XE, XR, XV,
   PG0, /* 11 pO2 Newton warm starts: m art ven tis ivs h, f art ven tis cer vil h */
   R_EBC = PG0 + 11, R_EBA, R_TPB, R_TPR, R_TS, R_H,   /* maternal HR reflex states (Randall 2019) */
+  VM_TH, MM_TH,                                        /* maternal intrathoracic venous + pulmonary blood (MT_MODE 1) */
   NSTATE
 };
 
-#define NOUT 26
+#define NOUT 29
 
 static double pO2_of(double c, double ahb, double c1, double c2, double beta, double guess) {
   double p = guess > 0.5 ? guess : 20.0;
@@ -89,11 +92,18 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    Maternal HR reflex (Randall 2019), MR_MODE: 0 = off (Jongen 2016 exactly, maternal period M_T fixed);
    1 = open loop (MHR computed from the maternal arterial pressure, M_T still fixed);
    2 = closed loop (maternal heart period = 60 / MHR).
+   Maternal thorax (after Lu et al. 2001), MT_MODE: 0 = off (Jongen 2016 exactly); 1 = on. With dpth = pth - MR_PTH_REST:
+   a fraction MT_FA of the arterial compliance lies in the thorax (p_a,m += MT_FA dpth); a fraction MT_FVAB of the
+   venous compliance lies in the abdomen, whose pressure rises by MT_KAB dpth (p_v,m += MT_FVAB MT_KAB dpth); venous
+   return crosses MT_RVR (no backflow) into an intrathoracic venous + pulmonary reservoir (VM_TH, compliance MT_CTH,
+   surrounded by dpth); the heart fills from the reservoir's transmural pressure and ejects against p_a,m - dpth.
+   MT_VTH ml of the venous pool's unstressed volume is moved to the reservoir and MT_DPF (= MT_RVR x resting CO)
+   restores the resting filling pressure, so rest is Jongen's rest.
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
              int n_in, double du, int out_every, double *out) {
-  const int mr = (int)lround(P[MR_MODE]);
+  const int mr = (int)lround(P[MR_MODE]), mt = (int)lround(P[MT_MODE]);
   int nDs = mr ? (int)lround(P[MR_DS]/dt) : 0, nbT = nDs + 1, headT = 0;
   double *bts = malloc(nbT*sizeof(double));   /* Ts history; before the run it is held at the start value */
   for (int i = 0; i < nbT; i++) bts[i] = S[R_TS];
@@ -112,17 +122,29 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double r_uta = P[M_RUTA]*(ruta ? interp(ruta, n_in, t, du) : 1.0);
 
     /* ---------- mother ---------- */
-    double pa_m = (S[VM_ART] - P[M_VART0])/P[M_CART];
-    double pv_m = (S[VM_VEN] - P[M_VVEN0])/P[M_CVEN];
+    double pthv = P[MR_PTH_REST];
+    if ((mr || mt) && pth) pthv = interp(pth, n_in, t, du);
+    double dpth = mt ? pthv - P[MR_PTH_REST] : 0.0;                                              /* thoracic excess */
+    double pa_m = (S[VM_ART] - P[M_VART0])/P[M_CART] + P[MT_FA]*dpth;
+    double pv_m = (S[VM_VEN] - (P[M_VVEN0] - (mt ? P[MT_VTH] : 0.0)))/P[M_CVEN] + P[MT_FVAB]*P[MT_KAB]*dpth;
     double pt_m = (S[VM_TIS] - P[M_VTIS0])/P[M_CTIS];
     double fr = S[VM_IVS]/P[IVS_VMAX]; if (fr < 1e-6) fr = 1e-6; if (fr > 1 - 1e-6) fr = 1 - 1e-6;
     double pivs = P[IVS_P0] + P[IVS_P1]*tan(M_PI*(fr - 0.5)) + p_ut;                         /* A(3) inverse, absolute */
     double ptm_utv = 0.5*(pivs + pv_m) - p_ut;                                                 /* A(7) */
     double rutv = rvar(ptm_utv, P[M_R0UTV], P[M_P0UTV], P[M_P1UTV], P[M_RUTV]);
     double ved_m = P[M_V0MIN] + pv_m/P[M_EMIN], vee_m = P[M_V0MAX] + pa_m/P[M_EMAX];
+    double pth_tm = 0.0, q_vr = 0.0;
+    if (mt) {                                                                                   /* thorax (Lu 2001) */
+      pth_tm = (S[VM_TH] - P[MT_V0TH])/P[MT_CTH];                                                /* transmural */
+      q_vr = (pv_m - (pth_tm + dpth))/P[MT_RVR]; if (q_vr < 0) q_vr = 0;                         /* no backflow */
+      ved_m = P[M_V0MIN] + (pth_tm + P[MT_DPF])/P[M_EMIN];
+      vee_m = P[M_V0MAX] + (pa_m - dpth)/P[M_EMAX];
+      if (ved_m < vee_m) ved_m = vee_m;
+    }
     double t_m = (mr == 2) ? 60.0/S[R_H] : P[M_T];                                             /* maternal heart period */
     double hm = 0.5*(ved_m + vee_m), qco_m = (ved_m - vee_m)/t_m;
     double qv_m = (hm - S[HM_PREV])/dt, qin_m = qco_m + qv_m;
+    if (!mt) q_vr = qin_m;                                                                      /* veins feed the heart */
     double qtisa_m = (pa_m - pt_m)/P[M_RTISA], qtisv_m = (pt_m - pv_m)/P[M_RTISV];
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
 
@@ -149,6 +171,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     /* ---------- oxygen: concentrations and pO2 ---------- */
     double c_ma = S[MM_ART]/S[VM_ART], c_mv = S[MM_VEN]/S[VM_VEN], c_mt = S[MM_TIS]/S[VM_TIS];
     double c_mi = S[MM_IVS]/S[VM_IVS], c_mh = S[MM_H]/S[HM_PREV];
+    double c_mth = mt ? S[MM_TH]/S[VM_TH] : c_mv;
     double c_fa = S[MF_ART]/S[VF_ART], c_fv = S[MF_VEN]/S[VF_VEN], c_ft = S[MF_TIS]/S[VF_TIS];
     double c_fc = S[MF_CER]/S[VF_CER], c_fl = S[MF_VIL]/S[VF_VIL], c_fh = S[MF_H]/S[HF_PREV];
     pg[0] = pO2_of(c_ma, ahbm, P[O_C1M], P[O_C2M], P[O_BETA], pg[0]);
@@ -168,7 +191,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double qm_tm = pg[2] >= P[O_THTISM] ? P[O_QTISM] : P[O_QTISM]*pg[2]/P[O_THTISM];               /* A(17) */
     double qm_ft = pg[7] >= P[O_THTIS] ? P[O_QTISF] : P[O_QTISF]*pg[7]/P[O_THTIS];
     double qm_fc = pg[8] >= P[O_THCER] ? P[O_QCERF] : P[O_QCERF]*pg[8]/P[O_THCER];
-    double fm_h_a = UP(qco_m, c_mh, c_ma), fm_v_h = UP(qin_m, c_mv, c_mh);
+    double fm_h_a = UP(qco_m, c_mh, c_ma), fm_v_h = UP(qin_m, c_mth, c_mh), fm_v_th = UP(q_vr, c_mv, c_mth);
+    if (!mt) fm_v_th = fm_v_h;
     double fm_a_t = UP(qtisa_m, c_ma, c_mt), fm_t_v = UP(qtisv_m, c_mt, c_mv);
     double fm_a_i = UP(quta, c_ma, c_mi), fm_i_v = UP(qutv, c_mi, c_mv);
     double ff_h_a = UP(qco, c_fh, c_fa), ff_v_h = UP(qin, c_fv, c_fh);
@@ -192,9 +216,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     head = (head + 1) % nb;
 
     /* ---------- maternal HR reflex: Randall 2019 (driver_baroreflex.f FCN) ---------- */
-    double sbp = pa_m + P[MR_SBP_OFF], pthv = P[MR_PTH_REST], d_r[6] = {0, 0, 0, 0, 0, 0};
+    double sbp = pa_m + P[MR_SBP_OFF], d_r[6] = {0, 0, 0, 0, 0, 0};
     if (mr) {
-      if (pth) pthv = interp(pth, n_in, t, du);
       double ewc = wall_strain(sbp, P[MR_A], P[MR_QW], P[MR_SW]);              /* carotid: SBP */
       double ewa = wall_strain(sbp - pthv, P[MR_A], P[MR_QW], P[MR_SW]);       /* aortic: SBP - Pth */
       double nb_r = P[MR_B]*(ewc - S[R_EBC]) + (1 - P[MR_B])*(ewa - S[R_EBA]);
@@ -218,6 +241,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       o[8] = qtisa; o[9] = qcera; o[10] = quma; o[11] = qumv; o[12] = S[VF_VIL]; o[13] = rb; o[14] = S[RC];
       o[15] = p_ut; o[16] = es; o[17] = ev; o[18] = zTv; o[19] = zTs; o[20] = qco;
       o[21] = mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
+      o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm;
       rec++;
     }
 
@@ -225,11 +249,12 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     S[VM_ART] += dt*(qco_m - qtisa_m - quta);
     S[VM_TIS] += dt*(qtisa_m - qtisv_m);
     S[VM_IVS] += dt*(quta - qutv);
-    S[VM_VEN] += dt*(qtisv_m + qutv - qin_m);
+    S[VM_VEN] += dt*(qtisv_m + qutv - q_vr);
     S[MM_ART] += dt*(fm_h_a - fm_a_t - fm_a_i);
     S[MM_TIS] += dt*(fm_a_t - fm_t_v - qm_tm);
     S[MM_IVS] += dt*(fm_a_i - fm_i_v - qd_pl);
-    S[MM_VEN] += dt*(fm_t_v + fm_i_v - fm_v_h + qd_lu);
+    S[MM_VEN] += dt*(fm_t_v + fm_i_v - fm_v_th + qd_lu);
+    if (mt) { S[VM_TH] += dt*(q_vr - qin_m); S[MM_TH] += dt*(fm_v_th - fm_v_h); }
     S[MM_H] += dt*(fm_v_h - fm_h_a);
     S[VF_ART] += dt*(qco - qtisa - qcera - quma);
     S[VF_TIS] += dt*(qtisa - qtisv);

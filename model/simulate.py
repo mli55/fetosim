@@ -23,6 +23,7 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 PARAMETER_SET = HERE / 'parameters/jongen2016.json'
 MATERNAL_HR_SET = HERE / 'parameters/maternal_hr_randall2019.json'   # appended after Jongen 2016 (core.c MR_*)
+MATERNAL_THORAX_SET = HERE / 'parameters/maternal_thorax_lu2001.json'  # appended after that (core.c MT_*)
 
 
 def load_parameter_set(path=PARAMETER_SET):
@@ -36,9 +37,9 @@ PARAMS, ENTRIES, NAMES, IDX = [], [], [], {}
 
 
 def reload_parameters():
-    """(Re)read the two parameter files into PARAMS, ENTRIES, NAMES, IDX and drop the cached steady state."""
+    """(Re)read the three parameter files into PARAMS, ENTRIES, NAMES, IDX and drop the cached steady state."""
     PARAMS.clear(); ENTRIES.clear(); NAMES.clear(); IDX.clear()
-    for path in (PARAMETER_SET, MATERNAL_HR_SET):
+    for path in (PARAMETER_SET, MATERNAL_HR_SET, MATERNAL_THORAX_SET):
         p, e = load_parameter_set(path); PARAMS.extend(p); ENTRIES.extend(e)
     NAMES.extend(p[0] for p in PARAMS); IDX.update({n: i for i, n in enumerate(NAMES)})
     _SS.clear()
@@ -49,11 +50,11 @@ reload_parameters()
 STATE = ['VM_ART', 'VM_VEN', 'VM_TIS', 'VM_IVS', 'MM_ART', 'MM_VEN', 'MM_TIS', 'MM_IVS', 'MM_H',
          'VF_ART', 'VF_VEN', 'VF_TIS', 'VF_CER', 'VF_VIL', 'MF_ART', 'MF_VEN', 'MF_TIS', 'MF_CER', 'MF_VIL', 'MF_H',
          'HM_PREV', 'HF_PREV', 'RCERA', 'RB', 'RC', 'XTV', 'XTS', 'XE', 'XR', 'XV'] + [f'PG{i}' for i in range(11)] + \
-        ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H']
+        ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H', 'VM_TH', 'MM_TH']
 SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
        'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
-       'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m']
+       'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m', 'pv_m', 'q_vr_m', 'pth_tm_m']
 MR_RANDALL = ['MR_A', 'MR_B', 'MR_KB', 'MR_KPB', 'MR_KPR', 'MR_KS', 'MR_TAUB', 'MR_TAUPB', 'MR_TAUPR', 'MR_TAUS',
               'MR_TAUH', 'MR_QW', 'MR_QPB', 'MR_QPR', 'MR_QS', 'MR_SW', 'MR_SPB', 'MR_SPR', 'MR_SS', 'MR_HI', 'MR_HPB',
               'MR_HPR', 'MR_HS', 'MR_DS']                         # same order as randall2019.NAMES
@@ -142,9 +143,24 @@ def set_reflex_rest(P, S):
     return S
 
 
+def set_thorax_rest(P, S):
+    """Maternal thorax (MT_MODE 1) at Jongen's rest: move MT_VTH ml (and its O2) from the venous pool into the
+    intrathoracic reservoir, set MT_DPF = MT_RVR x resting CO and MT_V0TH so that the heart's filling pressure, and
+    therefore the whole resting state, equals Jongen's. Changes P and S in place."""
+    g = lambda n: P[IDX[n]]
+    pa = maternal_pa(S, P); pv = (S[SI['VM_VEN']] - g('M_VVEN0')) / g('M_CVEN')
+    q = ((g('M_V0MIN') + pv / g('M_EMIN')) - (g('M_V0MAX') + pa / g('M_EMAX'))) / g('M_T')
+    P[IDX['MT_DPF']] = g('MT_RVR') * q
+    P[IDX['MT_V0TH']] = g('MT_VTH') - g('MT_CTH') * (pv - g('MT_DPF'))
+    c = S[SI['MM_VEN']] / S[SI['VM_VEN']]
+    S[SI['VM_VEN']] -= g('MT_VTH'); S[SI['MM_VEN']] -= c * g('MT_VTH')
+    S[SI['VM_TH']] = g('MT_VTH'); S[SI['MM_TH']] = c * g('MT_VTH')
+    return P, S
+
+
 def run_core(P, S, put, dt=0.02, du=None, pum=None, ruta=None, noise=None, pth=None, out_every=None, copy_state=True):
     """Low-level run with a full parameter vector P: len(put)*du/dt steps from state S (copied unless copy_state=False).
-    pth is the maternal thoracic pressure for the HR reflex (None = MR_PTH_REST). Returns (outputs dict, final state, ok)."""
+    pth is the maternal thoracic pressure for the HR reflex and, with MT_MODE 1, the thorax (None = MR_PTH_REST). Returns (outputs dict, final state, ok)."""
     du = dt if du is None else du
     put = np.ascontiguousarray(put, float); n_in = len(put)
     n_steps = int(round((n_in - 1) * du / dt)) + 1
@@ -206,7 +222,7 @@ def maternal_pa(S, P):
     return (S[SI['VM_ART']] - P[IDX['M_VART0']]) / P[IDX['M_CART']]
 
 
-def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, **kw):
+def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thorax=0, **kw):
     """Model output (dict of traces every out_every*dt s), final state and ok flag for uterine pressure `put` sampled
     every `du` s. w_um is the B(2) cord-compression weight (p_um = w_um (p_ut - p_rest)); g multiplies all five
     effector gains k of A(23) (g = 1 is the published regulation). Other parameters by name; when given, the steady
@@ -214,8 +230,10 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, **kw
     mhr: maternal HR reflex (Randall 2019) mode, 0 = off (Jongen 2016, MHR fixed at 60 / M_T), 1 = open loop (MHR
     computed, maternal heart period unchanged), 2 = closed loop (maternal heart period = 60 / MHR). pth: maternal
     thoracic pressure (mmHg) sampled like put, e.g. for pushing; None = MR_PTH_REST. The SBP offset MR_SBP_OFF is
-    recomputed whenever other parameters are given, so that rest stays a steady state."""
-    P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, **kw)
+    recomputed whenever other parameters are given, so that rest stays a steady state.
+    thorax: 1 = maternal thorax after Lu 2001 (MT_*; pth then also acts on the circulation), 0 = off. Rest is
+    unchanged (set_thorax_rest)."""
+    P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, MT_MODE=thorax, **kw)
     if not kw:
         S = steady().copy()
     else:
@@ -225,6 +243,8 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, **kw
         S = S0.copy()
     if mhr:
         set_reflex_rest(P, S)
+    if thorax:
+        set_thorax_rest(P, S)
     return run_core(P, S, put, dt=dt, du=du, pth=pth, out_every=out_every)
 
 
