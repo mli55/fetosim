@@ -30,6 +30,8 @@ enum {  /* parameters, same order as model/parameters/jongen2016.json */
   MR_QW, MR_QPB, MR_QPR, MR_QS, MR_SW, MR_SPB, MR_SPR, MR_SS, MR_HI, MR_HPB, MR_HPR, MR_HS, MR_DS,
   /* maternal thorax (after Lu et al. 2001; model/parameters/maternal_thorax_lu2001.json, appended) */
   MT_MODE, MT_FA, MT_FVAB, MT_KAB, MT_CTH, MT_VTH, MT_V0TH, MT_DPF, MT_RVR,
+  /* maternal vasomotor reflex and contraction autotransfusion (model/parameters/maternal_vasomotor.json, appended) */
+  MV_MODE, MV_TS0, MV_KR, MV_KV, MV_RMIN, MV_TAUR, MV_TAUV, MA_MODE, MA_VSQ, MA_PREF,
   NPAR
 };
 
@@ -40,10 +42,11 @@ enum {  /* state */
   PG0, /* 11 pO2 Newton warm starts: m art ven tis ivs h, f art ven tis cer vil h */
   R_EBC = PG0 + 11, R_EBA, R_TPB, R_TPR, R_TS, R_H,   /* maternal HR reflex states (Randall 2019) */
   VM_TH, MM_TH,                                        /* maternal intrathoracic venous + pulmonary blood (MT_MODE 1) */
+  MV_XR, MV_XV,                                        /* maternal vasomotor effector states (MV_MODE 1) */
   NSTATE
 };
 
-#define NOUT 29
+#define NOUT 32
 
 static double pO2_of(double c, double ahb, double c1, double c2, double beta, double guess) {
   double p = guess > 0.5 ? guess : 20.0;
@@ -99,6 +102,13 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    surrounded by dpth); the heart fills from the reservoir's transmural pressure and ejects against p_a,m - dpth.
    MT_VTH ml of the venous pool's unstressed volume is moved to the reservoir and MT_DPF (= MT_RVR x resting CO)
    restores the resting filling pressure, so rest is Jongen's rest.
+   Maternal vasomotor reflex, MV_MODE 1 (needs MR_MODE > 0): the Randall sympathetic excess Ts - MV_TS0 is low-pass
+   filtered by each effector (x_R with MV_TAUR, x_V with MV_TAUV) and drives the maternal tissue arterial resistance,
+   R_tis,a = M_RTISA max(MV_RMIN, 1 + MV_KR x_R), and moves MV_KV x_V ml of venous unstressed volume into stressed
+   volume (venoconstriction). Uterine vessels are not constricted.
+   Contraction autotransfusion, MA_MODE 1: the contracting myometrium squeezes its blood into the maternal veins,
+   v_sq = MA_VSQ x_c / MA_PREF ml, x_c = uterine pressure above rest not due to abdominal (push) pressure, >= 0. It
+   enters as a shift of venous unstressed volume (blood from an unmodelled myometrial pool with venous O2).
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
@@ -126,7 +136,11 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     if ((mr || mt) && pth) pthv = interp(pth, n_in, t, du);
     double dpth = mt ? pthv - P[MR_PTH_REST] : 0.0;                                              /* thoracic excess */
     double pa_m = (S[VM_ART] - P[M_VART0])/P[M_CART] + P[MT_FA]*dpth;
-    double pv_m = (S[VM_VEN] - (P[M_VVEN0] - (mt ? P[MT_VTH] : 0.0)))/P[M_CVEN] + P[MT_FVAB]*P[MT_KAB]*dpth;
+    const int mv = mr && lround(P[MV_MODE]), ma = (int)lround(P[MA_MODE]);
+    double x_c = p_ut - P[S_PREST] - (mt ? P[MT_KAB]*dpth : 0.0); if (x_c < 0) x_c = 0;          /* contraction part */
+    double v_sh = (mv ? P[MV_KV]*S[MV_XV] : 0.0) + (ma ? P[MA_VSQ]*x_c/P[MA_PREF] : 0.0);             /* unstressed -> stressed */
+    double rtisa_m = P[M_RTISA]; if (mv) { double f = 1 + P[MV_KR]*S[MV_XR]; rtisa_m *= f > P[MV_RMIN] ? f : P[MV_RMIN]; }
+    double pv_m = (S[VM_VEN] - (P[M_VVEN0] - (mt ? P[MT_VTH] : 0.0) - v_sh))/P[M_CVEN] + P[MT_FVAB]*P[MT_KAB]*dpth;
     double pt_m = (S[VM_TIS] - P[M_VTIS0])/P[M_CTIS];
     double fr = S[VM_IVS]/P[IVS_VMAX]; if (fr < 1e-6) fr = 1e-6; if (fr > 1 - 1e-6) fr = 1 - 1e-6;
     double pivs = P[IVS_P0] + P[IVS_P1]*tan(M_PI*(fr - 0.5)) + p_ut;                         /* A(3) inverse, absolute */
@@ -145,7 +159,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double hm = 0.5*(ved_m + vee_m), qco_m = (ved_m - vee_m)/t_m;
     double qv_m = (hm - S[HM_PREV])/dt, qin_m = qco_m + qv_m;
     if (!mt) q_vr = qin_m;                                                                      /* veins feed the heart */
-    double qtisa_m = (pa_m - pt_m)/P[M_RTISA], qtisv_m = (pt_m - pv_m)/P[M_RTISV];
+    double qtisa_m = (pa_m - pt_m)/rtisa_m, qtisv_m = (pt_m - pv_m)/P[M_RTISV];
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
 
     /* ---------- fetus (transmural; p_ext = p_ut cancels in flows) ---------- */
@@ -241,7 +255,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       o[8] = qtisa; o[9] = qcera; o[10] = quma; o[11] = qumv; o[12] = S[VF_VIL]; o[13] = rb; o[14] = S[RC];
       o[15] = p_ut; o[16] = es; o[17] = ev; o[18] = zTv; o[19] = zTs; o[20] = qco;
       o[21] = mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
-      o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm;
+      o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm; o[29] = rtisa_m; o[30] = v_sh; o[31] = mr ? S[R_TS] : 0.0;
       rec++;
     }
 
@@ -276,6 +290,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     S[XE] += dt*(eE - xE)/P[G_TAUE];
     S[XR] += dt*(eR - xR)/P[G_TAUR];
     S[XV] += dt*(eV - xV)/P[G_TAUV];
+    if (mv) { double dts = S[R_TS] - P[MV_TS0];                                     /* before the Ts update */
+      S[MV_XR] += dt*(dts - S[MV_XR])/P[MV_TAUR]; S[MV_XV] += dt*(dts - S[MV_XV])/P[MV_TAUV]; }
     if (mr) for (int i = 0; i < 6; i++) S[R_EBC + i] += dt*d_r[i];
     if (!isfinite(S[VF_ART]) || !isfinite(T) || T <= 0 || S[VF_VIL] <= 0 || S[VM_IVS] <= 0) { bad = 1; break; }
     if (mr && (!isfinite(S[R_H]) || S[R_H] <= 0)) { bad = 1; break; }

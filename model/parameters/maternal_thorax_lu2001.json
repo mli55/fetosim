@@ -18,28 +18,28 @@
   {
    "name": "MT_FA",
    "symbol": "f_a",
-   "value": 0.45,
+   "value": 0.368,
    "unit": "–",
    "meaning": "intrathoracic share of maternal arterial compliance",
    "part": "mother",
    "equations": "",
    "class": "fitted",
    "source": "ours",
-   "source_detail": "fitted to the phase-1 SBP rise of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)",
-   "note": "Lu/VS001 itself: Caop/(Caop+Caod+Csap) = 0.11"
+   "source_detail": "fitted jointly with MV_KR, MV_KV to a 40 mmHg Valsalva (Fox, measured, Lu 2001 Table 13; MAP phase 1)",
+   "note": "Lu/VS001 itself: Caop/(Caop+Caod+Csap) = 0.11. Thorax-only fit to the SBP phase-1 rise: 0.45"
   },
   {
    "name": "MT_FVAB",
    "symbol": "f_v,ab",
-   "value": 0.805,
+   "value": 0.763,
    "unit": "–",
    "meaning": "abdominal share of maternal venous compliance",
    "part": "mother",
    "equations": "",
    "class": "fitted",
    "source": "ours",
-   "source_detail": "fitted to the phase-2 cardiac output of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)",
-   "note": "Lu 2001 has no abdomen; its stiff venous P-V curve plays this role"
+   "source_detail": "fitted jointly with MV_KR, MV_KV to a 40 mmHg Valsalva (Fox, measured, Lu 2001 Table 13; CO phase 2)",
+   "note": "Lu 2001 has no abdomen; its stiff venous P-V curve plays this role. Thorax-only fit: 0.805"
   },
   {
    "name": "MT_KAB",

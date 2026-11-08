@@ -11,8 +11,10 @@ maternal circulation is lumped (one heart, arteries, tissue, veins), so the graf
 MT_V0TH and MT_DPF are derived from Jongen's rest (simulate.set_thorax_rest) so rest is unchanged; the values written
 here are for the default parameter set.
 
-MT_FA and MT_FVAB are calibrated on a non-pregnant Valsalva manoeuvre (Lu 2001 Table 13 measured values, Fox et al.);
-see the ARPH experiment maternal_thorax_graft_2026-11-07. Run from the repo root:
+MT_FA and MT_FVAB are calibrated on a non-pregnant Valsalva manoeuvre (Lu 2001 Table 13 measured values, Fox et al.).
+Defaults 0.368 / 0.763 come from the joint fit with the vasomotor reflex (ARPH experiment
+maternal_vasomotor_autotransfusion_2026-11-07); the earlier thorax-only fit was 0.45 / 0.805
+(maternal_thorax_graft_2026-11-07). Run from the repo root:
 python model/parameters/build_maternal_thorax_lu2001.py [MT_FA MT_FVAB]
 """
 import json
@@ -38,11 +40,11 @@ def entries(fa, fvab, v0th, dpf):
     return [
         E('MT_MODE', 'mode', 0, '–', 'maternal thorax: 0 off (Jongen 2016), 1 on', 'our choice', 'ours', 'off by default'),
         E('MT_FA', 'f_a', fa, '–', 'intrathoracic share of maternal arterial compliance', 'fitted', 'ours',
-          'fitted to the phase-1 SBP rise of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)',
-          'Lu/VS001 itself: Caop/(Caop+Caod+Csap) = 0.11'),
+          'fitted jointly with MV_KR, MV_KV to a 40 mmHg Valsalva (Fox, measured, Lu 2001 Table 13; MAP phase 1)',
+          'Lu/VS001 itself: Caop/(Caop+Caod+Csap) = 0.11. Thorax-only fit to the SBP phase-1 rise: 0.45'),
         E('MT_FVAB', 'f_v,ab', fvab, '–', 'abdominal share of maternal venous compliance', 'fitted', 'ours',
-          'fitted to the phase-2 cardiac output of a 40 mmHg Valsalva (Fox, measured, in Lu 2001 Table 13)',
-          'Lu 2001 has no abdomen; its stiff venous P-V curve plays this role'),
+          'fitted jointly with MV_KR, MV_KV to a 40 mmHg Valsalva (Fox, measured, Lu 2001 Table 13; CO phase 2)',
+          'Lu 2001 has no abdomen; its stiff venous P-V curve plays this role. Thorax-only fit: 0.805'),
         E('MT_KAB', 'k_ab', 1.0, '–', 'abdominal pressure rise per thoracic pressure rise', 'our choice', 'ours',
           'strain and pushing are held with the abdominal wall; intra-abdominal and intrathoracic pressures rise together'),
         E('MT_CTH', 'C_th', 1 / K1_VC + C_PULM, 'ml/mmHg', 'intrathoracic venous + pulmonary compliance', 'paper', lu,
