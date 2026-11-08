@@ -24,6 +24,10 @@ enum {  /* parameters, same order as model/parameters/jongen2016.json */
   G_DTV, G_TAUTV, G_KTV, G_DTS, G_TAUTS, G_KTS, G_DE, G_TAUE, G_KE, G_DR, G_TAUR, G_KR, G_DV, G_TAUV, G_KV,
   /* scenario */
   S_PREST, S_WUM, S_GAIN, S_MRT, S_MRB, S_MEV,
+  /* maternal heart-rate reflex (Randall et al. 2019; model/parameters/maternal_hr_randall2019.json, appended) */
+  MR_MODE, MR_SBP_OFF, MR_PTH_REST,
+  MR_A, MR_B, MR_KB, MR_KPB, MR_KPR, MR_KS, MR_TAUB, MR_TAUPB, MR_TAUPR, MR_TAUS, MR_TAUH,
+  MR_QW, MR_QPB, MR_QPR, MR_QS, MR_SW, MR_SPB, MR_SPR, MR_SS, MR_HI, MR_HPB, MR_HPR, MR_HS, MR_DS,
   NPAR
 };
 
@@ -32,10 +36,11 @@ enum {  /* state */
   VF_ART, VF_VEN, VF_TIS, VF_CER, VF_VIL, MF_ART, MF_VEN, MF_TIS, MF_CER, MF_VIL, MF_H,
   HM_PREV, HF_PREV, RCERA, RB, RC, XTV, XTS, XE, XR, XV,
   PG0, /* 11 pO2 Newton warm starts: m art ven tis ivs h, f art ven tis cer vil h */
-  NSTATE = PG0 + 11
+  R_EBC = PG0 + 11, R_EBA, R_TPB, R_TPR, R_TS, R_H,   /* maternal HR reflex states (Randall 2019) */
+  NSTATE
 };
 
-#define NOUT 21
+#define NOUT 26
 
 static double pO2_of(double c, double ahb, double c1, double c2, double beta, double guess) {
   double p = guess > 0.5 ? guess : 20.0;
@@ -73,13 +78,25 @@ static double interp(const double *a, int n, double t, double du) {
   double w = x - i; return a[i]*(1 - w) + a[i + 1]*w;
 }
 
+static double wall_strain(double p, double A, double qw, double sw) {  /* Randall 2019 arterial wall strain */
+  double e = exp(-qw*(p - sw)); return 1 - sqrt((1 + e)/(A + e));
+}
+
 /* Simulate n_steps of size dt. Inputs sampled every du seconds (n_in samples), linear interpolation:
    put = uterine pressure [mmHg]; pum = extra umbilical pressure [mmHg] added to w_um*(p_ut-p_rest) (may be NULL);
-   ruta = multiplier of R_uta (NULL = 1); noise = unit-SD noise N(t) (NULL = none).
+   ruta = multiplier of R_uta (NULL = 1); noise = unit-SD noise N(t) (NULL = none);
+   pth = maternal thoracic pressure [mmHg] for the HR reflex (NULL = MR_PTH_REST).
+   Maternal HR reflex (Randall 2019), MR_MODE: 0 = off (Jongen 2016 exactly, maternal period M_T fixed);
+   1 = open loop (MHR computed from the maternal arterial pressure, M_T still fixed);
+   2 = closed loop (maternal heart period = 60 / MHR).
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
-             const double *put, const double *pum, const double *ruta, const double *noise, int n_in, double du,
-             int out_every, double *out) {
+             const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
+             int n_in, double du, int out_every, double *out) {
+  const int mr = (int)lround(P[MR_MODE]);
+  int nDs = mr ? (int)lround(P[MR_DS]/dt) : 0, nbT = nDs + 1, headT = 0;
+  double *bts = malloc(nbT*sizeof(double));   /* Ts history; before the run it is held at the start value */
+  for (int i = 0; i < nbT; i++) bts[i] = S[R_TS];
   const double ahbf = P[O_ALPHA]*P[O_HBF], ahbm = P[O_ALPHA]*P[O_HBM];
   int nTv = (int)lround(P[G_DTV]/dt), nTs = (int)lround(P[G_DTS]/dt), nE = (int)lround(P[G_DE]/dt);
   int nR = (int)lround(P[G_DR]/dt), nV = (int)lround(P[G_DV]/dt);
@@ -103,7 +120,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double ptm_utv = 0.5*(pivs + pv_m) - p_ut;                                                 /* A(7) */
     double rutv = rvar(ptm_utv, P[M_R0UTV], P[M_P0UTV], P[M_P1UTV], P[M_RUTV]);
     double ved_m = P[M_V0MIN] + pv_m/P[M_EMIN], vee_m = P[M_V0MAX] + pa_m/P[M_EMAX];
-    double hm = 0.5*(ved_m + vee_m), qco_m = (ved_m - vee_m)/P[M_T];
+    double t_m = (mr == 2) ? 60.0/S[R_H] : P[M_T];                                             /* maternal heart period */
+    double hm = 0.5*(ved_m + vee_m), qco_m = (ved_m - vee_m)/t_m;
     double qv_m = (hm - S[HM_PREV])/dt, qin_m = qco_m + qv_m;
     double qtisa_m = (pa_m - pt_m)/P[M_RTISA], qtisv_m = (pt_m - pv_m)/P[M_RTISV];
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
@@ -173,11 +191,33 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double eTv = DEL(bv, nTv), eTs = DEL(bs, nTs), eE = DEL(bs, nE), eR = DEL(bs, nR), eV = DEL(bs, nV);
     head = (head + 1) % nb;
 
+    /* ---------- maternal HR reflex: Randall 2019 (driver_baroreflex.f FCN) ---------- */
+    double sbp = pa_m + P[MR_SBP_OFF], pthv = P[MR_PTH_REST], d_r[6] = {0, 0, 0, 0, 0, 0};
+    if (mr) {
+      if (pth) pthv = interp(pth, n_in, t, du);
+      double ewc = wall_strain(sbp, P[MR_A], P[MR_QW], P[MR_SW]);              /* carotid: SBP */
+      double ewa = wall_strain(sbp - pthv, P[MR_A], P[MR_QW], P[MR_SW]);       /* aortic: SBP - Pth */
+      double nb_r = P[MR_B]*(ewc - S[R_EBC]) + (1 - P[MR_B])*(ewa - S[R_EBA]);
+      double gpb = 1/(1 + exp(-P[MR_QPB]*(nb_r - P[MR_SPB]))), gs = 1/(1 + exp(P[MR_QS]*(nb_r - P[MR_SS])));
+      double gpr = 1/(1 + exp(P[MR_QPR]*(pthv - P[MR_SPR])));
+      double htil = P[MR_HI]*(1 - P[MR_HPB]*S[R_TPB] + P[MR_HPR]*S[R_TPR] + P[MR_HS]*S[R_TS]);
+      bts[headT] = S[R_TS];
+      double ts_lag = bts[(headT - nDs + nbT) % nbT];                             /* Ts(t - Ds) */
+      headT = (headT + 1) % nbT;
+      d_r[0] = (-S[R_EBC] + P[MR_KB]*ewc)/P[MR_TAUB];
+      d_r[1] = (-S[R_EBA] + P[MR_KB]*ewa)/P[MR_TAUB];
+      d_r[2] = (-S[R_TPB] + P[MR_KPB]*gpb)/P[MR_TAUPB];
+      d_r[3] = (-S[R_TPR] + P[MR_KPR]*gpr)/P[MR_TAUPR];
+      d_r[4] = (-ts_lag + P[MR_KS]*gs)/P[MR_TAUS];
+      d_r[5] = (-S[R_H] + htil)/P[MR_TAUH];
+    }
+
     if (out_every > 0 && k % out_every == 0) {
       double *o = out + (size_t)rec*NOUT;
       o[0] = 60.0/T; o[1] = pa; o[2] = pg[5]; o[3] = quta; o[4] = qutv; o[5] = S[VM_IVS]; o[6] = pg[7]; o[7] = pg[8];
       o[8] = qtisa; o[9] = qcera; o[10] = quma; o[11] = qumv; o[12] = S[VF_VIL]; o[13] = rb; o[14] = S[RC];
       o[15] = p_ut; o[16] = es; o[17] = ev; o[18] = zTv; o[19] = zTs; o[20] = qco;
+      o[21] = mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
       rec++;
     }
 
@@ -211,9 +251,11 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     S[XE] += dt*(eE - xE)/P[G_TAUE];
     S[XR] += dt*(eR - xR)/P[G_TAUR];
     S[XV] += dt*(eV - xV)/P[G_TAUV];
+    if (mr) for (int i = 0; i < 6; i++) S[R_EBC + i] += dt*d_r[i];
     if (!isfinite(S[VF_ART]) || !isfinite(T) || T <= 0 || S[VF_VIL] <= 0 || S[VM_IVS] <= 0) { bad = 1; break; }
+    if (mr && (!isfinite(S[R_H]) || S[R_H] <= 0)) { bad = 1; break; }
   }
-  free(bv); free(bs);
+  free(bv); free(bs); free(bts);
   return bad;
 }
 

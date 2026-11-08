@@ -22,6 +22,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 PARAMETER_SET = HERE / 'parameters/jongen2016.json'
+MATERNAL_HR_SET = HERE / 'parameters/maternal_hr_randall2019.json'   # appended after Jongen 2016 (core.c MR_*)
 
 
 def load_parameter_set(path=PARAMETER_SET):
@@ -31,18 +32,44 @@ def load_parameter_set(path=PARAMETER_SET):
     return [(e['name'], e['value'], e['source_detail']) for e in entries], entries
 
 
-PARAMS, ENTRIES = load_parameter_set()
+PARAMS, ENTRIES, NAMES, IDX = [], [], [], {}
 
-NAMES = [p[0] for p in PARAMS]
-IDX = {n: i for i, n in enumerate(NAMES)}
+
+def reload_parameters():
+    """(Re)read the two parameter files into PARAMS, ENTRIES, NAMES, IDX and drop the cached steady state."""
+    PARAMS.clear(); ENTRIES.clear(); NAMES.clear(); IDX.clear()
+    for path in (PARAMETER_SET, MATERNAL_HR_SET):
+        p, e = load_parameter_set(path); PARAMS.extend(p); ENTRIES.extend(e)
+    NAMES.extend(p[0] for p in PARAMS); IDX.update({n: i for i, n in enumerate(NAMES)})
+    _SS.clear()
+
+
+_SS = {}
+reload_parameters()
 STATE = ['VM_ART', 'VM_VEN', 'VM_TIS', 'VM_IVS', 'MM_ART', 'MM_VEN', 'MM_TIS', 'MM_IVS', 'MM_H',
          'VF_ART', 'VF_VEN', 'VF_TIS', 'VF_CER', 'VF_VIL', 'MF_ART', 'MF_VEN', 'MF_TIS', 'MF_CER', 'MF_VIL', 'MF_H',
-         'HM_PREV', 'HF_PREV', 'RCERA', 'RB', 'RC', 'XTV', 'XTS', 'XE', 'XR', 'XV'] + [f'PG{i}' for i in range(11)]
+         'HM_PREV', 'HF_PREV', 'RCERA', 'RB', 'RC', 'XTV', 'XTS', 'XE', 'XR', 'XV'] + [f'PG{i}' for i in range(11)] + \
+        ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H']
 SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
-       'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co']
+       'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
+       'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m']
+MR_RANDALL = ['MR_A', 'MR_B', 'MR_KB', 'MR_KPB', 'MR_KPR', 'MR_KS', 'MR_TAUB', 'MR_TAUPB', 'MR_TAUPR', 'MR_TAUS',
+              'MR_TAUH', 'MR_QW', 'MR_QPB', 'MR_QPR', 'MR_QS', 'MR_SW', 'MR_SPB', 'MR_SPR', 'MR_SS', 'MR_HI', 'MR_HPB',
+              'MR_HPR', 'MR_HS', 'MR_DS']                         # same order as randall2019.NAMES
 
 _lib = None
+_R = None
+
+
+def _randall():
+    """model/randall2019.py, loaded by path so this file works both as fetosim.model.simulate and on its own."""
+    global _R
+    if _R is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('fetosim_randall2019', HERE / 'randall2019.py')
+        _R = importlib.util.module_from_spec(spec); spec.loader.exec_module(_R)
+    return _R
 
 
 def lib():
@@ -54,7 +81,7 @@ def lib():
             so.parent.mkdir(exist_ok=True)
             subprocess.run(['cc', '-O3', '-shared', '-fPIC', '-o', str(so), str(src), '-lm'], check=True)
         L = ctypes.CDLL(str(so)); d = ctypes.POINTER(ctypes.c_double)
-        L.simulate.argtypes = [d, d, ctypes.c_int, ctypes.c_double, d, d, d, d, ctypes.c_int, ctypes.c_double, ctypes.c_int, d]
+        L.simulate.argtypes = [d, d, ctypes.c_int, ctypes.c_double, d, d, d, d, d, ctypes.c_int, ctypes.c_double, ctypes.c_int, d]
         L.simulate.restype = ctypes.c_int
         assert L.n_par() == len(NAMES) and L.n_state() == len(STATE) and L.n_out() == len(OUT)
         _lib = L
@@ -100,23 +127,36 @@ def initial_state(P):
         S[SI[('MM_' if k[0] == 'M' else 'MF_') + {'ART': 'ART', 'VEN': 'VEN', 'TIS': 'TIS', 'IVS': 'IVS', 'H': 'H', 'CER': 'CER', 'VIL': 'VIL'}[k[2:]]]] = cO2(p, k[0] == 'F') * vol[k]
         S[SI['PG0'] + i] = p
     S[SI['RCERA']] = g('F_RCERA')
+    set_reflex_rest(P, S)
     return S
 
 
-def run_core(P, S, put, dt=0.02, du=None, pum=None, ruta=None, noise=None, out_every=None, copy_state=True):
-    """Low-level run with a full parameter vector P: len(put)*du/dt steps from state S (copied unless copy_state=False). Returns (outputs dict, final state, ok)."""
+def set_reflex_rest(P, S):
+    """Put the maternal HR reflex states (Randall 2019) at rest: SBP = MR_SW (the resting SBP), Pth = MR_PTH_REST and
+    MHR = 60 / M_T. The nominal Randall parameters are built so that this is a steady state."""
+    R = _randall()
+    p = np.array([P[IDX[n]] for n in MR_RANDALL])
+    y0 = R.initial_conditions(p, P[IDX['MR_SW']], P[IDX['MR_PTH_REST']], 60.0 / P[IDX['M_T']])
+    for n, v in zip(['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H'], y0):
+        S[SI[n]] = v
+    return S
+
+
+def run_core(P, S, put, dt=0.02, du=None, pum=None, ruta=None, noise=None, pth=None, out_every=None, copy_state=True):
+    """Low-level run with a full parameter vector P: len(put)*du/dt steps from state S (copied unless copy_state=False).
+    pth is the maternal thoracic pressure for the HR reflex (None = MR_PTH_REST). Returns (outputs dict, final state, ok)."""
     du = dt if du is None else du
     put = np.ascontiguousarray(put, float); n_in = len(put)
     n_steps = int(round((n_in - 1) * du / dt)) + 1
     out_every = out_every or max(1, int(round(0.5 / dt)))
     nrec = (n_steps + out_every - 1) // out_every
     out = np.zeros(nrec * len(OUT)); S = np.array(S, float) if copy_state else S
-    arr = [None if a is None else np.ascontiguousarray(a, float) for a in (pum, ruta, noise)]
+    arr = [None if a is None else np.ascontiguousarray(a, float) for a in (pum, ruta, noise, pth)]
     for a in arr:
         assert a is None or len(a) == n_in
     P = np.ascontiguousarray(P, float)
     bad = lib().simulate(_ptr(P), _ptr(S), n_steps, dt, _ptr(put), _ptr(arr[0]), _ptr(arr[1]), _ptr(arr[2]),
-                         n_in, du, out_every, _ptr(out))
+                         _ptr(arr[3]), n_in, du, out_every, _ptr(out))
     o = out.reshape(nrec, len(OUT))
     res = {k: o[:, i] for i, k in enumerate(OUT)}; res['t'] = np.arange(nrec) * out_every * dt
     return res, S, bad == 0
@@ -150,7 +190,6 @@ DU = 0.5                        # input grid for p_ut, s (linearly interpolated 
 OE = 5                          # core output every 5 steps = 0.1 s
 TONE = 15.0                     # resting uterine pressure p_rest, mmHg (A §2.4)
 P_CON = 70.0                    # reference contraction amplitude above rest, mmHg (A §2.4; peak 85 mmHg)
-_SS = {}
 
 
 def steady():
@@ -162,13 +201,31 @@ def steady():
     return _SS['S']
 
 
-def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, **kw):
+def maternal_pa(S, P):
+    """Maternal arterial pressure p_a,m (mmHg) of state S."""
+    return (S[SI['VM_ART']] - P[IDX['M_VART0']]) / P[IDX['M_CART']]
+
+
+def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, **kw):
     """Model output (dict of traces every out_every*dt s), final state and ok flag for uterine pressure `put` sampled
     every `du` s. w_um is the B(2) cord-compression weight (p_um = w_um (p_ut - p_rest)); g multiplies all five
     effector gains k of A(23) (g = 1 is the published regulation). Other parameters by name; when given, the steady
-    state is recomputed for them."""
-    P = params(S_WUM=w_um, S_GAIN=g, **kw)
-    return run_core(P, steady() if not kw else steady_state(P), put, dt=dt, du=du, out_every=out_every)
+    state is recomputed for them.
+    mhr: maternal HR reflex (Randall 2019) mode, 0 = off (Jongen 2016, MHR fixed at 60 / M_T), 1 = open loop (MHR
+    computed, maternal heart period unchanged), 2 = closed loop (maternal heart period = 60 / MHR). pth: maternal
+    thoracic pressure (mmHg) sampled like put, e.g. for pushing; None = MR_PTH_REST. The SBP offset MR_SBP_OFF is
+    recomputed whenever other parameters are given, so that rest stays a steady state."""
+    P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, **kw)
+    if not kw:
+        S = steady().copy()
+    else:
+        S0 = steady_state(params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **kw))
+        if 'MR_SBP_OFF' not in kw:
+            P[IDX['MR_SBP_OFF']] = P[IDX['MR_SW']] - maternal_pa(S0, P)
+        S = S0.copy()
+    if mhr:
+        set_reflex_rest(P, S)
+    return run_core(P, S, put, dt=dt, du=du, pth=pth, out_every=out_every)
 
 
 def simulate(put, w_um, g, nb, bin_s=2):
