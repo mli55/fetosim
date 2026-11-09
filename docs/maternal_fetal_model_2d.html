@@ -378,7 +378,10 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .callout.on text.n { fill: var(--on-accent); }
 /* hover: the part under the pointer lights up in both the cross-section and the circuit */
 #dia .part.hov, #circ .part.hov { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 75%, transparent)); }
-#dia.focus .part.hov:not(.on), #dia.focus .callout.hov:not(.on), #circ.focus .part.hov:not(.on) { opacity: .75; }
+#dia.hovering .part:not(.hov), #dia.hovering .callout:not(.hov), #circ.hovering .part:not(.hov) { opacity: .22; }   /* the rest fades */
+#dia.hovering .part.hov, #dia.hovering .callout.hov, #circ.hovering .part.hov { opacity: 1; }
+#circ .part.hov .nd, #circ .part.hov .bx, #circ .part.hov .rcp { stroke: var(--accent); }
+.callout.hov circle.b { fill: var(--accent); } .callout.hov text.n { fill: var(--on-accent); }
 .callout.hov circle.b { stroke: var(--accent); stroke-width: 2.4; } .callout.hov text:not(.n) { fill: var(--accent); }
 .callout.hov line { stroke: var(--accent); opacity: 1; }
 [hidden] { display: none !important; }
@@ -1417,7 +1420,7 @@ const circ = $('#circ');
 circ.innerHTML = circuitSVG();
 /* hover sync: a part under the pointer in either drawing lights up in both (cross-section parts, callouts, circuit groups) */
 function hoverPart(key) {
-  [dia, circ].forEach(svg => svg.querySelectorAll('.part, .callout').forEach(el => el.classList.toggle('hov', !!key && el.dataset.part === key)));
+  [dia, circ].forEach(svg => { svg.classList.toggle('hovering', !!key); svg.querySelectorAll('.part, .callout').forEach(el => el.classList.toggle('hov', !!key && el.dataset.part === key)); });
 }
 [dia, circ].forEach(svg => {
   svg.addEventListener('pointerover', e => { const g = e.target.closest('[data-part]'); hoverPart(g ? (GROUP_OF[g.dataset.part] || GROUP[g.dataset.part]).key : null); });
