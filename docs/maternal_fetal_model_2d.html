@@ -155,10 +155,12 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .eqs { display: grid; gap: 8px; }
 .eq { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; gap: 4px; background: color-mix(in srgb, var(--bg) 50%, var(--surface)); }
 .eq .no { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
-.eq .m { font-family: var(--font-math); font-size: 17px; line-height: 1.45; overflow-x: auto; }
+.eq .m { font-family: var(--font-math); font-size: 17px; line-height: 1.45; }
 .eq .m i { font-style: italic; }
 .eq .m sub, .eq .m sup { font-size: 70%; }
-.eq .ml { display: block; white-space: nowrap; }
+.eq .ml { display: block; }   /* wraps instead of scrolling */
+.cases { display: inline-grid; grid-template-columns: auto auto; gap: 2px 1.1em; align-items: center; vertical-align: middle; margin-left: .2em; padding-left: .45em; border-left: 1.6px solid currentColor; border-radius: 9px 0 0 9px; }
+.cases > span:nth-child(even) { font-size: 92%; }
 .fr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 .12em; font-size: 88%; line-height: 1.2; }
 .fr > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .2em .05em; }
 .fr > span:last-child { padding: .05em .2em 0; }
@@ -585,7 +587,7 @@ const PARTS = {
     role: 'The muscle that contracts. In the model it is not a compartment of its own: it is the external pressure <i>p</i><sub>ut</sub> on the intervillous space, on the uterine veins and on every fetal compartment.',
     during: 'p<sub>ut</sub> rises from 15 to 85 mmHg. The uterine veins narrow and IVS pressure rises, so less blood enters through the spiral arteries.',
     eqs: [
-      ['A(8)', '<i>p</i><sub>ut</sub> = <i>p</i><sub>rest</sub> + <i>p</i><sub>con</sub> sin²<span class="fr"><span>π(<i>t</i> − <i>t</i><sub>con</sub>)</span><span><i>T</i><sub>con</sub></span></span> for <i>t</i><sub>con</sub> &lt; <i>t</i> &lt; <i>t</i><sub>con</sub> + <i>T</i><sub>con</sub>, otherwise <i>p</i><sub>rest</sub>', 'Paper reference: 15 + 70 mmHg for 60 s. CTG fits use the TOCO pulses below.'],
+      ['A(8)', '<i>p</i><sub>ut</sub> = <span class="cases"><span><i>p</i><sub>rest</sub> + <i>p</i><sub>con</sub> sin²<span class="fr"><span>π(<i>t</i> − <i>t</i><sub>con</sub>)</span><span><i>T</i><sub>con</sub></span></span></span><span><i>t</i><sub>con</sub> &lt; <i>t</i> &lt; <i>t</i><sub>con</sub> + <i>T</i><sub>con</sub></span><span><i>p</i><sub>rest</sub></span><span>otherwise</span></span>', 'Paper reference: 15 + 70 mmHg for 60 s. CTG fits use the TOCO pulses below.'],
       ['A(2)', '<i>p</i><sub>tm</sub> = <i>p</i> − <i>p</i><sub>ext</sub>, &nbsp; <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> for the IVS and all fetal compartments', 'Volumes follow transmural pressure, flows absolute pressure, A(5).'],
       ['A(6)–(7)', '<i>R</i><sub>utv</sub> = max(<span class="fr"><span><i>R</i><sub>0,utv</sub></span><span><i>f</i>(<i>p</i><sub>tm,utv</sub>)²</span></span>, <i>R</i><sub>utv,ref</sub>), &nbsp; <i>p</i><sub>tm,utv</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>IVS</sub> + <i>p</i><sub>ven</sub>) − <i>p</i><sub>ut</sub>', 'Uterine vein collapse law.'],
     ],
