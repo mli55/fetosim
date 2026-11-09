@@ -1423,7 +1423,6 @@ const circ = $('#circ');
 circ.innerHTML = circuitSVG();
 /* hover sync: a part under the pointer in either drawing lights up in both (cross-section parts, callouts, circuit groups) */
 function hoverPart(key) {
-  if (!zoomKey) key = null;                       // hover links the drawings only while zoomed in; the overview stays calm
   [dia, circ].forEach(svg => { svg.classList.toggle('hovering', !!key); svg.querySelectorAll('.part, .callout').forEach(el => el.classList.toggle('hov', !!key && el.dataset.part === key)); });
 }
 [dia, circ].forEach(svg => {
