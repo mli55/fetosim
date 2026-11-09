@@ -266,6 +266,8 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .ann.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
 .prow.hit { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: inset 3px 0 0 var(--accent); padding-left: 8px; border-radius: 4px; }
 .ann.c2 { border-left-color: var(--c2); }
+.ann.v { border-left-color: var(--muted); } .annrows.vrow { display: flex; flex-wrap: wrap; gap: 3px; } .vd { color: var(--muted); font-size: 11px; }
+.eq.hit { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .ann.c3 { border-left-color: var(--c3); background: color-mix(in srgb, var(--c3-bg) 55%, var(--surface)); }
 .ann.c4 { border-left-color: var(--c4); background: color-mix(in srgb, var(--c4-bg) 55%, var(--surface)); }
 .ann:hover, .ann:focus-visible { border-color: var(--accent); }
@@ -872,13 +874,51 @@ Object.entries({
 }).forEach(([k, names]) => names.split(' ').forEach(n => { PARAM_ANCHOR[n] = k; }));
 // every parameter must have an anchor in its own part; fall back to the group's first anchor
 PARAMS.forEach(r => { const gk = GROUP_OF[r.part].key; if (!PARAM_ANCHOR[r.name] || ANCHORS[PARAM_ANCHOR[r.name]].g !== gk) PARAM_ANCHOR[r.name] = Object.keys(ANCHORS).find(k => ANCHORS[k].g === gk); });
-/* rows of one numbered part, grouped by anchor (only those passing the class filter) */
+/* close-up labels: the quantities each element carries (symbol, what it is, defining equation in the side panel).
+   Parameters (T_ref, E_min, ...) are listed in the side panel only. */
+const VS = (x, y) => `<i>${x}</i>${y ? `<sub>${y}</sub>` : ''}`, VO2 = y => `pO<sub>2${y ? ',' + y : ''}</sub>`;
+const FS_ANCHOR = ['m_hr', 'm_thx', 'm_vaso', 'm_auto'];   // fetosim only
+const VARS = {
+  m_heart: [[VS('q', 'CO,m'), 'cardiac output', 'A(9)–(10)'], [VS('T', 'm'), 'heart period', 'A(9)–(10)']],
+  m_o2: [[VS('Q', 'D,lung'), 'lung O₂ uptake', 'A(16)'], [VO2('m'), 'maternal blood O₂', 'A(16)']],
+  m_art: [[VS('p', 'a,m'), 'arterial pressure (BP)', 'A(1)'], [VS('V', 'art,m'), 'volume', 'A(1)']],
+  m_tis: [[VS('q', 'tis,m'), 'tissue flow', 'A(1)'], [VS('Q', 'M,tis,m'), 'O₂ use', 'A(17)']],
+  m_ven: [[VS('p', 'v,m'), 'venous pressure', 'A(1)'], [VS('V', 'ven,m'), 'volume', 'A(1)']],
+  m_hr: [['MHR', 'heart rate', 'HR reflex'], [VS('T', 'pb') + ', ' + VS('T', 's'), 'vagal, sympathetic tone', 'HR reflex']],
+  m_thx: [[VS('P', 'th'), 'intrathoracic pressure', 'Thorax'], [VS('q', 'vr'), 'venous return, one way', 'Thorax']],
+  m_vaso: [[VS('x', 'R'), 'tissue resistance drive', 'Vasomotor'], [VS('x', 'V'), 'venoconstriction', 'Vasomotor']],
+  m_auto: [[VS('x', 'c'), 'contraction drive', 'Autotransfusion'], [VS('V', 'sq') + VS('x', 'c') + '/' + VS('p', 'ref'), 'blood squeezed out', 'Autotransfusion']],
+  wall: [[VS('p', 'ut'), 'uterine pressure (input)', 'A(8)']],
+  utv: [[VS('R', 'utv'), 'resistance, collapses', 'A(6)–(7)'], [VS('q', 'utv'), 'outflow from the IVS', 'A(6)–(7)']],
+  toco: [[VS('t', '<i>k</i>'), 'contraction times', 'ours'], [VS('a'), 'contraction height', 'ours, replaces A(8)']],
+  spiral: [[VS('q', 'uta'), 'inflow to the IVS', 'A(5)']],
+  ivs: [[VS('V', 'IVS'), 'volume', 'A(3)'], [VS('p', 'tm,IVS'), 'transmural pressure', 'A(3)'], [VO2('IVS'), 'maternal O₂', 'A(14)–(15)']],
+  villi: [[VS('V', 'villi'), 'volume', 'A(1), A(4)'], [VO2('villi'), 'fetal O₂', 'A(14)–(15)']],
+  exch: [[VS('Q', 'D,plac'), 'O₂ diffusion', 'A(16)']],
+  umv: [[VS('q', 'umv'), 'flow to the fetus', 'B(1)'], [VS('R', 'umv'), 'resistance, collapses', 'A(6)']],
+  uma: [[VS('q', 'uma'), 'flow to the placenta', 'B(1)'], [VS('R', 'uma'), 'resistance, collapses', 'A(6)']],
+  cordsq: [[VS('p', 'um'), 'cord compression pressure', 'B(2)']],
+  cv: [[VS('T'), 'heart period → FHR = 60/<i>T</i>', 'A(25)'], [VS('V', 'ed') + ', ' + VS('V', 'ee'), 'filled, ejected volume', 'A(9)–(11)'], [VS('q', 'CO'), 'cardiac output', 'A(9)–(11)']],
+  eff: [[VS('z', 'Tv') + ', ' + VS('z', 'Ts'), 'period, vagal and sympathetic', 'A(23)'], [VS('z', 'E') + ', ' + VS('z', 'R') + ', ' + VS('z', 'V'), 'contractility, resistance, volume', 'A(24)']],
+  fart: [[VS('p', 'tm,a'), 'arterial pressure', 'A(1), A(4)'], [VS('V', 'art'), 'volume', 'A(1), A(4)']],
+  fven: [[VS('p', 'tm,v'), 'venous pressure', 'A(1), A(4)'], [VS('V', 'ven'), 'volume', 'A(1), A(4)']],
+  body: [[VS('q', 'tis'), 'tissue flow', 'A(17)–(19)'], [VS('Q', 'M,tis'), 'O₂ use', 'A(17)–(19)']],
+  brain: [[VS('q', 'cer'), 'brain flow', 'A(17)–(19)'], [VS('R', 'cera'), 'autoregulated resistance', 'A(17)–(19)']],
+  fo2: [[VO2('a'), 'arterial O₂', 'A(12)–(13)'], ['cO<sub>2</sub>, sO<sub>2</sub>', 'content, saturation', 'A(12)–(13)']],
+  obs: [['FHR̂', 'model FHR fitted to the CTG', 'ours']],
+  baro_curve: [[VS('r', 'b') + '*', 'response to <i>p</i><sub>tm,a</sub>', 'A(21)']],
+  baro_filt: [[VS('r', 'b'), 'filtered response', 'A(20)']],
+  baro_w: [[VS('e', 'v') + ', ' + VS('e', 's'), 'vagal, sympathetic drive', 'A(22)']],
+  chemo_curve: [[VS('r', 'c') + '*', 'response to pO<sub>2,a</sub>', 'A(21)']],
+  chemo_filt: [[VS('r', 'c'), 'filtered response', 'A(20)']],
+  chemo_w: [[VS('e', 'v') + ', ' + VS('e', 's'), 'vagal, sympathetic drive', 'A(22)']],
+};
+/* quantities of one numbered part, grouped by element */
 function annGroups(gkey) {
   const out = [];
   for (const k of Object.keys(ANCHORS)) {
-    if (ANCHORS[k].g !== gkey) continue;
-    const rows = PARAMS.filter(r => PARAM_ANCHOR[r.name] === k && passes(r));
-    if (rows.length) out.push({ key: k, name: ANCHORS[k].name, xy: ANCHORS[k].xy, rows });
+    if (ANCHORS[k].g !== gkey || !VARS[k] || (!circExt && FS_ANCHOR.includes(k))) continue;
+    out.push({ key: k, name: ANCHORS[k].name, xy: ANCHORS[k].xy, rows: VARS[k].map(([sym, d, eq], i) => ({ name: k + ':' + i, sym, d, eq })) });
   }
   return out;
 }
@@ -1239,7 +1279,7 @@ function renderAnns() {
   const W = stagebox.clientWidth, H = stagebox.clientHeight;
   annlayer.style.setProperty('--annw', Math.max(140, Math.min(210, W * 0.26)) + 'px');
   const total = groups.reduce((n, G) => n + G.rows.length, 0);
-  const grouped = total > 20;                 // too many at once: one tag per element, click it to open in place
+  const grouped = total > 24;                 // too many at once: one tag per element, click it to open in place
   const wire = [];
   const btn = (html, cls, G, r) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ann ' + cls; b.innerHTML = html; wire.push({ b, G, r }); return b;
@@ -1253,7 +1293,9 @@ function renderAnns() {
     if (open) {                                // symbol only; details in the side panel. Long lists wrap into short columns
       const rw = document.createElement('div'), n = G.rows.length; rw.className = 'annrows';
       if (n > 6) { rw.style.gridTemplateRows = `repeat(${Math.ceil(n / Math.ceil(n / 6))}, auto)`; rw.style.gridAutoFlow = 'column'; box.style.maxWidth = 'none'; }
-      G.rows.forEach(r => rw.appendChild(btn(`<span class="as">${annSym(r)}</span>`, 'c' + r.cls + (r.name === pickedParam ? ' on' : ''), G, r)));
+      rw.classList.add('vrow');   // symbols side by side; what each one is shows on hover
+      G.rows.forEach(r => { const b = btn(`<span class="as">${r.sym}</span>`, 'v' + (r.name === pickedParam ? ' on' : ''), G, r);
+        b.title = (r.d + ' · ' + r.eq).replace(/<[^>]+>/g, ''); rw.appendChild(b); });
       box.appendChild(rw);
     }
     annlayer.appendChild(box);
@@ -1327,7 +1369,7 @@ function renderAnns() {
     annlayer.querySelectorAll('.ann.on').forEach(el => el.classList.remove('on')); b.classList.add('on');
     annlines.querySelectorAll('.lead').forEach(el => el.classList.toggle('sel', el.dataset.g === G.key));
     circHL(G.key, true);
-    showParamInPanel(r.name);
+    showEqInPanel(r.eq);
   }));
 }
 /* a clicked label: highlight its row in the side panel and bring it into view */
@@ -1339,6 +1381,14 @@ function showParamInPanel(name) {
   if (!row) return;
   row.classList.add('hit');
   row.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+}
+function showEqInPanel(no) {
+  const panel = $('#panel');
+  panel.querySelectorAll('.eq.hit').forEach(el => el.classList.remove('hit'));
+  const eq = [...panel.querySelectorAll('.eq')].find(el => el.querySelector('.no')?.textContent === no);
+  if (!eq) return;
+  eq.classList.add('hit');
+  eq.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
 }
 function renderList(groups) {           // phone: one numbered marker per element, the parameters listed underneath
   const placed = [];
@@ -1354,7 +1404,7 @@ function renderList(groups) {           // phone: one numbered marker per elemen
     annlayer.appendChild(m);
   });
   annlist.innerHTML = groups.map((G, i) => `<div class="ag" id="ag-${G.key}"><div class="agh"><span class="amk">${i + 1}</span>${esc(G.name)}</div>` +
-    G.rows.map(r => `<div class="arow c${r.cls}"><div>${annLabel(r)} · <span class="am">${CLS[r.cls]}${r.equations ? ' · ' + esc(r.equations) : ''}</span></div><div class="am">${esc(r.meaning)}</div></div>`).join('') + `</div>`).join('') ||
+    G.rows.map(r => `<div class="arow"><div><span class="as">${r.sym}</span> <span class="vd">${r.d}</span> · <span class="am">${esc(r.eq)}</span></div></div>`).join('') + `</div>`).join('') ||
     `<p class="muted">No parameters of this class in this part.</p>`;
   annlist.hidden = false;
 }
