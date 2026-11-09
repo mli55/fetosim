@@ -376,6 +376,11 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .callout text.n { font-family: var(--font-mono); font-weight: 600; text-anchor: middle; dominant-baseline: central; }
 .callout.on circle.b { fill: var(--accent); stroke: var(--accent); }
 .callout.on text.n { fill: var(--on-accent); }
+/* hover: the part under the pointer lights up in both the cross-section and the circuit */
+#dia .part.hov, #circ .part.hov { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 75%, transparent)); }
+#dia.focus .part.hov:not(.on), #dia.focus .callout.hov:not(.on), #circ.focus .part.hov:not(.on) { opacity: .75; }
+.callout.hov circle.b { stroke: var(--accent); stroke-width: 2.4; } .callout.hov text:not(.n) { fill: var(--accent); }
+.callout.hov line { stroke: var(--accent); opacity: 1; }
 [hidden] { display: none !important; }
 body { margin: 0; }
 
@@ -490,7 +495,7 @@ body { margin: 0; }
           <span><i class="k-node"></i><span class="kt">compartment: pressure, volume, pO<sub>2</sub></span></span><span><i class="k-node k-dbl"></i><span class="kt">ventricle</span></span>
           <span><i class="k-box"></i><span class="kt">resistance</span></span><span><i class="k-box k-var"></i><span class="kt">varies with <i>p</i><sub>ut</sub></span></span>
           <span><i class="k-put"></i><span class="kt">uterine pressure <i>p</i><sub>ut</sub></span></span><span><i class="k-o2"></i><span class="kt">O<sub>2</sub> flux</span></span><span><i class="k-ctl"></i><span class="kt">reflex control</span></span>
-          <span class="kx"><i class="k-thx"></i><span class="kt">thorax</span></span><span class="kx"><i class="k-src"></i><span class="kt">pressure source: <i>P</i><sub>th</sub>, abdominal <i>p</i><sub>ab</sub></span></span><span class="kx"><i class="k-dio"></i><span class="kt">one-way</span></span><span class="kx"><i class="k-ca"></i><span class="kt">baroreflex</span></span><span class="kx"><i class="k-cv"></i><span class="kt">vasomotor</span></span><span class="kx"><i class="k-sq"></i><span class="kt">autotransfusion</span></span>
+          <span class="kx"><i class="k-thx"></i><span class="kt">thorax</span></span><span class="kx"><i class="k-src"></i><span class="kt">pressure source: <i>P</i><sub>th</sub>, abdominal <i>p</i><sub>ab</sub></span></span><span class="kx"><i class="k-dio"></i><span class="kt">one-way</span></span><span class="kx"><i class="k-sq"></i><span class="kt">autotransfusion</span></span>
         </div>
       </div>
     </div>
@@ -1349,41 +1354,36 @@ function circuitSVG(ext = circExt) {
       L(mt + R, MID, mt + 78, MID) + gnd(mt + 78, MID) + consume(mt, MID, sb('Q', 'M,tis,m'), 1)) +
     badge(250, 300, N('mother')));
   else {
-    // fetosim: the maternal circuit as now modelled (each layer off = Jongen 2016). Colours mark what is new:
-    // blue = HR baroreflex (Randall 2019), teal = thorax after Lu 2001 (reservoir th, one-way R_vr, external pressure
-    // sources P_th and p_ab), purple = vasomotor effectors x_R, x_V, red = contraction autotransfusion.
-    const LVX = -140, ax = 280;
+    // fetosim: Jongen's maternal layout with what the model changed. Thorax (after Lu 2001): ven -> one-way R_vr ->
+    // reservoir th -> LV; LV and th sit in P_th, art in f_a dP_th, ven in the abdominal pressure p_ab (sources where
+    // Jongen has ground). Baroreflex (Randall 2019) drawn like the fetal receptor: it sets MHR and, through the vasomotor
+    // effectors, R_tis,a (x_R) and the venous unstressed volume (x_V). The myometrium squeezes V_sq into the veins.
+    const TX = 0, bx = 252, by = 222;
     const sb2 = (m, s, m2, s2) => `${m}<tspan class="sb" dy="9">${s}</tspan><tspan dy="-9">${m2}</tspan><tspan class="sb" dy="9">${s2}</tspan>`;
-    // time-varying pressure source between a compartment's outer wall and ground
     const src = (x, y, lab, lx, ly, a = 'start') => `<circle class="src" cx="${x}" cy="${y}" r="20"/><path class="srcw" d="M${x - 11} ${y + 1} q 5.5 -11 11 0 t 11 0"/>` + T(x + lx, y + ly, lab, 'lb thxt', a);
-    const blk = (x, y, w, h, cls, l1, l2) => `<rect class="blk ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>` +
-      T(x + w / 2, y + (l2 ? h / 2 - 1 : h / 2 + 9), l1, 'bt') + (l2 ? T(x + w / 2, y + h / 2 + 23, l2, 'bs') : '');
     const diode = (x, yb, yt) => `<path class="dio" d="M${x - 15} ${yb} L${x + 15} ${yb} L${x} ${yt} Z"/>` + L(x - 15, yt, x + 15, yt, 'dio-b');
     add('mother',
-      E('m_thx', `<rect class="rg rg-t" x="-300" y="72" width="320" height="362" rx="60"/>` + T(-45, 424, 'THORAX', 'rt rt-t')) +
-      E('m_heart', L(LVX, TOP, LVX, MID) + node(LVX, TOP, 'LV', true) + A(LVX + 30, 300, LVX + 30, 190) + T(LVX + 44, 252, sb('q', 'in'), 'lb', 'start') +
-        L(LVX - R, TOP, -212, TOP, 'thl') + src(-232, TOP, sb('P', 'th'), 0, -32, 'middle') + L(-232, TOP + 20, -232, TOP + 28, 'thl') + gnd(-232, TOP + 28)) +
-      E('m_thx', L(LVX, MID, LVX, BOT) + `<rect class="bx" x="${LVX - BW / 2}" y="${470 - BH / 2}" width="${BW}" height="${BH}"/>` + T(LVX, 481, 'vr', 'nm') +
-        diode(LVX, 534, 514) + node(LVX, MID, 'th') +
-        L(LVX - R, MID, -212, MID, 'thl') + src(-232, MID, sb('P', 'th'), 0, -32, 'middle') + L(-232, MID + 20, -232, MID + 28, 'thl') + gnd(-232, MID + 28)) +
-      E('m_art', L(LVX + R, TOP, mu, TOP) + A(-70, TOP - 26, 10, TOP - 26) + A(560, TOP - 26, 640, TOP - 26) + node(ax, TOP, 'art') + T(ax + 50, TOP - 16, 'BP', 'sb bpt', 'start') +
-        L(ax, TOP + R, ax, 195, 'thl') + src(ax, 215, sb2('f', 'a', ' ΔP', 'th'), 28, 9) + L(ax, 235, ax, 243, 'thl') + gnd(ax, 243)) +
-      E('m_ven', L(LVX, BOT, mu, BOT) + A(365, BOT + 26, 285, BOT + 26) + A(40, BOT + 26, -40, BOT + 26) + node(mh, BOT, 'ven') +
+      E('m_thx', `<rect class="rg rg-t" x="-110" y="262" width="350" height="244" rx="60"/>` + T(-92, 292, 'THORAX', 'rt rt-t', 'start')) +
+      E('m_heart', L(mh, TOP, mh, MID) + node(mh, MID, 'LV', true) + A(mh - 30, 290, mh - 30, 190) + T(mh - 44, 252, sb('q', 'out'), 'lb', 'end') +
+        L(mh, MID + R, mh, 398 + 12, 'thl') + src(mh, 430, sb('P', 'th'), 28, 9) + L(mh, 450, mh, 456, 'thl') + gnd(mh, 456)) +
+      E('m_thx', L(TX, MID, mh - R, MID) + A(TX + 58, MID - 22, TX + 116, MID - 22) + T(TX + 87, MID - 40, sb('q', 'in'), 'lb') +
+        L(TX, MID, TX, BOT) + `<rect class="bx" x="${TX - BW / 2}" y="${445 - BH / 2}" width="${BW}" height="${BH}"/>` + T(TX, 456, 'vr', 'nm') + diode(TX, 532, 512) +
+        node(TX, MID, 'th') + L(TX - R, MID, -42, MID, 'thl') + src(-62, MID, sb('P', 'th'), 0, -32, 'middle') + L(-62, MID + 20, -62, MID + 28, 'thl') + gnd(-62, MID + 28)) +
+      E('m_art', L(mh, TOP, mu, TOP) + A(285, TOP - 26, 365, TOP - 26) + L(mh - R, TOP, 92, TOP, 'thl') + src(72, TOP, sb2('f', 'a', ' ΔP', 'th'), 0, -32, 'middle') +
+        L(72, TOP + 20, 72, TOP + 28, 'thl') + gnd(72, TOP + 28) + node(mh, TOP, 'art') + T(mh + 50, TOP - 18, 'BP', 'sb bpt', 'start')) +
+      E('m_ven', L(TX, BOT, mu, BOT) + A(365, BOT + 26, 285, BOT + 26) + A(120, BOT + 26, 50, BOT + 26) + node(mh, BOT, 'ven') +
         L(mh, BOT + R, mh, 618, 'thl') + src(mh, 638, sb('p', 'ab'), 28, 9) + L(mh, 658, mh, 664, 'thl') + gnd(mh, 664)) +
-      E('m_o2', A(26, 676, mh - 40, BOT + 28, 'o2', 14) + T(8, 700, sb('Q', 'D,lung'), 'lb o2t', 'start')) +
+      E('m_o2', A(30, 676, mh - 40, BOT + 28, 'o2', 14) + T(10, 700, sb('Q', 'D,lung'), 'lb o2t', 'start')) +
       L(mu, TOP, mu, BOT) +
       E('m_tis', L(mt, TOP, mt, BOT) + box(mt, (TOP + MID) / 2, 'tisa') + box(mt, (MID + BOT) / 2, 'tisv') + node(mt, MID, 'tis') +
         L(mt + R, MID, mt + 78, MID) + gnd(mt + 78, MID) + consume(mt, MID, sb('Q', 'M,tis,m'), 1)) +
-      E('m_hr', L(140, TOP, 140, 198, 'sense') + blk(40, 198, 200, 74, 'a', 'baroreflex', 'Randall 2019') +
-        A(-12, 252, 38, 252, 'thl', 12) + A(40, 214, -94, 157, 'ca', 15) + T(-28, 168, 'MHR', 'sb ct-a', 'middle')) +
-      E('m_vaso', L(140, 272, 140, 290, 'cv') + L(80, 290, 220, 290, 'cv') + A(80, 290, 80, 306, 'cv', 12) + A(220, 290, 220, 306, 'cv', 12) + T(232, 296, sb('T', 's'), 'sb ct-c', 'start') +
-        blk(30, 306, 100, 58, 'c', sb('x', 'V'), '20 s') + blk(170, 306, 100, 58, 'c', sb('x', 'R'), '6 s') +
-        L(270, 335, 380, 335, 'cv') + L(380, 335, 380, 242, 'cv') + A(380, 242, 410, 242, 'cv', 14) +
+      E('m_hr', L(bx, by - 29, bx, TOP, 'ctl') + rcp(bx, by, 'rb', 'baro') + A(bx - 18, by + 23, mh + 32, MID - 34, 'ctl', 14) + T(bx + 6, 296, 'MHR', 'sb ctlt', 'start')) +
+      E('m_vaso', A(bx + 29, by - 4, 408, (TOP + MID) / 2 - 8, 'ctl', 14) + T(338, 202, sb('x', 'R'), 'sb ctlt', 'middle') +
         A(mt - 70, (TOP + MID) / 2 + 50, mt + 66, (TOP + MID) / 2 - 54, 'vx', 18) +
-        L(80, 364, 80, 512, 'cv') + A(80, 512, 136, 546, 'cv', 14) + T(68, 470, sb('V', 'ven,0'), 'sb ct-c', 'end')) +
-      E('m_auto', `<rect class="myo" x="265" y="440" width="110" height="58" rx="16"/>` + T(320, 480, 'myo', 'nm') + put(320, 440, 0, -28, 16, 8, 'start') +
-        A(282, 498, 213, 538, 'sqm', 14) + T(262, 548, sb('V', 'sq'), 'lb sqt', 'start')) +
-      badge(330, 290, N('mother')));
+        `<path class="ctl" d="M${bx + 8} ${by + 28} C 300 330, 290 460, ${mh + 38} ${BOT - 30}"/>` + A(mh + 46, BOT - 38, mh + 34, BOT - 28, 'ctl', 14) + T(306, 420, sb('x', 'V'), 'sb ctlt', 'start')) +
+      E('m_auto', `<rect class="myo" x="545" y="440" width="110" height="58" rx="16"/>` + T(600, 480, 'myo', 'nm') + put(600, 440, 0, -28, 16, 8, 'start') +
+        A(600, 498, 600, BOT - 5, 'sqm', 14) + T(614, 540, sb('V', 'sq'), 'lb sqt', 'start')) +
+      badge(340, 300, N('mother')));
   }
   add('spiral', E('spiral', box(mu, (TOP + MID) / 2, 'uta')) + badge(800, 205, N('spiral')));
   // fetus
@@ -1408,13 +1408,21 @@ function circuitSVG(ext = circExt) {
   add('baro', E('baro_curve baro_filt', L(1442, 171, 1442, TOP, 'ctl') + rcp(1442, 200, 'rb', 'baro')) + E('baro_w', A(1422, 222, 1378, 314, 'ctl', 14)) + badge(1400, 185, N('baro')));
   add('chemo', E('chemo_curve chemo_filt', L(1480, 271, 1480, TOP, 'ctl') + rcp(1480, 300, 'rc', 'chemo')) + E('chemo_w', A(1452, 312, 1388, 340, 'ctl', 14)) + badge(1432, 296, N('chemo')));
   const grp = k => (G[k] || []).length ? `<g class="part" data-part="${k}">${G[k].join('')}</g>` : '';
-  return `<rect class="rg rg-m" x="${ext ? -392 : 8}" y="8" width="${ext ? 1208 : 808}" height="704" rx="24"/><rect class="rg rg-f" x="938" y="8" width="994" height="704" rx="24"/>
+  return `<rect class="rg rg-m" x="${ext ? -118 : 8}" y="8" width="${ext ? 934 : 808}" height="704" rx="24"/><rect class="rg rg-f" x="938" y="8" width="994" height="704" rx="24"/>
     <g class="part" data-part="placenta"><rect class="rg rg-p" x="650" y="256" width="474" height="188" rx="94"/></g>
-    ${T(ext ? 212 : 470, 54, 'MOTHER', 'rt rt-m')}${T(1690, 54, 'FETUS', 'rt rt-f')}` +
+    ${T(ext ? 349 : 470, 54, 'MOTHER', 'rt rt-m')}${T(1690, 54, 'FETUS', 'rt rt-f')}` +
     ['mother', 'heart', 'spiral', 'cord', 'uterus', 'placenta', 'baro', 'chemo'].map(grp).join('');
 }
 const circ = $('#circ');
 circ.innerHTML = circuitSVG();
+/* hover sync: a part under the pointer in either drawing lights up in both (cross-section parts, callouts, circuit groups) */
+function hoverPart(key) {
+  [dia, circ].forEach(svg => svg.querySelectorAll('.part, .callout').forEach(el => el.classList.toggle('hov', !!key && el.dataset.part === key)));
+}
+[dia, circ].forEach(svg => {
+  svg.addEventListener('pointerover', e => { const g = e.target.closest('[data-part]'); hoverPart(g ? (GROUP_OF[g.dataset.part] || GROUP[g.dataset.part]).key : null); });
+  svg.addEventListener('pointerleave', () => hoverPart(null));
+});
 circ.addEventListener('click', e => { const g = e.target.closest('[data-part]'); select(g ? g.dataset.part : null, false); });
 /* light up the circuit element(s) behind one close-up label (an ANCHORS key); null clears */
 let circPinned = null;
@@ -1425,7 +1433,7 @@ function circHL(key, pin) {
 }
 function setCircExt(on) {
   circExt = on; circ.innerHTML = circuitSVG(); paintFocus(); circHL(circPinned);
-  circ.setAttribute('viewBox', on ? '-400 0 2340 720' : '0 0 1940 720');
+  circ.setAttribute('viewBox', on ? '-126 0 2066 720' : '0 0 1940 720');
   document.querySelectorAll('[data-cm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cm === (on ? '1' : '0'))));
   $('#circuit').classList.toggle('ext', on);
   circ.setAttribute('aria-label', 'Lumped circuit of the model' + (on ? ' as in fetosim, with the optional maternal thorax, heart-rate baroreflex, vasomotor reflex and autotransfusion' : ' as in Jongen 2016'));
