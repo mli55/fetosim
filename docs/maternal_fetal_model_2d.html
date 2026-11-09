@@ -158,6 +158,10 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .eq .m { font-family: var(--font-math); font-size: 17px; line-height: 1.45; overflow-x: auto; }
 .eq .m i { font-style: italic; }
 .eq .m sub, .eq .m sup { font-size: 70%; }
+.eq .ml { display: block; white-space: nowrap; }
+.fr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 .12em; font-size: 88%; line-height: 1.2; }
+.fr > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .2em .05em; }
+.fr > span:last-child { padding: .05em .2em 0; }
 .eq .why { font-size: 13px; color: var(--muted); }
 .plist { display: grid; gap: 0; }
 .psub { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--maternal); padding: 14px 0 4px; }
@@ -581,9 +585,9 @@ const PARTS = {
     role: 'The muscle that contracts. In the model it is not a compartment of its own: it is the external pressure <i>p</i><sub>ut</sub> on the intervillous space, on the uterine veins and on every fetal compartment.',
     during: 'p<sub>ut</sub> rises from 15 to 85 mmHg. The uterine veins narrow and IVS pressure rises, so less blood enters through the spiral arteries.',
     eqs: [
-      ['A(8)', '<i>p</i><sub>ut</sub> = <i>p</i><sub>rest</sub> + <i>p</i><sub>con</sub> sin²(π(<i>t</i> − <i>t</i><sub>con</sub>)/<i>T</i><sub>con</sub>) for <i>t</i><sub>con</sub> &lt; <i>t</i> &lt; <i>t</i><sub>con</sub> + <i>T</i><sub>con</sub>, otherwise <i>p</i><sub>rest</sub>', 'Paper reference: 15 + 70 mmHg for 60 s. With real CTGs we replace it by TOCO-timed pulses of height <i>a</i> × 70 mmHg (see the TOCO equations below).'],
-      ['A(2)', '<i>p</i><sub>tm</sub> = <i>p</i> − <i>p</i><sub>ext</sub>, &nbsp; <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> for the IVS and all fetal compartments', 'Volumes and reflexes follow transmural pressure; flows follow absolute pressure differences, A(5).'],
-      ['A(6)–(7)', '<i>R</i><sub>utv</sub> = max(<i>R</i><sub>0,utv</sub> / <i>f</i>(<i>p</i><sub>tm,utv</sub>)², <i>R</i><sub>utv,ref</sub>), &nbsp; <i>p</i><sub>tm,utv</sub> = ½(<i>p</i><sub>IVS</sub> + <i>p</i><sub>ven</sub>) − <i>p</i><sub>ut</sub>', 'Uterine vein collapse law. <i>f</i> is the arctan function of A(3) with the vein\'s own <i>p</i><sub>0</sub>, <i>p</i><sub>1</sub>.'],
+      ['A(8)', '<i>p</i><sub>ut</sub> = <i>p</i><sub>rest</sub> + <i>p</i><sub>con</sub> sin²<span class="fr"><span>π(<i>t</i> − <i>t</i><sub>con</sub>)</span><span><i>T</i><sub>con</sub></span></span> for <i>t</i><sub>con</sub> &lt; <i>t</i> &lt; <i>t</i><sub>con</sub> + <i>T</i><sub>con</sub>, otherwise <i>p</i><sub>rest</sub>', 'Paper reference: 15 + 70 mmHg for 60 s. CTG fits use the TOCO pulses below.'],
+      ['A(2)', '<i>p</i><sub>tm</sub> = <i>p</i> − <i>p</i><sub>ext</sub>, &nbsp; <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> for the IVS and all fetal compartments', 'Volumes follow transmural pressure, flows absolute pressure, A(5).'],
+      ['A(6)–(7)', '<i>R</i><sub>utv</sub> = max(<span class="fr"><span><i>R</i><sub>0,utv</sub></span><span><i>f</i>(<i>p</i><sub>tm,utv</sub>)²</span></span>, <i>R</i><sub>utv,ref</sub>), &nbsp; <i>p</i><sub>tm,utv</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>IVS</sub> + <i>p</i><sub>ven</sub>) − <i>p</i><sub>ut</sub>', 'Uterine vein collapse law.'],
     ],
   },
   placenta: {
@@ -591,11 +595,11 @@ const PARTS = {
     role: 'Maternal blood fills the intervillous space (IVS); fetal blood runs through the villi. The IVS is a nonlinear compliance squeezed by <i>p</i><sub>ut</sub>. Oxygen diffuses from IVS blood into the villi.',
     during: 'IVS volume falls from about 175 ml at rest (A p.2470) to about 120 ml at the peak (A Fig. 3), and less oxygen crosses to the fetus. In Part A this is the whole cause of the late deceleration.',
     eqs: [
-      ['A(3)', '<i>V</i><sub>IVS</sub> = <i>V</i><sub>max</sub> <i>f</i>(<i>p</i><sub>tm</sub>), &nbsp; <i>f</i>(<i>p</i><sub>tm</sub>) = ½ + (1/π) arctan((<i>p</i><sub>tm</sub> − <i>p</i><sub>0</sub>)/<i>p</i><sub>1</sub>)', '<i>V</i><sub>max</sub>, <i>p</i><sub>0</sub>, <i>p</i><sub>1</sub> are not printed in the paper. We derive 350 ml, 5.0 mmHg and 46.4 mmHg from the rules on B p.2475.'],
-      ['A(1), A(4)', '<i>p</i><sub>tm</sub> = (<i>V</i> − <i>V</i><sub>0</sub>)/<i>C</i> (villi), &nbsp; d<i>V</i>/d<i>t</i> = <i>q</i><sub>in</sub> − <i>q</i><sub>out</sub>', 'Linear compliance and volume balance, used for every compartment except the IVS.'],
-      ['A(16)', '<i>Q</i><sub>D,plac</sub> = <i>D</i><sub>plac</sub> (pO<sub>2,IVS</sub> − pO<sub>2,villi</sub>)', 'Placental O<sub>2</sub> diffusion. We use <i>D</i><sub>plac</sub> = 0.0904 so that resting fetal arterial pO<sub>2</sub> is 18.5 mmHg (the paper\'s rule); its table prints 0.082.'],
-      ['A(12)–(13)', 'cO<sub>2</sub> = <i>α</i> Hb sO<sub>2</sub>/100 + <i>β</i> pO<sub>2</sub>, &nbsp; sO<sub>2</sub> = 100 / (1 + <i>c</i><sub>1</sub>/(pO<sub>2</sub>³ + <i>c</i><sub>2</sub> pO<sub>2</sub>))', 'Oxygen content and dissociation curve; separate fetal and maternal constants.'],
-      ['A(14)–(15)', 'd(cO<sub>2</sub> <i>V</i>)/d<i>t</i> = <i>Q</i><sub>C</sub> + <i>Q</i><sub>D</sub> − <i>Q</i><sub>M</sub>', 'O<sub>2</sub> balance per compartment: convection, diffusion, metabolism.'],
+      ['A(3)', '<i>V</i><sub>IVS</sub> = <i>V</i><sub>max</sub> <i>f</i>(<i>p</i><sub>tm</sub>), &nbsp; <i>f</i>(<i>p</i><sub>tm</sub>) = <span class="fr"><span>1</span><span>2</span></span> + <span class="fr"><span>1</span><span>π</span></span> arctan <span class="fr"><span><i>p</i><sub>tm</sub> − <i>p</i><sub>0</sub></span><span><i>p</i><sub>1</sub></span></span>', '<i>V</i><sub>max</sub>, <i>p</i><sub>0</sub>, <i>p</i><sub>1</sub> derived from B p.2475.'],
+      ['A(1), A(4)', '<i>p</i><sub>tm</sub> = <span class="fr"><span><i>V</i> − <i>V</i><sub>0</sub></span><span><i>C</i></span></span> (villi), &nbsp; <span class="fr"><span>d<i>V</i></span><span>d<i>t</i></span></span> = <i>q</i><sub>in</sub> − <i>q</i><sub>out</sub>', 'Linear compliance and volume balance.'],
+      ['A(16)', '<i>Q</i><sub>D,plac</sub> = <i>D</i><sub>plac</sub> (pO<sub>2,IVS</sub> − pO<sub>2,villi</sub>)', '<i>D</i><sub>plac</sub> = 0.0904 gives resting fetal arterial pO<sub>2</sub> 18.5 mmHg.'],
+      ['A(12)–(13)', 'cO<sub>2</sub> = <i>α</i> Hb <span class="fr"><span>sO<sub>2</sub></span><span>100</span></span> + <i>β</i> pO<sub>2</sub>, &nbsp; sO<sub>2</sub> = <span class="fr"><span>100</span><span>1 + <span class="fr"><span><i>c</i><sub>1</sub></span><span>pO<sub>2</sub>³ + <i>c</i><sub>2</sub> pO<sub>2</sub></span></span></span></span>', 'O<sub>2</sub> content and dissociation curve.'],
+      ['A(14)–(15)', '<span class="fr"><span>d(cO<sub>2</sub> <i>V</i>)</span><span>d<i>t</i></span></span> = <i>Q</i><sub>C</sub> + <i>Q</i><sub>D</sub> − <i>Q</i><sub>M</sub>', 'O<sub>2</sub> balance: convection, diffusion, metabolism.'],
     ],
   },
   spiral: {
@@ -603,8 +607,8 @@ const PARTS = {
     role: 'Carry maternal arterial blood into the IVS. They are one constant resistance <i>R</i><sub>uta</sub>. The paper states that they are not squeezed by the contraction (B p.2476); inflow falls because IVS pressure rises.',
     during: 'In our simulation of the reference contraction, inflow <i>q</i><sub>uta</sub> falls from about 615 to 163 ml/min at the peak. The paper gives about 630 ml/min at rest (A p.2470).',
     eqs: [
-      ['A(5)', '<i>q</i><sub>uta</sub> = (<i>p</i><sub>art,m</sub> − <i>p</i><sub>IVS,abs</sub>) / <i>R</i><sub>uta</sub>, &nbsp; <i>p</i><sub>IVS,abs</sub> = <i>p</i><sub>tm,IVS</sub> + <i>p</i><sub>ut</sub>', 'Segment flow from the absolute pressure difference.'],
-      ['A §2.4', '<i>R</i><sub>uta</sub>(<i>t</i>) ramps to 100 × over 5 s, held 20 or 30 s, back over 5 s', 'Uterine-artery block used only for the sheep comparison (A Fig. 4). Not used in CTG fitting.'],
+      ['A(5)', '<i>q</i><sub>uta</sub> = <span class="fr"><span><i>p</i><sub>art,m</sub> − <i>p</i><sub>IVS,abs</sub></span><span><i>R</i><sub>uta</sub></span></span>, &nbsp; <i>p</i><sub>IVS,abs</sub> = <i>p</i><sub>tm,IVS</sub> + <i>p</i><sub>ut</sub>', 'Segment flow from absolute pressures.'],
+      ['A §2.4', '<i>R</i><sub>uta</sub>(<i>t</i>) ramps to 100 × over 5 s, held 20 or 30 s, back over 5 s', 'Sheep comparison only (A Fig. 4).'],
     ],
   },
   cord: {
@@ -612,9 +616,9 @@ const PARTS = {
     role: 'One vein and two arteries between placenta and fetus. In Part B the contraction also presses on the cord, an extra external pressure <i>p</i><sub>um</sub>. The vein closes first (above about 40 mmHg), the arteries over 40–90 mmHg (B p.2476).',
     during: 'Venous return from the placenta stops, blood pools in the villi, fetal arterial pressure dips and then overshoots, and pO<sub>2</sub> falls fast. This is the variable deceleration of Part B.',
     eqs: [
-      ['B(2)', '<i>p</i><sub>um</sub> = <i>w</i><sub>um</sub> (<i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub>)', '<i>w</i><sub>um</sub> = 1 in Part B (B §2.3). Part A has no cord compression, which we write as <i>w</i><sub>um</sub> = 0. We fit <i>w</i><sub>um</sub> per window between 0 and 2.'],
-      ['B(1)', '<i>p</i><sub>tm,umv</sub> = ½(<i>p</i><sub>villi</sub> + <i>p</i><sub>ven</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>), &nbsp; <i>p</i><sub>tm,uma</sub> = ½(<i>p</i><sub>villi</sub> + <i>p</i><sub>art</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>)', 'Transmural pressure of the umbilical vein and arteries.'],
-      ['A(6)', '<i>R</i>(<i>p</i><sub>tm</sub>) = max(<i>R</i><sub>0</sub> / <i>f</i>(<i>p</i><sub>tm</sub>)², <i>R</i><sub>ref</sub>)', 'Collapse law (Poiseuille: <i>R</i> ∝ 1/area²) with the B Table 1 constants.'],
+      ['B(2)', '<i>p</i><sub>um</sub> = <i>w</i><sub>um</sub> (<i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub>)', '<i>w</i><sub>um</sub> = 1 in Part B (B §2.3), 0 in Part A; fitted 0–2.'],
+      ['B(1)', '<i>p</i><sub>tm,umv</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>villi</sub> + <i>p</i><sub>ven</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>), &nbsp; <i>p</i><sub>tm,uma</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>villi</sub> + <i>p</i><sub>art</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>)', 'Transmural pressure of the umbilical vein and arteries.'],
+      ['A(6)', '<i>R</i>(<i>p</i><sub>tm</sub>) = max(<span class="fr"><span><i>R</i><sub>0</sub></span><span><i>f</i>(<i>p</i><sub>tm</sub>)²</span></span>, <i>R</i><sub>ref</sub>)', 'Collapse law, B Table 1 constants.'],
     ],
   },
   heart: {
@@ -622,12 +626,12 @@ const PARTS = {
     role: 'One combined ventricle pumps into fetal arteries, body tissue, brain and the umbilical circulation. Vagal and sympathetic effectors set its period <i>T</i>, its contractility and the peripheral resistance. FHR = 60/<i>T</i>.',
     during: 'The chemoreflex drives the vagal effector and lengthens <i>T</i>: the deceleration. Sympathetic effectors raise resistance and contractility. In the CTG fit, <i>g</i> scales all five effector gains.',
     eqs: [
-      ['A(25)', '<i>T</i> = <i>T</i><sub>ref</sub> (1 + <i>z</i><sub>Tv</sub> − <i>z</i><sub>Ts</sub>), &nbsp; FHR = 60/<i>T</i>', '<i>T</i><sub>ref</sub> = 60/135 s. The paper gives no explicit FHR formula; 60/<i>T</i> is implied.'],
-      ['A(23)', '<i>x</i>*(<i>t</i>) = <i>e</i>(<i>t</i> − <i>D</i>), &nbsp; d<i>x</i>/d<i>t</i> = (<i>x</i>* − <i>x</i>)/<i>τ</i>, &nbsp; <i>z</i> = <b><i>g</i></b> · <i>k</i> · <i>x</i>', 'Five effectors (<i>T</i><sub>v</sub>, <i>T</i><sub>s</sub>, <i>E</i><sub>max</sub>, <i>R</i><sub>tisa</sub>, <i>V</i><sub>ven,0</sub>). <i>g</i> is our addition; the paper is <i>g</i> = 1.'],
-      ['A(24)', '<i>R</i><sub>tisa</sub> = <i>R</i><sub>tisa,ref</sub>(1 + <i>z</i><sub>R</sub>), &nbsp; <i>E</i><sub>max</sub> = <i>E</i><sub>max,ref</sub>(1 + <i>z</i><sub>E</sub>), &nbsp; <i>V</i><sub>ven,0</sub> = <i>V</i><sub>ven,0,ref</sub>(1 + <i>z</i><sub>V</sub>)', 'Sympathetically mediated effectors.'],
-      ['A(9)–(11)', '<i>V</i><sub>ed</sub> = <i>V</i><sub>min,0</sub> + <i>p</i><sub>tm,v</sub>/<i>E</i><sub>min</sub>, &nbsp; <i>V</i><sub>ee</sub> = <i>V</i><sub>max,0</sub> + <i>p</i><sub>tm,a</sub>/<i>E</i><sub>max</sub>, &nbsp; <i>q</i><sub>CO</sub> = (<i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub>)/<i>T</i>', 'Two-state elastance ventricle with cycle-averaged flow; no valves or inertances.'],
-      ['A(17)–(19)', '<i>Q</i><sub>M</sub> = <i>Q</i><sub>M,0</sub> min(1, pO<sub>2</sub>/pO<sub>2,th</sub>), &nbsp; <i>R</i>*<sub>cera</sub> = <i>R</i><sub>cera,ref</sub> / [(1 − <i>γ</i>) + <i>γ</i> cO<sub>2,a,ref</sub>/cO<sub>2,a</sub>]', 'Tissue and brain O<sub>2</sub> use with thresholds; brain autoregulation (first-order, <i>τ</i> = 10 s, at least ½ <i>R</i><sub>cera,ref</sub>).'],
-      ['ours', 'FHR̂ = <i>b</i> + FHR<sub>model</sub>(<i>t</i>) − FHR<sub>model</sub>(0)', 'Observation model for CTG fitting: <i>b</i> is the baseline, in closed form.'],
+      ['A(25)', '<i>T</i> = <i>T</i><sub>ref</sub> (1 + <i>z</i><sub>Tv</sub> − <i>z</i><sub>Ts</sub>), &nbsp; FHR = <span class="fr"><span>60</span><span><i>T</i></span></span>', '<i>T</i><sub>ref</sub> = 60/135 s.'],
+      ['A(23)', '<i>x</i>*(<i>t</i>) = <i>e</i>(<i>t</i> − <i>D</i>), &nbsp; <span class="fr"><span>d<i>x</i></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>x</i>* − <i>x</i></span><span><i>τ</i></span></span>, &nbsp; <i>z</i> = <b><i>g</i></b> · <i>k</i> · <i>x</i>', 'Five effectors; <b><i>g</i></b> is ours (paper: 1).'],
+      ['A(24)', '<i>R</i><sub>tisa</sub> = <i>R</i><sub>tisa,ref</sub>(1 + <i>z</i><sub>R</sub>), &nbsp; <i>E</i><sub>max</sub> = <i>E</i><sub>max,ref</sub>(1 + <i>z</i><sub>E</sub>), &nbsp; <i>V</i><sub>ven,0</sub> = <i>V</i><sub>ven,0,ref</sub>(1 + <i>z</i><sub>V</sub>)', 'Sympathetic effectors.'],
+      ['A(9)–(11)', '<i>V</i><sub>ed</sub> = <i>V</i><sub>min,0</sub> + <span class="fr"><span><i>p</i><sub>tm,v</sub></span><span><i>E</i><sub>min</sub></span></span>, &nbsp; <i>V</i><sub>ee</sub> = <i>V</i><sub>max,0</sub> + <span class="fr"><span><i>p</i><sub>tm,a</sub></span><span><i>E</i><sub>max</sub></span></span>, &nbsp; <i>q</i><sub>CO</sub> = <span class="fr"><span><i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub></span><span><i>T</i></span></span>', 'Two-state elastance ventricle, cycle-averaged.'],
+      ['A(17)–(19)', '<i>Q</i><sub>M</sub> = <i>Q</i><sub>M,0</sub> min(1, <span class="fr"><span>pO<sub>2</sub></span><span>pO<sub>2,th</sub></span></span>), &nbsp; <i>R</i>*<sub>cera</sub> = <span class="fr"><span><i>R</i><sub>cera,ref</sub></span><span>(1 − <i>γ</i>) + <i>γ</i> <span class="fr"><span>cO<sub>2,a,ref</sub></span><span>cO<sub>2,a</sub></span></span></span></span>', 'Tissue O<sub>2</sub> use with thresholds; brain autoregulation.'],
+      ['ours', 'FHR̂ = <i>b</i> + FHR<sub>model</sub>(<i>t</i>) − FHR<sub>model</sub>(0)', 'Observation model; <i>b</i> in closed form.'],
     ],
   },
   baro: {
@@ -636,8 +640,8 @@ const PARTS = {
     during: 'In Part B the arterial pressure overshoot gives the second dip at about 1.6 min (B p.2478). The paper attributes the pressure rise to the sympathetic reflex (B p.2477).',
     eqs: [
       ['A(21)', '<i>r</i>*<sub>b</sub> = <i>r</i><sub>min</sub> + (<i>r</i><sub>max</sub> − <i>r</i><sub>min</sub>) exp(<i>η</i><sub>1</sub> exp(<i>η</i><sub>2</sub>(<i>p</i><sub>tm,a</sub> − <i>y</i><sub>ref</sub>)))', 'Gompertz curve, <i>η</i><sub>2</sub> = −0.06 mmHg⁻¹.'],
-      ['B(3)', '<i>η</i><sub>1</sub> = ln(−<i>r</i><sub>min</sub> / (<i>r</i><sub>max</sub> − <i>r</i><sub>min</sub>))', 'We use the exact value ln 0.5; the table prints −0.69.'],
-      ['A(20)', 'd<i>r</i><sub>b</sub>/d<i>t</i> = (<i>r</i>*<sub>b</sub> − <i>r</i><sub>b</sub>)/<i>τ</i><sub>rb</sub>', 'Low-pass, <i>τ</i><sub>rb</sub> = 8 s.'],
+      ['B(3)', '<i>η</i><sub>1</sub> = ln <span class="fr"><span>−<i>r</i><sub>min</sub></span><span><i>r</i><sub>max</sub> − <i>r</i><sub>min</sub></span></span>', 'Exact ln 0.5 (table: −0.69).'],
+      ['A(20)', '<span class="fr"><span>d<i>r</i><sub>b</sub></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>r</i>*<sub>b</sub> − <i>r</i><sub>b</sub></span><span><i>τ</i><sub>rb</sub></span></span>', 'Low-pass, <i>τ</i><sub>rb</sub> = 8 s.'],
       ['A(22)', '<i>e</i><sub>v</sub> = <i>w</i><sub>b,v</sub> <i>r</i><sub>b</sub> + <i>w</i><sub>c,v</sub> <i>r</i><sub>c</sub>, &nbsp; <i>e</i><sub>s</sub> = −<i>w</i><sub>b,s</sub> <i>r</i><sub>b</sub> + <i>w</i><sub>c,s</sub> <i>r</i><sub>c</sub>', 'Vagal and sympathetic efferents.'],
     ],
   },
@@ -647,8 +651,8 @@ const PARTS = {
     during: 'Part A: a small, delayed pO<sub>2</sub> fall gives a shallow late deceleration. Part B: a fast, large fall gives the nadir at about 1.3 min.',
     eqs: [
       ['A(21)', '<i>r</i>*<sub>c</sub> = <i>r</i><sub>min</sub> + (<i>r</i><sub>max</sub> − <i>r</i><sub>min</sub>) exp(<i>η</i><sub>1</sub> exp(<i>η</i><sub>2</sub>(pO<sub>2,a</sub> − <i>y</i><sub>ref</sub>)))', 'Gompertz curve, <i>η</i><sub>2</sub> = 0.52 mmHg⁻¹, <i>r</i> in [−0.001, 1].'],
-      ['B(3)', '<i>η</i><sub>1</sub> = ln(0.001/1.001)', 'Exact value; the table prints −6.91.'],
-      ['A(20)', 'd<i>r</i><sub>c</sub>/d<i>t</i> = (<i>r</i>*<sub>c</sub> − <i>r</i><sub>c</sub>)/<i>τ</i><sub>rc</sub>', 'Low-pass, <i>τ</i><sub>rc</sub> = 2 s.'],
+      ['B(3)', '<i>η</i><sub>1</sub> = ln <span class="fr"><span>0.001</span><span>1.001</span></span>', 'Exact (table: −6.91).'],
+      ['A(20)', '<span class="fr"><span>d<i>r</i><sub>c</sub></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>r</i>*<sub>c</sub> − <i>r</i><sub>c</sub></span><span><i>τ</i><sub>rc</sub></span></span>', 'Low-pass, <i>τ</i><sub>rc</sub> = 2 s.'],
       ['A(22)', '<i>e</i><sub>v</sub> = ¼ <i>r</i><sub>b</sub> + ¾ <i>r</i><sub>c</sub>, &nbsp; <i>e</i><sub>s</sub> = −¼ <i>r</i><sub>b</sub> + ¾ <i>r</i><sub>c</sub>', 'Same efferents as the baroreceptor.'],
     ],
   },
@@ -657,7 +661,7 @@ const PARTS = {
     role: 'The external tocodynamometer on the fundus measures belly-wall tension, not intrauterine pressure (general CTG background, not from the papers). It has no absolute scale, so we use only the timing of its peaks to build <i>p</i><sub>ut</sub> for the model.',
     during: 'The demo on this page uses the paper\'s single sin² contraction, not a TOCO-derived input.',
     eqs: [
-      ['ours, replaces A(8)', '<i>p</i><sub>ut</sub>(<i>t</i>) = 15 + <i>a</i>·70 Σ<sub><i>k</i></sub> exp(−(<i>t</i> − <i>t</i><sub><i>k</i></sub>)²/2<i>σ</i>²), &nbsp; <i>σ</i> = 15 s', 'One shared height <i>a</i> per 20-min window; <i>a</i> = 1 matches the paper\'s 85 mmHg peak.'],
+      ['ours, replaces A(8)', '<i>p</i><sub>ut</sub>(<i>t</i>) = 15 + <i>a</i>·70 Σ<sub><i>k</i></sub> exp(−<span class="fr"><span>(<i>t</i> − <i>t</i><sub><i>k</i></sub>)²</span><span>2<i>σ</i>²</span></span>), &nbsp; <i>σ</i> = 15 s', 'One height <i>a</i> per 20-min window; <i>a</i> = 1 gives 85 mmHg.'],
       ['ours', '<i>t</i><sub><i>k</i></sub> = peaks of medfilt<sub>10 s</sub>(TOCO): prominence ≥ 15, distance ≥ 80 s, width ≥ 16 s', 'Peak detection on 2-s bins.'],
     ],
   },
@@ -666,15 +670,15 @@ const PARTS = {
     role: 'Maternal heart, arteries, veins and tissue. In Jongen 2016 the heart beats at a fixed 80 bpm and nothing is regulated; the lungs add oxygen to maternal venous blood, so maternal oxygenation stays nearly constant. fetosim adds four maternal layers, each off by default (all off = Jongen 2016 exactly): the <b>HR baroreflex</b> of Randall 2019, a <b>thorax</b> after Lu 2001, a <b>vasomotor reflex</b> and <b>contraction autotransfusion</b>. The fetosim tab at the top draws them in the cross-section and the circuit.',
     during: 'Jongen 2016: little changes on the maternal side; the uterine branch is where the contraction acts. With all four layers: a 70 mmHg contraction squeezes myometrial blood into the veins, stroke volume rises 16 % (fitted to Lee 1989) and MAP 6.7 mmHg, and the baroreflex slows the heart by 8 bpm (CHOP: −1 to 0). Three 40 mmHg pushes raise <i>P</i><sub>th</sub>: CO falls 28 % and MAP/CO rises 93 % (Kuhn 2017: −32 %, SVR +88 %), but MHR rises only 0.5 bpm (CHOP +9.6). This MHR mismatch is open; it goes to a clinical expert before anything is added.',
     eqs: [
-      ['A(1)', '<i>p</i><sub>tm</sub> = (<i>V</i> − <i>V</i><sub>0</sub>)/<i>C</i>', 'Linear compliances for arteries, veins and tissue.'],
-      ['A(9)–(10)', '<i>q</i><sub>CO</sub> = (<i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub>)/<i>T</i><sub>m</sub>, &nbsp; <i>T</i><sub>m</sub> = 60/80 s', 'Same two-state elastance ventricle as the fetus.'],
-      ['A(16)', '<i>Q</i><sub>D,lung</sub> = <i>D</i><sub>lung</sub>(pO<sub>2,air</sub> − pO<sub>2,ven,m</sub>)', 'Lung O<sub>2</sub> uptake into maternal veins.'],
-      ['A(17)', '<i>Q</i><sub>M,tis,m</sub> = <i>Q</i><sub>M,0</sub>', 'The maternal threshold is not stated ("irrelevant", B p.2475); we use constant uptake.'],
-      ['HR reflex', 'MHR = <i>H</i><sub>I</sub>(1 − <i>H</i><sub>pb</sub><i>T</i><sub>pb</sub> + <i>H</i><sub>pr</sub><i>T</i><sub>pr</sub> + <i>H</i><sub>s</sub><i>T</i><sub>s</sub>), &nbsp; <i>T</i><sub>m</sub> = 60/MHR', 'Randall 2019 (MR_MODE 2; mode 1 computes MHR but keeps <i>T</i><sub>m</sub>). Carotid (SBP) and aortic (SBP − <i>P</i><sub>th</sub>) wall strain set the vagal tone <i>T</i><sub>pb</sub> and, after 3 s, the sympathetic tone <i>T</i><sub>s</sub>; <i>P</i><sub>th</sub> sets the respiratory tone <i>T</i><sub>pr</sub>. SBP = <i>p</i><sub>a,m</sub> + 36.8 mmHg.'],
-      ['Thorax', 'Δ<i>P</i><sub>th</sub> = <i>P</i><sub>th</sub> − 4.5, &nbsp; <i>p</i><sub>a,m</sub> += <i>f</i><sub>a</sub>Δ<i>P</i><sub>th</sub>, &nbsp; <i>p</i><sub>v,m</sub> += <i>f</i><sub>v,ab</sub><i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>', 'After Lu 2001 (MT_MODE 1). A strain or push raises <i>P</i><sub>th</sub> and, with it, the abdominal pressure <i>p</i><sub>ab</sub> = <i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>.'],
-      ['Thorax', '<i>q</i><sub>vr</sub> = max(0, (<i>p</i><sub>v,m</sub> − <i>p</i><sub>tm,th</sub> − Δ<i>P</i><sub>th</sub>)/<i>R</i><sub>vr</sub>)', 'Venous return flows one way into an intrathoracic venous + pulmonary reservoir th (<i>C</i><sub>th</sub>, <i>V</i><sub>th</sub>, <i>R</i><sub>vr</sub> from Lu); the ventricle fills from th and ejects against <i>p</i><sub>a,m</sub> − Δ<i>P</i><sub>th</sub>. Rest is unchanged.'],
-      ['Vasomotor', '<i>R</i><sub>tis,a</sub> = <i>R</i><sub>tisa</sub>·max(<i>r</i><sub>min</sub>, 1 + <i>k</i><sub>R</sub><i>x</i><sub>R</sub>), &nbsp; <i>V</i><sub>ven,0</sub> −= <i>k</i><sub>V</sub><i>x</i><sub>V</sub>', 'MV_MODE 1, needs the HR reflex. <i>x</i><sub>R</sub>, <i>x</i><sub>V</sub> = <i>T</i><sub>s</sub> − <i>T</i><sub>s,0</sub> low-pass filtered with 6 s and 20 s (Ursino 1998). Uterine vessels are not constricted. <i>f</i><sub>a</sub>, <i>f</i><sub>v,ab</sub>, <i>k</i><sub>R</sub>, <i>k</i><sub>V</sub> are fitted together to a 40 mmHg Valsalva (Fox, in Lu 2001 Table 13).'],
-      ['Autotransfusion', '<i>V</i><sub>ven,0</sub> −= <i>V</i><sub>sq</sub><i>x</i><sub>c</sub>/<i>p</i><sub>ref</sub>, &nbsp; <i>x</i><sub>c</sub> = max(0, <i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub> − <i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>)', 'MA_MODE 1. The contracting myometrium squeezes up to <i>V</i><sub>sq</sub> = 625 ml (at 70 mmHg) into the maternal veins, with venous O<sub>2</sub>; the push part of <i>p</i><sub>ut</sub> does not count. <i>V</i><sub>sq</sub> is fitted to the stroke-volume rise in Lee 1989 (+16 %); 300–500 ml is the usual figure.'],
+      ['A(1)', '<i>p</i><sub>tm</sub> = <span class="fr"><span><i>V</i> − <i>V</i><sub>0</sub></span><span><i>C</i></span></span>', 'Linear compliances.'],
+      ['A(9)–(10)', '<i>q</i><sub>CO</sub> = <span class="fr"><span><i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub></span><span><i>T</i><sub>m</sub></span></span>, &nbsp; <i>T</i><sub>m</sub> = <span class="fr"><span>60</span><span>80</span></span> s', 'Same ventricle as the fetus, fixed 80 bpm.'],
+      ['A(16)', '<i>Q</i><sub>D,lung</sub> = <i>D</i><sub>lung</sub>(pO<sub>2,air</sub> − pO<sub>2,ven,m</sub>)', 'Lung O<sub>2</sub> uptake.'],
+      ['A(17)', '<i>Q</i><sub>M,tis,m</sub> = <i>Q</i><sub>M,0</sub>', 'Constant uptake (no threshold given, B p.2475).'],
+      ['HR reflex', 'MHR = <i>H</i><sub>I</sub>(1 − <i>H</i><sub>pb</sub><i>T</i><sub>pb</sub> + <i>H</i><sub>pr</sub><i>T</i><sub>pr</sub> + <i>H</i><sub>s</sub><i>T</i><sub>s</sub>), &nbsp; <i>T</i><sub>m</sub> = <span class="fr"><span>60</span><span>MHR</span></span>', 'Randall 2019, MR_MODE. SBP = <i>p</i><sub>a,m</sub> + 36.8 mmHg.'],
+      ['Thorax', 'Δ<i>P</i><sub>th</sub> = <i>P</i><sub>th</sub> − 4.5, &nbsp; <i>p</i><sub>a,m</sub> += <i>f</i><sub>a</sub>Δ<i>P</i><sub>th</sub>, &nbsp; <i>p</i><sub>v,m</sub> += <i>f</i><sub>v,ab</sub><i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>', 'Lu 2001, MT_MODE. Abdominal pressure <i>p</i><sub>ab</sub> = <i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>.'],
+      ['Thorax', '<i>q</i><sub>vr</sub> = max(0, <span class="fr"><span><i>p</i><sub>v,m</sub> − <i>p</i><sub>tm,th</sub> − Δ<i>P</i><sub>th</sub></span><span><i>R</i><sub>vr</sub></span></span>)', 'One-way venous return into the thoracic reservoir th.'],
+      ['Vasomotor', '<i>R</i><sub>tis,a</sub> = <i>R</i><sub>tisa</sub>·max(<i>r</i><sub>min</sub>, 1 + <i>k</i><sub>R</sub><i>x</i><sub>R</sub>), &nbsp; <i>V</i><sub>ven,0</sub> −= <i>k</i><sub>V</sub><i>x</i><sub>V</sub>', 'MV_MODE. <i>x</i><sub>R</sub>, <i>x</i><sub>V</sub>: low-passed <i>T</i><sub>s</sub> − <i>T</i><sub>s,0</sub>; fitted to a Valsalva.'],
+      ['Autotransfusion', '<i>V</i><sub>ven,0</sub> −= <span class="fr"><span><i>V</i><sub>sq</sub><i>x</i><sub>c</sub></span><span><i>p</i><sub>ref</sub></span></span>, &nbsp; <i>x</i><sub>c</sub> = max(0, <i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub> − <i>k</i><sub>ab</sub>Δ<i>P</i><sub>th</sub>)', 'MA_MODE. <i>V</i><sub>sq</sub> = 625 ml, fitted to Lee 1989 (SV +16 %).'],
     ],
   },
 };
@@ -765,7 +769,7 @@ function renderPanel(key, scroll) {
     panel.innerHTML = `<h3 class="ptitle">${numHTML(g.n)}<span>${g.title}</span></h3>
       ${Ps.map(P => `<p class="role">${P.role}</p>`).join('')}
       <p class="during"><b>During a contraction.</b> ${Ps.map(P => P.during).join(' ')}</p>
-      <div class="eqs">${Ps.flatMap(P => P.eqs).filter(([n]) => circExt || !FS_EQ.includes(n)).map(([n, m, w]) => `<div class="eq"><span class="no">${n}</span>${M(m)}<span class="why">${w}</span></div>`).join('')}</div>
+      <div class="eqs">${Ps.flatMap(P => P.eqs).filter(([n]) => circExt || !FS_EQ.includes(n)).map(([n, m, w]) => `<div class="eq"><span class="no">${n}</span>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('')}</div>
       ${filt}
       <div class="plist">${paramRows(g.parts)}</div>
       <button class="btn only-phone" type="button" id="toModel">↑ Back to the model</button>`;
