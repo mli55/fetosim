@@ -366,14 +366,6 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .halo { opacity: 0; }
 .baro-c { fill: var(--baro); } .chemo-c { fill: var(--chemo); }
 .ring { fill: var(--surface); stroke: var(--baro); stroke-width: 4; }
-.mring { stroke-width: 3; }
-.thxo { fill: color-mix(in srgb, var(--thorax) 6%, transparent); stroke: var(--thorax); stroke-width: 1.6; stroke-dasharray: 5 4; }
-.mctl { fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 5 4; marker-end: url(#mArrA); }
-.msq { fill: none; stroke: var(--maternal); stroke-width: 2.2; stroke-dasharray: 5 4; marker-end: url(#mArrM); }
-.mext-t text { font-family: var(--font-body); font-size: 14px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
-.mext-t .ms { font-size: 10px; }
-.mt-thx { fill: var(--thorax); } .mt-baro { fill: var(--baro); } .mt-ctl { fill: var(--accent); } .mt-sq { fill: var(--maternal); }
-.diagram:not(.ext) .mext { display: none; }
 .clamp { fill: var(--c2); stroke: color-mix(in srgb, var(--c2) 70%, var(--ink)); stroke-width: 1; opacity: 0; }
 .callout { cursor: pointer; }
 .callout line { stroke: var(--muted); stroke-width: 1.1; opacity: .7; }
@@ -411,14 +403,22 @@ body { margin: 0; }
 #circ .rcp { stroke-width: 3.5; } #circ .rb { fill: color-mix(in srgb, var(--baro) 16%, var(--surface)); stroke: var(--baro); }
 #circ .rc { fill: color-mix(in srgb, var(--chemo) 18%, var(--surface)); stroke: var(--chemo); } #circ .rn { font-size: 19px; font-weight: 600; }
 #circ .cb circle { fill: var(--surface); stroke: var(--ink); stroke-width: 2.4; } #circ .cb text { font-family: var(--font-mono); font-size: 19px; font-weight: 600; }
-#circ .thx { fill: color-mix(in srgb, var(--thorax) 7%, transparent); stroke: var(--thorax); stroke-width: 2.6; stroke-dasharray: 10 7; }
-#circ .thl { stroke: var(--thorax); stroke-width: 3; } #circ .pthd { fill: var(--thorax); } #circ .thxt { fill: var(--thorax); }
-#circ .dio { fill: var(--ink); } #circ .dio-b { stroke: var(--ink); stroke-width: 4; }
-#circ .myo { fill: color-mix(in srgb, var(--muscle) 40%, var(--surface)); stroke: var(--muscle-edge); stroke-width: 3; }
-#circ .sq { stroke: var(--maternal); stroke-width: 3.5; stroke-dasharray: 9 6; fill: none; } #circ .sq-h, #circ .sqt { fill: var(--maternal); }
+#circ .thx { fill: color-mix(in srgb, var(--thorax) 6%, transparent); stroke: var(--thorax); stroke-width: 2.6; stroke-dasharray: 10 7; }
+#circ .thl { stroke: var(--thorax); stroke-width: 3.5; } #circ .thl-h, #circ .thxt { fill: var(--thorax); }
+#circ .src { fill: var(--surface); stroke: var(--thorax); stroke-width: 3.5; } #circ .srcw { fill: none; stroke: var(--thorax); stroke-width: 3; }
+#circ .dio { fill: var(--thorax); } #circ .dio-b { stroke: var(--thorax); stroke-width: 4.5; }
+#circ .blk { stroke-width: 3; } #circ .blk.a { fill: color-mix(in srgb, var(--baro) 12%, var(--surface)); stroke: var(--baro); }
+#circ .blk.c { fill: color-mix(in srgb, var(--accent) 9%, var(--surface)); stroke: var(--accent); }
+#circ .bt { font-size: 26px; font-weight: 600; } #circ .bs { font-size: 19px; fill: var(--muted); }
+#circ .sense { stroke: var(--baro); stroke-width: 3; } #circ .ca { stroke: var(--baro); stroke-width: 3; stroke-dasharray: 9 6; fill: none; } #circ .ca-h, #circ .ct-a { fill: var(--baro); }
+#circ .cv { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 9 6; fill: none; } #circ .cv-h, #circ .ct-c { fill: var(--accent); }
+#circ .vx { stroke: var(--accent); stroke-width: 3; fill: none; } #circ .vx-h { fill: var(--accent); }
+#circ .myo { fill: color-mix(in srgb, var(--muscle) 40%, var(--surface)); stroke: var(--maternal); stroke-width: 3; }
+#circ .sqm { stroke: var(--maternal); stroke-width: 3.5; stroke-dasharray: 9 6; fill: none; } #circ .sqm-h, #circ .sqt { fill: var(--maternal); }
 #circ .ctlt { fill: var(--accent); } #circ .bpt { fill: var(--maternal); font-weight: 600; }
-#circ .el.hl .thx, #circ .el.hl .myo, #circ .el.hl .thl, #circ .el.hl .sq, #circ .el.hl .dio-b { stroke: var(--accent); }
-#circ .el.hl .pthd, #circ .el.hl .sq-h, #circ .el.hl .dio { fill: var(--accent); }
+#circ .el.hl .thx, #circ .el.hl .myo, #circ .el.hl .thl, #circ .el.hl .sqm, #circ .el.hl .src, #circ .el.hl .srcw, #circ .el.hl .blk,
+#circ .el.hl .ca, #circ .el.hl .cv, #circ .el.hl .vx, #circ .el.hl .sense, #circ .el.hl .dio-b { stroke: var(--accent); }
+#circ .el.hl .thl-h, #circ .el.hl .sqm-h, #circ .el.hl .dio, #circ .el.hl .ca-h, #circ .el.hl .cv-h, #circ .el.hl .vx-h { fill: var(--accent); }
 #circ .part { cursor: pointer; transition: opacity .25s; }
 #circ.focus .part:not(.on) { opacity: .22; }
 #circ .part:hover, #circ .part.sel { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 70%, transparent)); }
@@ -437,10 +437,10 @@ body { margin: 0; }
 .k-box { width: 16px; height: 10px; border: 1.6px solid var(--ink); }
 .k-var { background: linear-gradient(to top right, transparent 44%, var(--ink) 46%, var(--ink) 54%, transparent 56%); }
 .k-put { width: 16px; height: 2px; background: var(--ink); position: relative; } .k-put::after { content: ""; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+.k-src { width: 12px; height: 12px; border: 1.8px solid var(--thorax); border-radius: 50%; }
 .k-thx { width: 16px; height: 11px; border: 1.6px dashed var(--thorax); border-radius: 3px; }
-.k-pth { width: 16px; height: 2px; background: var(--thorax); position: relative; } .k-pth::after { content: ""; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--thorax); }
-.k-sq { width: 18px; border-top: 2px dashed var(--maternal); }
-.k-dio { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 9px solid var(--ink); }
+.k-dio { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 9px solid var(--thorax); }
+.k-ca { width: 18px; border-top: 2px dashed var(--baro); } .k-cv { width: 18px; border-top: 2px dashed var(--accent); } .k-sq { width: 18px; border-top: 2px dashed var(--maternal); }
 .circ-key .kx { display: none; } .circuit.ext .circ-key .kx { display: inline-flex; }
 .circ-mode button { padding: 3px 9px; font-size: 12px; }
 .k-o2 { width: 18px; border-top: 2px dashed var(--muted); } .k-ctl { width: 18px; border-top: 2px dashed var(--accent); }
@@ -489,7 +489,7 @@ body { margin: 0; }
           <span><i class="k-node"></i><span class="kt">compartment: pressure, volume, pO<sub>2</sub></span></span><span><i class="k-node k-dbl"></i><span class="kt">ventricle</span></span>
           <span><i class="k-box"></i><span class="kt">resistance</span></span><span><i class="k-box k-var"></i><span class="kt">varies with <i>p</i><sub>ut</sub></span></span>
           <span><i class="k-put"></i><span class="kt">uterine pressure <i>p</i><sub>ut</sub></span></span><span><i class="k-o2"></i><span class="kt">O<sub>2</sub> flux</span></span><span><i class="k-ctl"></i><span class="kt">reflex control</span></span>
-          <span class="kx"><i class="k-thx"></i><span class="kt">thorax</span></span><span class="kx"><i class="k-pth"></i><span class="kt">strain / push pressure</span></span><span class="kx"><i class="k-dio"></i><span class="kt">one-way venous return</span></span><span class="kx"><i class="k-sq"></i><span class="kt">squeezed myometrial blood</span></span>
+          <span class="kx"><i class="k-thx"></i><span class="kt">thorax</span></span><span class="kx"><i class="k-src"></i><span class="kt">pressure source: <i>P</i><sub>th</sub>, abdominal <i>p</i><sub>ab</sub></span></span><span class="kx"><i class="k-dio"></i><span class="kt">one-way</span></span><span class="kx"><i class="k-ca"></i><span class="kt">baroreflex</span></span><span class="kx"><i class="k-cv"></i><span class="kt">vasomotor</span></span><span class="kx"><i class="k-sq"></i><span class="kt">autotransfusion</span></span>
         </div>
       </div>
     </div>
@@ -963,8 +963,6 @@ const DEFS = `<defs>
     <stop offset="1" style="stop-color:color-mix(in srgb, var(--fetal) 11%, transparent)"/></radialGradient>
   <linearGradient id="gDevice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb, var(--device) 55%, #fff)"/>
     <stop offset="1" style="stop-color:var(--device)"/></linearGradient>
-  <marker id="mArrA" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--accent)"/></marker>
-  <marker id="mArrM" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--maternal)"/></marker>
   <clipPath id="cWall"><path d="${MUSCLE}"/></clipPath>
   <clipPath id="cIVS"><path d="${IVS}"/></clipPath>
 </defs>`;
@@ -983,12 +981,6 @@ const ART = `
   <path class="mcap" d="M44 424 C 52 410, 58 444, 66 428 S 78 414, 82 436 S 92 446, 90 444"/>
   <g class="shadow"><path class="mheart" d="${HEART(100, 300, 1.15)}"/></g>
   <ellipse class="sheen" cx="83" cy="284" rx="11" ry="6" transform="rotate(-35 83 284)"/>
-  <g class="mext" aria-hidden="true">
-    <rect class="thxo" x="24" y="212" width="152" height="152" rx="34"/>
-    <path class="mctl" d="M125 213 C 114 222, 106 236, 104 254"/>
-    <path class="mctl" d="M138 212 C 190 250, 186 370, 100 414"/>
-    <circle class="ring mring" cx="131" cy="206" r="7"/>
-  </g>
 </g>
 <g class="part" data-part="uterus">
   <g id="wall">
@@ -1005,10 +997,6 @@ const ART = `
   <g class="shadow"><rect class="toco" x="190" y="82" width="42" height="56" rx="10"/></g>
   <circle class="toco-dot" cx="203" cy="110" r="4"/>
   <rect class="toco-face" x="223" y="94" width="7" height="32" rx="3"/>
-</g>
-<g class="part mext" data-part="mother" aria-hidden="true">   <!-- autotransfusion, drawn over the uterine wall -->
-    <path class="msq" d="M268 368 C 266 390, 264 408, 262 428"/>
-    <path class="msq" d="M274 526 C 272 512, 270 502, 268 496"/>
 </g>
 <g class="part" data-part="spiral">
   ${[200, 290, 380].map(y => V('mart', `M200 ${y} L 238 ${y}` + coil(238, 338, y, 7, 4), 5, 'q_uta')).join('')}
@@ -1074,11 +1062,7 @@ function layout() {
       (p ? '' : `<text x="${lx + r + 7}" y="${ly}" dominant-baseline="central" font-size="17">${esc(g.name)}</text>`) + `</g>`;
   }).join('');
   const zt = p ? '' : `<g class="zone-t" aria-hidden="true"><text x="16" y="592">MATERNAL</text><text x="984" y="592" text-anchor="end">FETAL</text></g>`;
-  const ML = [[30, 205, 'P<tspan class="ms" dy="4">th</tspan>', 'mt-thx', 'start'], [143, 229, 'baro', 'mt-baro', 'start'], [97, 226, 'MHR', 'mt-ctl', 'end'],
-    [112, 384, 'vasomotor', 'mt-ctl', 'end'], [214, 402, 'squeeze', 'mt-sq', 'end']];
-  const mlab = `<g class="part mext mext-t" data-part="mother" aria-hidden="true">` + ML.map(([x, y, t, c, a]) => { const [X, Y] = T([x, y]);
-    return `<text class="${c}" x="${X}" y="${Y}" text-anchor="${p ? 'middle' : a}">${t}</text>`; }).join('') + `</g>`;
-  dia.innerHTML = `${DEFS}<g id="art"${p ? ' transform="translate(600 0) rotate(90)"' : ''}>${ZONES}${ART}</g>${mlab}${zt}<g id="callouts">${call}</g>`;
+  dia.innerHTML = `${DEFS}<g id="art"${p ? ' transform="translate(600 0) rotate(90)"' : ''}>${ZONES}${ART}</g>${zt}<g id="callouts">${call}</g>`;
   dia.querySelectorAll('path[data-q]').forEach(el => {        // moving dashes show the flow
     const f = el.cloneNode(); f.setAttribute('class', 'flow'); f.removeAttribute('stroke-width'); f.dataset.flow = '1'; el.after(f);
   });
@@ -1364,28 +1348,41 @@ function circuitSVG(ext = circExt) {
       L(mt + R, MID, mt + 78, MID) + gnd(mt + 78, MID) + consume(mt, MID, sb('Q', 'M,tis,m'), 1)) +
     badge(250, 300, N('mother')));
   else {
-    // fetosim maternal layers (each off by default): thorax with a one-way venous return into reservoir th, external
-    // pressures P_th / p_ab, the Randall baroreceptor setting MHR, the vasomotor effectors x_R, x_V and the squeezed myometrium
-    const LV = 285, TH = 430, MB = 330;
+    // fetosim: the maternal circuit as now modelled (each layer off = Jongen 2016). Colours mark what is new:
+    // blue = HR baroreflex (Randall 2019), teal = thorax after Lu 2001 (reservoir th, one-way R_vr, external pressure
+    // sources P_th and p_ab), purple = vasomotor effectors x_R, x_V, red = contraction autotransfusion.
+    const LVX = -140, ax = 280;
     const sb2 = (m, s, m2, s2) => `${m}<tspan class="sb" dy="9">${s}</tspan><tspan dy="-9">${m2}</tspan><tspan class="sb" dy="9">${s2}</tspan>`;
-    const pdot = (x1, y1, x2, y2, lab, lx, ly, a = 'middle') => L(x1, y1, x2, y2, 'thl') + `<circle class="pthd" cx="${x2}" cy="${y2}" r="8"/>` + T(x2 + lx, y2 + ly, lab, 'lb thxt', a);
-    const diode = (x, yb, yt) => `<path class="dio" d="M${x - 14} ${yb} L${x + 14} ${yb} L${x} ${yt} Z"/>` + L(x - 14, yt, x + 14, yt, 'dio-b');
-    add('mother', E('m_thx', `<rect class="thx" x="40" y="205" width="236" height="290" rx="22"/>` + T(52, 232, 'thorax', 'sb thxt', 'start') +
-        T(52, 478, sb('P', 'th'), 'lb thxt', 'start') + L(mh, TH, mh, BOT) + diode(mh, 516, 497) + T(196, 520, sb('R', 'vr'), 'lb', 'start') +
-        L(mh - R, TH, 40, TH, 'thl') + node(mh, TH, 'th')) +
-      E('m_heart', L(mh, TOP, mh, TH - R) + node(mh, LV, 'LV', true) + A(mh - 30, 236, mh - 30, 188) + A(mh - 30, 382, mh - 30, 336) + L(mh - R, LV, 40, LV, 'thl')) +
-      E('m_art', L(mh, TOP, mu, TOP) + A(285, TOP - 26, 365, TOP - 26) + pdot(mh - R, TOP, 70, TOP, sb2('f', 'a', ' P', 'th'), 0, 44) + node(mh, TOP, 'art') + T(226, 121, 'BP', 'sb bpt', 'start')) +
-      E('m_ven', L(mh, BOT, mu, BOT) + A(365, BOT + 26, 285, BOT + 26) + pdot(mh, BOT + R, mh, BOT + 62, sb('p', 'ab'), 16, 10, 'start') + node(mh, BOT, 'ven')) +
-      E('m_o2', A(48, 668, mh - 34, BOT + 30, 'o2', 14) + T(28, 692, sb('Q', 'D,lung'), 'lb o2t', 'start')) +
+    // time-varying pressure source between a compartment's outer wall and ground
+    const src = (x, y, lab, lx, ly, a = 'start') => `<circle class="src" cx="${x}" cy="${y}" r="20"/><path class="srcw" d="M${x - 11} ${y + 1} q 5.5 -11 11 0 t 11 0"/>` + T(x + lx, y + ly, lab, 'lb thxt', a);
+    const blk = (x, y, w, h, cls, l1, l2) => `<rect class="blk ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>` +
+      T(x + w / 2, y + (l2 ? h / 2 - 1 : h / 2 + 9), l1, 'bt') + (l2 ? T(x + w / 2, y + h / 2 + 23, l2, 'bs') : '');
+    const diode = (x, yb, yt) => `<path class="dio" d="M${x - 15} ${yb} L${x + 15} ${yb} L${x} ${yt} Z"/>` + L(x - 15, yt, x + 15, yt, 'dio-b');
+    add('mother',
+      E('m_thx', `<rect class="thx" x="-300" y="72" width="320" height="350" rx="26"/>` + T(8, 410, 'thorax', 'sb thxt', 'end')) +
+      E('m_heart', L(LVX, TOP, LVX, MID) + node(LVX, TOP, 'LV', true) + A(LVX + 30, 300, LVX + 30, 190) + T(LVX + 44, 252, sb('q', 'in'), 'lb', 'start') +
+        L(LVX - R, TOP, -212, TOP, 'thl') + src(-232, TOP, sb('P', 'th'), 0, -32, 'middle') + L(-232, TOP + 20, -232, TOP + 28, 'thl') + gnd(-232, TOP + 28)) +
+      E('m_thx', L(LVX, MID, LVX, BOT) + `<rect class="bx" x="${LVX - BW / 2}" y="${470 - BH / 2}" width="${BW}" height="${BH}"/>` + T(LVX, 481, 'vr', 'nm') +
+        diode(LVX, 534, 514) + node(LVX, MID, 'th') +
+        L(LVX - R, MID, -212, MID, 'thl') + src(-232, MID, sb('P', 'th'), 0, -32, 'middle') + L(-232, MID + 20, -232, MID + 28, 'thl') + gnd(-232, MID + 28)) +
+      E('m_art', L(LVX + R, TOP, mu, TOP) + A(-70, TOP - 26, 10, TOP - 26) + A(560, TOP - 26, 640, TOP - 26) + node(ax, TOP, 'art') + T(ax + 50, TOP - 16, 'BP', 'sb bpt', 'start') +
+        L(ax, TOP + R, ax, 195, 'thl') + src(ax, 215, sb2('f', 'a', ' ΔP', 'th'), 28, 9) + L(ax, 235, ax, 243, 'thl') + gnd(ax, 243)) +
+      E('m_ven', L(LVX, BOT, mu, BOT) + A(365, BOT + 26, 285, BOT + 26) + A(40, BOT + 26, -40, BOT + 26) + node(mh, BOT, 'ven') +
+        L(mh, BOT + R, mh, 618, 'thl') + src(mh, 638, sb('p', 'ab'), 28, 9) + L(mh, 658, mh, 664, 'thl') + gnd(mh, 664)) +
+      E('m_o2', A(26, 676, mh - 40, BOT + 28, 'o2', 14) + T(8, 700, sb('Q', 'D,lung'), 'lb o2t', 'start')) +
       L(mu, TOP, mu, BOT) +
       E('m_tis', L(mt, TOP, mt, BOT) + box(mt, (TOP + MID) / 2, 'tisa') + box(mt, (MID + BOT) / 2, 'tisv') + node(mt, MID, 'tis') +
         L(mt + R, MID, mt + 78, MID) + gnd(mt + 78, MID) + consume(mt, MID, sb('Q', 'M,tis,m'), 1)) +
-      E('m_hr', L(MB, 181, MB, TOP, 'ctl') + rcp(MB, 210, 'rb', 'baro') + A(MB - 25, 225, 221, 268, 'ctl', 14) + T(266, 228, 'MHR', 'sb ctlt', 'end')) +
-      E('m_vaso', A(MB + 27, 200, 408, 226, 'ctl', 14) + T(372, 190, sb('x', 'R'), 'sb ctlt', 'middle') +
-        L(MB, 239, MB, 515, 'ctl') + A(MB, 515, 221, 550, 'ctl', 14) + T(MB + 12, 470, sb('x', 'V'), 'sb ctlt', 'start')) +
-      E('m_auto', `<rect class="myo" x="540" y="440" width="90" height="58" rx="16"/>` + T(585, 480, 'myo', 'nm') + put(585, 440, 0, -30, 16, 8, 'start') +
-        A(585, 498, 585, BOT - 5, 'sq', 14) + T(599, 540, sb('v', 'sq'), 'lb sqt', 'start')) +
-      badge(392, 318, N('mother')));
+      E('m_hr', L(140, TOP, 140, 198, 'sense') + blk(40, 198, 200, 74, 'a', 'baroreflex', 'Randall 2019') +
+        A(-12, 252, 38, 252, 'thl', 12) + A(40, 214, -94, 157, 'ca', 15) + T(-28, 168, 'MHR', 'sb ct-a', 'middle')) +
+      E('m_vaso', L(140, 272, 140, 290, 'cv') + L(80, 290, 220, 290, 'cv') + A(80, 290, 80, 306, 'cv', 12) + A(220, 290, 220, 306, 'cv', 12) + T(232, 296, sb('T', 's'), 'sb ct-c', 'start') +
+        blk(30, 306, 100, 58, 'c', sb('x', 'V'), '20 s') + blk(170, 306, 100, 58, 'c', sb('x', 'R'), '6 s') +
+        L(270, 335, 380, 335, 'cv') + L(380, 335, 380, 242, 'cv') + A(380, 242, 410, 242, 'cv', 14) +
+        A(mt - 70, (TOP + MID) / 2 + 50, mt + 66, (TOP + MID) / 2 - 54, 'vx', 18) +
+        L(80, 364, 80, 512, 'cv') + A(80, 512, 136, 546, 'cv', 14) + T(68, 470, sb('V', 'ven,0'), 'sb ct-c', 'end')) +
+      E('m_auto', `<rect class="myo" x="265" y="440" width="110" height="58" rx="16"/>` + T(320, 480, 'myo', 'nm') + put(320, 440, 0, -28, 16, 8, 'start') +
+        A(282, 498, 213, 538, 'sqm', 14) + T(262, 548, sb('V', 'sq'), 'lb sqt', 'start')) +
+      badge(330, 290, N('mother')));
   }
   add('spiral', E('spiral', box(mu, (TOP + MID) / 2, 'uta')) + badge(800, 205, N('spiral')));
   // fetus
@@ -1410,9 +1407,9 @@ function circuitSVG(ext = circExt) {
   add('baro', E('baro_curve baro_filt', L(1442, 171, 1442, TOP, 'ctl') + rcp(1442, 200, 'rb', 'baro')) + E('baro_w', A(1422, 222, 1378, 314, 'ctl', 14)) + badge(1400, 185, N('baro')));
   add('chemo', E('chemo_curve chemo_filt', L(1480, 271, 1480, TOP, 'ctl') + rcp(1480, 300, 'rc', 'chemo')) + E('chemo_w', A(1452, 312, 1388, 340, 'ctl', 14)) + badge(1432, 296, N('chemo')));
   const grp = k => (G[k] || []).length ? `<g class="part" data-part="${k}">${G[k].join('')}</g>` : '';
-  return `<rect class="rg rg-m" x="8" y="8" width="808" height="704" rx="24"/><rect class="rg rg-f" x="938" y="8" width="994" height="704" rx="24"/>
+  return `<rect class="rg rg-m" x="${ext ? -392 : 8}" y="8" width="${ext ? 1208 : 808}" height="704" rx="24"/><rect class="rg rg-f" x="938" y="8" width="994" height="704" rx="24"/>
     <g class="part" data-part="placenta"><rect class="rg rg-p" x="650" y="256" width="474" height="188" rx="94"/></g>
-    ${T(470, 54, 'MOTHER', 'rt rt-m')}${T(1690, 54, 'FETUS', 'rt rt-f')}` +
+    ${T(ext ? 212 : 470, 54, 'MOTHER', 'rt rt-m')}${T(1690, 54, 'FETUS', 'rt rt-f')}` +
     ['mother', 'heart', 'spiral', 'cord', 'uterus', 'placenta', 'baro', 'chemo'].map(grp).join('');
 }
 const circ = $('#circ');
@@ -1427,8 +1424,9 @@ function circHL(key, pin) {
 }
 function setCircExt(on) {
   circExt = on; circ.innerHTML = circuitSVG(); paintFocus(); circHL(circPinned);
+  circ.setAttribute('viewBox', on ? '-400 0 2340 720' : '0 0 1940 720');
   document.querySelectorAll('[data-cm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cm === (on ? '1' : '0'))));
-  $('#circuit').classList.toggle('ext', on); diagramEl.classList.toggle('ext', on);
+  $('#circuit').classList.toggle('ext', on);
   circ.setAttribute('aria-label', 'Lumped circuit of the model' + (on ? ' as in fetosim, with the optional maternal thorax, heart-rate baroreflex, vasomotor reflex and autotransfusion' : ' as in Jongen 2016'));
 }
 document.querySelectorAll('[data-cm]').forEach(b => b.addEventListener('click', () => setCircExt(b.dataset.cm === '1')));
