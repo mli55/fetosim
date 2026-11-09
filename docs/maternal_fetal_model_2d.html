@@ -269,6 +269,8 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .annbox { position: absolute; left: 0; top: 0; display: grid; gap: 3px; justify-items: start; max-width: var(--annw, 210px); pointer-events: none; }
 .annrows { display: grid; gap: 3px; justify-items: start; }
 .annbox .ann { position: static; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.annbox.hi .ann { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); } .annbox.hi .annh { color: var(--accent); }
+
 .annh { font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted); padding: 0 2px; line-height: 1.2;
   text-shadow: 0 0 3px var(--stage2, var(--stage)), 0 0 3px var(--stage2, var(--stage)); }
 .as { font-family: var(--font-math); font-style: italic; font-size: 13.5px; }
@@ -1167,6 +1169,7 @@ function zoomTo(key) {
   vbAnim = { from: (vb || VB0()).slice(), to: targetVB(key), t0: performance.now(), D: reduceMotion ? 0 : 480, done: renderAnns };
 }
 function zoomOut() {
+  hoverPart(null); elHov = null;
   zoomKey = null; expanded = null; pickedParam = null; circHL(null, true); clearAnns(); tip.hide();
   dia.classList.remove('zoom'); diagramEl.classList.remove('zoomed'); $('#zoombar').hidden = true;
   dia.querySelectorAll('#art .part').forEach(el => el.classList.remove('zsel'));
@@ -1194,7 +1197,7 @@ function renderAnns() {
   // each element gets one label box right next to its own anchor on the drawing
   const boxes = groups.map(G => {
     const [ax, ay] = anchorPx(G.xy), box = document.createElement('div'), open = !grouped || expanded === G.key;
-    box.className = 'annbox';
+    box.className = 'annbox'; box.dataset.g = G.key;
     if (grouped) box.appendChild(btn(`${esc(G.name)} ${open ? '▾' : '▸'}`, 'grp' + (open ? ' open' : ''), G, null));
     else if (groups.length > 1) { const h = document.createElement('div'); h.className = 'annh'; h.textContent = G.name; box.appendChild(h); }
     if (open) {                                // symbol only; details in the side panel. Long lists wrap into short columns
@@ -1258,7 +1261,7 @@ function renderAnns() {
       lx = Math.min(Math.max(ax, x + 8), x + w - 8); ly = ay <= y ? y : y + h;
       const my = (ay + ly) / 2; d = `M${f(ax)} ${f(ay)} C ${f(ax)} ${f(my)}, ${f(lx)} ${f(my)}, ${f(lx)} ${f(ly)}`;
     }
-    const sel = B.G.rows.some(r => r.name === pickedParam) ? ' sel' : '';
+    const sel = B.G.rows.some(r => r.name === pickedParam) || B.G.key === circPinned ? ' sel' : '';
     return `<g class="lead${sel}" data-g="${B.G.key}">` + (Math.hypot(lx - ax, ly - ay) > 6 ? `<path class="lc" d="${d}"/><path class="ll" d="${d}"/>` : '') +
       `<circle class="ap" cx="${f(ax)}" cy="${f(ay)}" r="11"/><circle class="ar" cx="${f(ax)}" cy="${f(ay)}" r="5"/><circle class="ad" cx="${f(ax)}" cy="${f(ay)}" r="2.1"/></g>`;
   }).join('');
@@ -1420,13 +1423,36 @@ const circ = $('#circ');
 circ.innerHTML = circuitSVG();
 /* hover sync: a part under the pointer in either drawing lights up in both (cross-section parts, callouts, circuit groups) */
 function hoverPart(key) {
+  if (!zoomKey) key = null;                       // hover links the drawings only while zoomed in; the overview stays calm
   [dia, circ].forEach(svg => { svg.classList.toggle('hovering', !!key); svg.querySelectorAll('.part, .callout').forEach(el => el.classList.toggle('hov', !!key && el.dataset.part === key)); });
 }
 [dia, circ].forEach(svg => {
   svg.addEventListener('pointerover', e => { const g = e.target.closest('[data-part]'); hoverPart(g ? (GROUP_OF[g.dataset.part] || GROUP[g.dataset.part]).key : null); });
   svg.addEventListener('pointerleave', () => hoverPart(null));
 });
-circ.addEventListener('click', e => { const g = e.target.closest('[data-part]'); select(g ? g.dataset.part : null, false); });
+circ.addEventListener('click', e => {
+  const g = e.target.closest('[data-part]'), el = e.target.closest('.el[data-el]');
+  elHover(null); select(g ? g.dataset.part : null, false);
+  if (g && el) {                                   // pin the clicked element: its close-up label opens and stays lit
+    const k = el.dataset.el.split(' ').find(k => ANCHORS[k] && ANCHORS[k].g === zoomKey);
+    if (k) { expanded = k; circHL(k, true); }
+  }
+});
+/* element hover in the circuit -> the same element's close-up label on the cross-section (the reverse of hovering a
+   close-up label, which lights the circuit element). Only while zoomed in. */
+let elHov = null;
+function elHover(keys) {
+  if (!zoomKey) keys = null;
+  const id = keys ? keys.join(' ') : null; if (id === elHov) return; elHov = id;
+  annlayer.querySelectorAll('.annbox.hi').forEach(b => b.classList.remove('hi'));
+  annlines.querySelectorAll('.lead.hi').forEach(l => l.classList.remove('hi'));
+  circHL(keys ? keys[0] : circPinned);
+  if (keys) keys.forEach(k => circ.querySelectorAll(`.el[data-el~="${k}"]`).forEach(el => el.classList.add('hl')));
+  if (!keys) return;
+  keys.forEach(k => { annlayer.querySelector(`.annbox[data-g="${k}"]`)?.classList.add('hi'); annlines.querySelector(`.lead[data-g="${k}"]`)?.classList.add('hi'); });
+}
+circ.addEventListener('pointerover', e => { const el = e.target.closest('.el[data-el]'); elHover(el ? el.dataset.el.split(' ') : null); });
+circ.addEventListener('pointerleave', () => elHover(null));
 /* light up the circuit element(s) behind one close-up label (an ANCHORS key); null clears */
 let circPinned = null;
 function circHL(key, pin) {
