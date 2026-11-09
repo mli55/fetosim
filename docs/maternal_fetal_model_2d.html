@@ -403,7 +403,8 @@ body { margin: 0; }
 #circ .rcp { stroke-width: 3.5; } #circ .rb { fill: color-mix(in srgb, var(--baro) 16%, var(--surface)); stroke: var(--baro); }
 #circ .rc { fill: color-mix(in srgb, var(--chemo) 18%, var(--surface)); stroke: var(--chemo); } #circ .rn { font-size: 19px; font-weight: 600; }
 #circ .cb circle { fill: var(--surface); stroke: var(--ink); stroke-width: 2.4; } #circ .cb text { font-family: var(--font-mono); font-size: 19px; font-weight: 600; }
-#circ .thx { fill: color-mix(in srgb, var(--thorax) 6%, transparent); stroke: var(--thorax); stroke-width: 2.6; stroke-dasharray: 10 7; }
+#circ .rg-t { fill: color-mix(in srgb, var(--thorax) 12%, var(--surface)); stroke: color-mix(in srgb, var(--thorax) 30%, var(--surface)); }   /* as .rg-p */
+#circ .rt-t { fill: var(--thorax); font-size: 26px; }
 #circ .thl { stroke: var(--thorax); stroke-width: 3.5; } #circ .thl-h, #circ .thxt { fill: var(--thorax); }
 #circ .src { fill: var(--surface); stroke: var(--thorax); stroke-width: 3.5; } #circ .srcw { fill: none; stroke: var(--thorax); stroke-width: 3; }
 #circ .dio { fill: var(--thorax); } #circ .dio-b { stroke: var(--thorax); stroke-width: 4.5; }
@@ -416,7 +417,7 @@ body { margin: 0; }
 #circ .myo { fill: color-mix(in srgb, var(--muscle) 40%, var(--surface)); stroke: var(--maternal); stroke-width: 3; }
 #circ .sqm { stroke: var(--maternal); stroke-width: 3.5; stroke-dasharray: 9 6; fill: none; } #circ .sqm-h, #circ .sqt { fill: var(--maternal); }
 #circ .ctlt { fill: var(--accent); } #circ .bpt { fill: var(--maternal); font-weight: 600; }
-#circ .el.hl .thx, #circ .el.hl .myo, #circ .el.hl .thl, #circ .el.hl .sqm, #circ .el.hl .src, #circ .el.hl .srcw, #circ .el.hl .blk,
+#circ .el.hl .rg-t, #circ .el.hl .myo, #circ .el.hl .thl, #circ .el.hl .sqm, #circ .el.hl .src, #circ .el.hl .srcw, #circ .el.hl .blk,
 #circ .el.hl .ca, #circ .el.hl .cv, #circ .el.hl .vx, #circ .el.hl .sense, #circ .el.hl .dio-b { stroke: var(--accent); }
 #circ .el.hl .thl-h, #circ .el.hl .sqm-h, #circ .el.hl .dio, #circ .el.hl .ca-h, #circ .el.hl .cv-h, #circ .el.hl .vx-h { fill: var(--accent); }
 #circ .part { cursor: pointer; transition: opacity .25s; }
@@ -438,7 +439,7 @@ body { margin: 0; }
 .k-var { background: linear-gradient(to top right, transparent 44%, var(--ink) 46%, var(--ink) 54%, transparent 56%); }
 .k-put { width: 16px; height: 2px; background: var(--ink); position: relative; } .k-put::after { content: ""; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
 .k-src { width: 12px; height: 12px; border: 1.8px solid var(--thorax); border-radius: 50%; }
-.k-thx { width: 16px; height: 11px; border: 1.6px dashed var(--thorax); border-radius: 3px; }
+.k-thx { width: 16px; height: 11px; border: 1px solid color-mix(in srgb, var(--thorax) 30%, var(--surface)); background: color-mix(in srgb, var(--thorax) 12%, var(--surface)); border-radius: 5px; }
 .k-dio { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 9px solid var(--thorax); }
 .k-ca { width: 18px; border-top: 2px dashed var(--baro); } .k-cv { width: 18px; border-top: 2px dashed var(--accent); } .k-sq { width: 18px; border-top: 2px dashed var(--maternal); }
 .circ-key .kx { display: none; } .circuit.ext .circ-key .kx { display: inline-flex; }
@@ -1359,7 +1360,7 @@ function circuitSVG(ext = circExt) {
       T(x + w / 2, y + (l2 ? h / 2 - 1 : h / 2 + 9), l1, 'bt') + (l2 ? T(x + w / 2, y + h / 2 + 23, l2, 'bs') : '');
     const diode = (x, yb, yt) => `<path class="dio" d="M${x - 15} ${yb} L${x + 15} ${yb} L${x} ${yt} Z"/>` + L(x - 15, yt, x + 15, yt, 'dio-b');
     add('mother',
-      E('m_thx', `<rect class="thx" x="-300" y="72" width="320" height="350" rx="26"/>` + T(8, 410, 'thorax', 'sb thxt', 'end')) +
+      E('m_thx', `<rect class="rg rg-t" x="-300" y="72" width="320" height="362" rx="60"/>` + T(-45, 424, 'THORAX', 'rt rt-t')) +
       E('m_heart', L(LVX, TOP, LVX, MID) + node(LVX, TOP, 'LV', true) + A(LVX + 30, 300, LVX + 30, 190) + T(LVX + 44, 252, sb('q', 'in'), 'lb', 'start') +
         L(LVX - R, TOP, -212, TOP, 'thl') + src(-232, TOP, sb('P', 'th'), 0, -32, 'middle') + L(-232, TOP + 20, -232, TOP + 28, 'thl') + gnd(-232, TOP + 28)) +
       E('m_thx', L(LVX, MID, LVX, BOT) + `<rect class="bx" x="${LVX - BW / 2}" y="${470 - BH / 2}" width="${BW}" height="${BH}"/>` + T(LVX, 481, 'vr', 'nm') +
