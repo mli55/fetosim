@@ -14,7 +14,8 @@ fitted to a non-pregnant Valsalva (Fox, measured, Lu 2001 Table 13); the uterine
 
 Contraction autotransfusion (MA_MODE 1). The contracting myometrium squeezes blood into the maternal veins:
 v_sq = MA_VSQ x_c / MA_PREF ml, with x_c the uterine pressure above rest not due to abdominal (push) pressure. MA_VSQ
-is fitted to the cardiac-output rise during contractions in Lee et al. 1989 (+11 %, epidural, left lateral).
+is fitted to the stroke-volume rise during contractions in Lee et al. 1989 (+16 %, epidural, left lateral); their
+CO rise (+11 %) would need about 1390 ml.
 
 Calibration: ARPH experiment maternal_vasomotor_autotransfusion_2026-11-07. Run from the repo root:
 python model/parameters/build_maternal_vasomotor.py [MV_KR MV_KV MA_VSQ]
@@ -50,7 +51,7 @@ def entries(kr, kv, vsq):
           'Ursino 1998 (Am J Physiol 275:H1733)', 'tau_V,u,sv (systemic venous unstressed volume)'),
         E('MA_MODE', 'mode', 0, '–', 'contraction autotransfusion: 0 off, 1 on', 'our choice', 'ours', 'off by default'),
         E('MA_VSQ', 'V_sq', vsq, 'ml', 'myometrial blood squeezed into the maternal veins at MA_PREF', 'fitted', 'ours',
-          'fitted to the CO rise during contractions in Lee et al. 1989 (+11 %)',
+          'fitted to the stroke-volume rise during contractions in Lee et al. 1989 (+16 %)',
           'compare the commonly quoted 300-500 ml per contraction'),
         E('MA_PREF', 'p_ref', 70.0, 'mmHg', 'contraction amplitude at which MA_VSQ is squeezed', 'our choice', 'ours',
           'Jongen reference contraction amplitude above rest (A 2.4)'),
