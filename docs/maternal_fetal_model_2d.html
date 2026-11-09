@@ -368,6 +368,17 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .halo { opacity: 0; }
 .baro-c { fill: var(--baro); } .chemo-c { fill: var(--chemo); }
 .ring { fill: var(--surface); stroke: var(--baro); stroke-width: 4; }
+/* fetosim maternal layers in the cross-section (model tab) */
+.diagram:not(.ext) .mext { display: none; }
+.rib { fill: none; stroke: var(--thorax); stroke-width: 2.4; stroke-linecap: round; opacity: .45; }
+.diaph { fill: none; stroke: var(--thorax); stroke-width: 3; stroke-linecap: round; opacity: .7; }
+.mring { stroke-width: 3; }
+.mctl { fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 5 4; marker-end: url(#mArrA); }
+.msq { fill: none; stroke: var(--m-ven); stroke-width: 3; stroke-linecap: round; marker-end: url(#mArrV); }
+.msqg { opacity: calc(.4 + var(--c, 0) * .6); }   /* stronger as the contraction rises */
+.mext-t text { font-family: var(--font-body); font-size: 13px; font-weight: 600; paint-order: stroke; stroke: var(--stage2, var(--stage)); stroke-width: 3px; stroke-linejoin: round; }
+.mext-t .ms { font-size: 9.5px; } .mext-t .mi { font-style: italic; }
+.mt-thx { fill: var(--thorax); } .mt-baro { fill: var(--baro); } .mt-ctl { fill: var(--accent); } .mt-sq { fill: var(--m-ven); }
 .clamp { fill: var(--c2); stroke: color-mix(in srgb, var(--c2) 70%, var(--ink)); stroke-width: 1; opacity: 0; }
 .callout { cursor: pointer; }
 .callout line { stroke: var(--muted); stroke-width: 1.1; opacity: .7; }
@@ -453,7 +464,9 @@ body { margin: 0; }
 .k-dio { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 9px solid var(--thorax); }
 .k-ca { width: 18px; border-top: 2px dashed var(--baro); } .k-cv { width: 18px; border-top: 2px dashed var(--accent); } .k-sq { width: 18px; border-top: 2px dashed var(--maternal); }
 .circ-key .kx { display: none; } .circuit.ext .circ-key .kx { display: inline-flex; }
-.circ-mode button { padding: 3px 9px; font-size: 12px; }
+.modelbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-bottom: 10px; }
+.modelbar .mb-note { font-size: 13px; }
+.modelbar:has([data-cm="0"][aria-pressed="true"]) .mb-note { visibility: hidden; }
 .k-o2 { width: 18px; border-top: 2px dashed var(--muted); } .k-ctl { width: 18px; border-top: 2px dashed var(--accent); }
 /* one screen, no page scroll: the cross-section and circuit share the height, the part panel scrolls inside */
 @media (min-width: 981px) and (min-height: 600px) {
@@ -476,6 +489,11 @@ body { margin: 0; }
 <div class="wrap">
 
 <section id="explore" aria-label="Cross-section and circuit">
+  <div class="modelbar">
+    <span class="eyebrow">Model</span>
+    <div class="seg model-tab" role="group" aria-label="Model version"><button type="button" data-cm="0" aria-pressed="false">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="true">fetosim: + maternal layers</button></div>
+    <span class="muted mb-note">Thorax, HR baroreflex, vasomotor reflex and contraction autotransfusion; each is off by default, and all off is Jongen 2016 exactly.</span>
+  </div>
   <div class="explorer">
     <div class="left">
       <div class="diagram" id="diagram" data-model>
@@ -496,7 +514,6 @@ body { margin: 0; }
         
         <div class="circ-scroll"><svg id="circ" viewBox="0 0 1940 720" role="img" aria-label="Lumped circuit of the model: maternal circulation, uterine and spiral arteries, intervillous space and villi, umbilical cord, fetal heart and circulation, baroreceptor and chemoreceptor"></svg></div>
         <div class="circ-key">
-          <div class="seg circ-mode" role="group" aria-label="Circuit version"><button type="button" data-cm="0" aria-pressed="false">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="true" title="Maternal layers in fetosim, each off by default">fetosim: + maternal layers</button></div>
           <span><i class="k-node"></i><span class="kt">compartment: pressure, volume, pO<sub>2</sub></span></span><span><i class="k-node k-dbl"></i><span class="kt">ventricle</span></span>
           <span><i class="k-box"></i><span class="kt">resistance</span></span><span><i class="k-box k-var"></i><span class="kt">varies with <i>p</i><sub>ut</sub></span></span>
           <span><i class="k-put"></i><span class="kt">uterine pressure <i>p</i><sub>ut</sub></span></span><span><i class="k-o2"></i><span class="kt">O<sub>2</sub> flux</span></span><span><i class="k-ctl"></i><span class="kt">reflex control</span></span>
@@ -648,7 +665,7 @@ const PARTS = {
   },
   mother: {
     title: 'Maternal circulation', short: 'Mother',
-    role: 'Maternal heart, arteries, veins and tissue. In Jongen 2016 the heart beats at a fixed 80 bpm and nothing is regulated; the lungs add oxygen to maternal venous blood, so maternal oxygenation stays nearly constant. fetosim adds four maternal layers, each off by default (all off = Jongen 2016 exactly): the <b>HR baroreflex</b> of Randall 2019, a <b>thorax</b> after Lu 2001, a <b>vasomotor reflex</b> and <b>contraction autotransfusion</b>. The circuit\'s fetosim view draws them.',
+    role: 'Maternal heart, arteries, veins and tissue. In Jongen 2016 the heart beats at a fixed 80 bpm and nothing is regulated; the lungs add oxygen to maternal venous blood, so maternal oxygenation stays nearly constant. fetosim adds four maternal layers, each off by default (all off = Jongen 2016 exactly): the <b>HR baroreflex</b> of Randall 2019, a <b>thorax</b> after Lu 2001, a <b>vasomotor reflex</b> and <b>contraction autotransfusion</b>. The fetosim tab at the top draws them in the cross-section and the circuit.',
     during: 'Jongen 2016: little changes on the maternal side; the uterine branch is where the contraction acts. With all four layers: a 70 mmHg contraction squeezes myometrial blood into the veins, stroke volume rises 16 % (fitted to Lee 1989) and MAP 6.7 mmHg, and the baroreflex slows the heart by 8 bpm (CHOP: −1 to 0). Three 40 mmHg pushes raise <i>P</i><sub>th</sub>: CO falls 28 % and MAP/CO rises 93 % (Kuhn 2017: −32 %, SVR +88 %), but MHR rises only 0.5 bpm (CHOP +9.6). This MHR mismatch is open; it goes to a clinical expert before anything is added.',
     eqs: [
       ['A(1)', '<i>p</i><sub>tm</sub> = (<i>V</i> − <i>V</i><sub>0</sub>)/<i>C</i>', 'Linear compliances for arteries, veins and tissue.'],
@@ -677,14 +694,16 @@ const GROUPS = [
   { n: 8, key: 'chemo', parts: ['chemo'], name: 'Chemoreceptor', title: 'Chemoreceptor' },
 ];
 const GROUP = Object.fromEntries(GROUPS.map(g => [g.key, g]));
+const FS_EQ = ['HR reflex', 'Thorax', 'Vasomotor', 'Autotransfusion'];   // fetosim-only equation rows
 const GROUP_OF = {}; GROUPS.forEach(g => g.parts.forEach(p => { GROUP_OF[p] = g; }));
 const numHTML = n => `<span class="num" aria-hidden="true">${n}</span>`;
 const hooks = { filter: [], select: [] };     // page-specific listeners
 
 /* ---------------- filter state (shared by panel and table) ---------------- */
 let filter = 'all';
+let circExt = true;   // model tab: true = fetosim with the maternal layers; false = Jongen 2016 (Part A Fig. 1)
 const FILTERS = [['all', 'All'], ['3', 'Fitted'], ['2', 'Our choice'], ['1', 'Paper']];
-const passes = r => filter === 'all' || String(r.cls) === filter || (filter === '3' && r.cls === 4);   // Fitted: per window or once to literature
+const passes = r => (circExt || !r.layer) && (filter === 'all' || String(r.cls) === filter || (filter === '3' && r.cls === 4));   // Fitted: per window or once to literature
 function counts(part) {
   const c = { 1: 0, 2: 0, 3: 0, 4: 0 };
   PARAMS.forEach(r => { if (!part || r.part === part) c[r.cls]++; });
@@ -747,7 +766,7 @@ function renderPanel(key, scroll) {
     panel.innerHTML = `<h3 class="ptitle">${numHTML(g.n)}<span>${g.title}</span></h3>
       ${Ps.map(P => `<p class="role">${P.role}</p>`).join('')}
       <p class="during"><b>During a contraction.</b> ${Ps.map(P => P.during).join(' ')}</p>
-      <div class="eqs">${Ps.flatMap(P => P.eqs).map(([n, m, w]) => `<div class="eq"><span class="no">${n}</span>${M(m)}<span class="why">${w}</span></div>`).join('')}</div>
+      <div class="eqs">${Ps.flatMap(P => P.eqs).filter(([n]) => circExt || !FS_EQ.includes(n)).map(([n, m, w]) => `<div class="eq"><span class="no">${n}</span>${M(m)}<span class="why">${w}</span></div>`).join('')}</div>
       ${filt}
       <div class="plist">${paramRows(g.parts)}</div>
       <button class="btn only-phone" type="button" id="toModel">↑ Back to the model</button>`;
@@ -798,10 +817,10 @@ const ANCHORS = {
   m_art: { g: 'mother', name: 'Maternal arteries and BP', xy: [160, 188] },
   m_tis: { g: 'mother', name: 'Maternal tissue', xy: [66, 434] },
   m_ven: { g: 'mother', name: 'Maternal veins', xy: [194, 471] },
-  m_hr: { g: 'mother', name: 'HR baroreflex (fetosim)', xy: [131, 206] },
-  m_thx: { g: 'mother', name: 'Thorax (fetosim)', xy: [26, 318] },
-  m_vaso: { g: 'mother', name: 'Vasomotor reflex (fetosim)', xy: [149, 369] },
-  m_auto: { g: 'mother', name: 'Autotransfusion (fetosim)', xy: [265, 400] },
+  m_hr: { g: 'mother', name: 'HR baroreflex (fetosim)', xy: [127, 211] },
+  m_thx: { g: 'mother', name: 'Thorax (fetosim)', xy: [40, 348] },
+  m_vaso: { g: 'mother', name: 'Vasomotor reflex (fetosim)', xy: [18, 330] },
+  m_auto: { g: 'mother', name: 'Autotransfusion (fetosim)', xy: [280, 410] },
   wall: { g: 'uterus', name: 'Uterine wall', xy: [272, 300] },
   utv: { g: 'uterus', name: 'Uterine veins: collapse law', xy: [285, 446] },
   toco: { g: 'uterus', name: 'TOCO processing (ours)', xy: [211, 110] },
@@ -974,6 +993,8 @@ const DEFS = `<defs>
     <stop offset="1" style="stop-color:color-mix(in srgb, var(--fetal) 11%, transparent)"/></radialGradient>
   <linearGradient id="gDevice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb, var(--device) 55%, #fff)"/>
     <stop offset="1" style="stop-color:var(--device)"/></linearGradient>
+  <marker id="mArrA" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--accent)"/></marker>
+  <marker id="mArrV" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--m-ven)"/></marker>
   <clipPath id="cWall"><path d="${MUSCLE}"/></clipPath>
   <clipPath id="cIVS"><path d="${IVS}"/></clipPath>
 </defs>`;
@@ -984,6 +1005,12 @@ const ART = `
 <g class="part" data-part="mother">
   <path class="lung" d="M72 228 C 46 236, 36 290, 44 330 C 50 352, 74 350, 84 334 C 90 300, 92 252, 84 232 Z"/>
   <path class="lung" d="M128 228 C 154 236, 164 290, 156 330 C 150 352, 126 350, 116 334 C 110 300, 108 252, 116 232 Z"/>
+  <g class="mext" aria-hidden="true">
+    ${[226, 250, 274, 298, 322].map((y, i) => { const w = 60 + i * 2;
+      return `<path class="rib" d="M${100 - 6} ${y} C ${100 - 28} ${y - 12}, ${100 - w} ${y - 8}, ${100 - w - 4} ${y + 16}"/>` +
+        `<path class="rib" d="M${100 + 6} ${y} C ${100 + 28} ${y - 12}, ${100 + w} ${y - 8}, ${100 + w + 4} ${y + 16}"/>`; }).join('')}
+    <path class="diaph" d="M30 358 C 58 334, 142 334, 170 358"/>
+  </g>
   ${V('mart', 'M108 264 C 110 205, 150 185, 200 185 L 200 380', 8, 'q_uta')}
   ${V('mven', 'M236 477 C 160 477, 112 430, 100 338', 9, 'q_utv')}
   ${V('mart', 'M86 334 C 66 362, 46 392, 42 424', 5)}
@@ -992,6 +1019,11 @@ const ART = `
   <path class="mcap" d="M44 424 C 52 410, 58 444, 66 428 S 78 414, 82 436 S 92 446, 90 444"/>
   <g class="shadow"><path class="mheart" d="${HEART(100, 300, 1.15)}"/></g>
   <ellipse class="sheen" cx="83" cy="284" rx="11" ry="6" transform="rotate(-35 83 284)"/>
+  <g class="mext" aria-hidden="true">
+    <path class="mctl" d="M121 217 C 114 228, 110 240, 108 254"/>
+    <path class="mctl" d="M120 207 C 70 196, 20 236, 18 320 C 17 370, 24 396, 38 412"/>
+    <circle class="ring mring" cx="127" cy="211" r="7"/>
+  </g>
 </g>
 <g class="part" data-part="uterus">
   <g id="wall">
@@ -1005,6 +1037,10 @@ const ART = `
   ${V('mven', 'M336 420 C 300 440, 270 455, 236 462', 6, 'q_utv')}
   ${V('mven', 'M336 436 C 305 470, 270 488, 236 492', 6, 'q_utv')}
   <path class="mven" d="M236 462 L 236 492" stroke-width="6"/>
+  <g class="mext msqg" aria-hidden="true">
+    <path class="msq" d="M286 394 C 282 408, 276 422, 268 436"/>
+    <path class="msq" d="M284 528 C 280 518, 274 508, 268 500"/>
+  </g>
   <g class="shadow"><rect class="toco" x="190" y="82" width="42" height="56" rx="10"/></g>
   <circle class="toco-dot" cx="203" cy="110" r="4"/>
   <rect class="toco-face" x="223" y="94" width="7" height="32" rx="3"/>
@@ -1073,7 +1109,11 @@ function layout() {
       (p ? '' : `<text x="${lx + r + 7}" y="${ly}" dominant-baseline="central" font-size="17">${esc(g.name)}</text>`) + `</g>`;
   }).join('');
   const zt = p ? '' : `<g class="zone-t" aria-hidden="true"><text x="16" y="592">MATERNAL</text><text x="984" y="592" text-anchor="end">FETAL</text></g>`;
-  dia.innerHTML = `${DEFS}<g id="art"${p ? ' transform="translate(600 0) rotate(90)"' : ''}>${ZONES}${ART}</g>${zt}<g id="callouts">${call}</g>`;
+  const ML = [[150, 376, 'thorax <tspan class="mi">P</tspan><tspan class="ms" dy="4">th</tspan>', 'mt-thx', 'middle'],
+    [136, 230, 'baro', 'mt-baro', 'start'], [30, 196, 'vasomotor', 'mt-ctl', 'start'], [262, 408, 'squeeze', 'mt-sq', 'end']];
+  const mlab = `<g class="part mext mext-t" data-part="mother" aria-hidden="true">` + ML.map(([x, y, t, c, a]) => { const [X, Y] = T([x, y]);
+    return `<text class="${c}" x="${X}" y="${Y}" text-anchor="${p ? 'middle' : a}">${t}</text>`; }).join('') + `</g>`;
+  dia.innerHTML = `${DEFS}<g id="art"${p ? ' transform="translate(600 0) rotate(90)"' : ''}>${ZONES}${ART}</g>${mlab}${zt}<g id="callouts">${call}</g>`;
   dia.querySelectorAll('path[data-q]').forEach(el => {        // moving dashes show the flow
     const f = el.cloneNode(); f.setAttribute('class', 'flow'); f.removeAttribute('stroke-width'); f.dataset.flow = '1'; el.after(f);
   });
@@ -1326,7 +1366,6 @@ function updateLive() {
 
 /* ---------------- circuit: Jongen 2016 Part A Fig. 1 redrawn left to right, with the reflex loop added.
    Every element sits in a group tagged with its numbered part, so a click or a step highlights it here and on the cross-section. */
-let circExt = true;   // true: fetosim with the maternal layers; false: Jongen 2016 Part A Fig. 1
 function circuitSVG(ext = circExt) {
   const TOP = 135, MID = 350, BOT = 565, R = 44, BW = 116, BH = 62;
   const G = {}, add = (part, s) => { (G[part] = G[part] || []).push(s); };
@@ -1463,7 +1502,9 @@ function setCircExt(on) {
   circExt = on; circ.innerHTML = circuitSVG(); paintFocus(); circHL(circPinned);
   circ.setAttribute('viewBox', on ? '-126 0 2066 720' : '0 0 1940 720');
   document.querySelectorAll('[data-cm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cm === (on ? '1' : '0'))));
-  $('#circuit').classList.toggle('ext', on);
+  $('#circuit').classList.toggle('ext', on); diagramEl.classList.toggle('ext', on);
+  renderPanel(current, false);
+  if (zoomKey) renderAnns();
   circ.setAttribute('aria-label', 'Lumped circuit of the model' + (on ? ' as in fetosim, with the optional maternal thorax, heart-rate baroreflex, vasomotor reflex and autotransfusion' : ' as in Jongen 2016'));
 }
 document.querySelectorAll('[data-cm]').forEach(b => b.addEventListener('click', () => setCircExt(b.dataset.cm === '1')));
