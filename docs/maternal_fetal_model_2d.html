@@ -145,7 +145,7 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 
 /* part panel */
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 18px;
-  display: grid; gap: 14px; position: sticky; top: max(12px, env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); overflow: auto; min-width: 0; }
+  display: grid; gap: 14px; align-content: start; position: sticky; top: max(12px, env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); overflow: auto; min-width: 0; }
 .panel .role { font-size: 15px; }
 .panel .during { font-size: 14px; border-left: 3px solid var(--maternal); padding: 2px 0 2px 10px; color: var(--ink); }
 .panel .during b { font-weight: 600; }
@@ -488,6 +488,74 @@ body { margin: 0; }
   .diagram svg#dia { width: 100%; height: 100%; }
   .panel { position: static; height: 100%; min-height: 0; max-height: none; overflow: auto; }
 }
+
+/* ---- measurables overlay (2026-11-11): what each sensing modality can measure, drawn over the cross-section and
+   the circuit. Modality colours are separate from the blood/tissue palette. ---- */
+:root { --s-us: #0b8a80; --s-opt: #c97200; --s-emg: #2a5fd0; --s-fm: #3d8b27; --s-eeg: #b4237f;
+  --ss1: #b83250; --ss2: #a8700f; --ss3: #0f8b74; --ss4: #2f5fc4; --ss5: #7b4bc4; --ssx: #7d8796; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --s-us: #3cc4b6; --s-opt: #f0ac3a; --s-emg: #74a2f4; --s-fm: #7dc95e; --s-eeg: #e070b8;
+  --ss1: #e86a85; --ss2: #e0ab4a; --ss3: #41c9a8; --ss4: #79a0ef; --ss5: #b08cf0; --ssx: #9aa5b5; } }
+:root[data-theme="dark"] { --s-us: #3cc4b6; --s-opt: #f0ac3a; --s-emg: #74a2f4; --s-fm: #7dc95e; --s-eeg: #e070b8;
+  --ss1: #e86a85; --ss2: #e0ab4a; --ss3: #41c9a8; --ss4: #79a0ef; --ss5: #b08cf0; --ssx: #9aa5b5; }
+.s-us { --sc: var(--s-us); } .s-opt { --sc: var(--s-opt); } .s-emg { --sc: var(--s-emg); } .s-fm { --sc: var(--s-fm); } .s-eeg { --sc: var(--s-eeg); }
+.ss1 { --sc: var(--ss1); } .ss2 { --sc: var(--ss2); } .ss3 { --sc: var(--ss3); } .ss4 { --sc: var(--ss4); } .ss5 { --sc: var(--ss5); } .ssx { --sc: var(--ssx); }
+.sense-lab { margin-left: 8px; }
+.sense-tab button { display: inline-flex; align-items: center; gap: 6px; }
+.sd { width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; }
+#dia.sensing #art { opacity: .42; filter: saturate(.55); }
+#dia.sensing #callouts, #dia.sensing .mext-t { display: none; }
+#sense { pointer-events: none; }
+#sense .pill, #sense .sg { pointer-events: auto; }
+#sense .sg { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sc) 60%, transparent)); transition: opacity .2s; }
+#sense .hv-glow { fill: none; stroke: var(--sc); stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; opacity: .38; }
+#sense .hv-core { fill: none; stroke: var(--sc); stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 7 5; }
+#sense .ha { fill: color-mix(in srgb, var(--sc) 22%, transparent); stroke: var(--sc); stroke-width: 2.6; stroke-dasharray: 8 5; stroke-linejoin: round; }
+#sense .ha.soft { fill: color-mix(in srgb, var(--sc) 7%, transparent); stroke-width: 1.6; }
+#sense .ha.hatch { fill: url(#gHatchX); }
+#sense .edot { fill: var(--sc); stroke: var(--stage2, var(--surface)); stroke-width: 2; }
+#sense .ewave { fill: none; stroke: var(--sc); stroke-width: 2; stroke-linecap: round; }
+#sense .dim { stroke: var(--sc); stroke-width: 2.6; fill: none; }
+#sense .dim-h { fill: var(--sc); }
+#sense .dim-t { fill: var(--sc); font-family: var(--font-body); font-size: 12px; font-weight: 600; text-anchor: middle;
+  paint-order: stroke; stroke: var(--stage2, var(--surface)); stroke-width: 4px; stroke-linejoin: round; }
+#sense .arw-halo { fill: none; stroke: var(--stage2, var(--surface)); stroke-width: 7; stroke-linecap: round; opacity: .9; }
+#sense .arw { fill: none; stroke: var(--sc); stroke-width: 2.8; stroke-linecap: round; }
+#sense .arw.dash { stroke-dasharray: 7 6; }
+#sense .arw-h { fill: var(--sc); }
+#sense .pill rect.pb { fill: var(--surface); stroke: var(--sc); stroke-width: 2.4; }
+#sense .pill.tbd rect.pb { stroke-dasharray: 7 5; }
+#sense .pill .pd { fill: var(--sc); }
+#sense .pill .pt { fill: var(--ink); font-family: var(--font-body); font-size: 15px; font-weight: 650; }
+#sense .pill .px { fill: var(--muted); font-family: var(--font-body); font-size: 12px; }
+#sense .pill .pn { fill: var(--sc); font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+#sense .dl text, #sense .dleg { paint-order: stroke; stroke: var(--stage2, var(--surface)); stroke-width: 5px; stroke-linejoin: round; font-family: var(--font-body); }
+#sense .dlt { fill: var(--sc); font-size: 19px; font-weight: 700; }
+#sense .dls { font-size: 14.5px; font-weight: 600; } #sense .dsep { fill: var(--muted); font-weight: 500; }
+#sense .dleg { fill: var(--ink); font-size: 16px; font-weight: 600; }
+#sense.hot .sg:not(.on), #sense.hot .pill:not(.on), #sense.hot .arg:not(.on) { opacity: .16; }
+#circ.sensing .el:not(.sn), #circ.sensing .part > :not(.el):not(.cb), #circ.sensing .rg { opacity: .3; }
+#circ.sensing .cb { opacity: .5; }
+#circ .el.sn { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--sc) 65%, transparent)); }
+#circ .el.sn .nd, #circ .el.sn .bx, #circ .el.sn .rcp, #circ .el.sn .myo, #circ .el.sn .rg-t { stroke: var(--sc); stroke-width: 4.5; fill: color-mix(in srgb, var(--sc) 18%, var(--surface)); }
+#circ .el.sn .nd2, #circ .el.sn .w, #circ .el.sn .var, #circ .el.sn .o2, #circ .el.sn .ctl, #circ .el.sn .thl, #circ .el.sn .sqm, #circ .el.sn .vx { stroke: var(--sc); }
+#circ .el.sn .w-h, #circ .el.sn .var-h, #circ .el.sn .o2-h, #circ .el.sn .ctl-h, #circ .el.sn .putd, #circ .el.sn .sqm-h, #circ .el.sn .vx-h { fill: var(--sc); }
+#circ .el.sn text { fill: var(--sc); font-weight: 600; }
+.sp-intro { font-size: 14.5px; }
+.sp-mod { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; margin-top: 4px; }
+.sp-list { display: grid; gap: 8px; }
+.sp-item { border: 1px solid var(--line); border-left: 4px solid var(--sc); border-radius: 8px; padding: 8px 10px; display: grid; gap: 3px; font-size: 13.5px; cursor: default; }
+.sp-item:hover, .sp-item.on { background: color-mix(in srgb, var(--sc) 8%, var(--surface)); }
+.sp-item .st { font-weight: 600; font-size: 14.5px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.sp-item .st .tbd { font-weight: 500; font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: 999px; padding: 0 7px; }
+.sp-item .sm { color: var(--muted); }
+.sp-item .sk { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.sp-note { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+/* ?fig=dia or ?fig=circ: one drawing fills the window (used to export slide figures) */
+body.fig .panel, body.fig .modelbar { display: none !important; }
+body.fig .explorer { grid-template-columns: 1fr; }
+body.fig .diagram { border: 0; padding: 0; }
+body.fig-dia .circuit, body.fig-circ .diagram { display: none !important; }
+body.fig-circ .circ-key { font-size: 15px; }
 </style>
 </head>
 <body>
@@ -499,6 +567,8 @@ body { margin: 0; }
   <div class="modelbar">
     <span class="eyebrow">Model</span>
     <div class="seg model-tab" role="group" aria-label="Model version"><button type="button" data-cm="0" aria-pressed="false">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="true">fetosim: + maternal layers</button></div>
+    <span class="eyebrow sense-lab">Measurable by</span>
+    <div class="seg sense-tab" role="group" aria-label="What each sensor can measure"><button type="button" data-sense="" aria-pressed="true">Off</button><button type="button" data-sense="us"><i class="sd s-us"></i>Ultrasound</button><button type="button" data-sense="opt"><i class="sd s-opt"></i>Optics</button><button type="button" data-sense="emg"><i class="sd s-emg"></i>EMG</button><button type="button" data-sense="fm"><i class="sd s-fm"></i>Fetal movement</button><button type="button" data-sense="eeg"><i class="sd s-eeg"></i>EEG</button><button type="button" data-sense="all">All</button><button type="button" data-sense="sub">Subsystems</button></div>
   </div>
   <div class="explorer">
     <div class="left">
@@ -708,6 +778,7 @@ const hooks = { filter: [], select: [] };     // page-specific listeners
 
 /* ---------------- filter state (shared by panel and table) ---------------- */
 let filter = 'all';
+let senseMode = '';   // measurables overlay: '', us, opt, emg, fm, eeg, all, sub
 let circExt = true;   // model tab: true = fetosim with the maternal layers; false = Jongen 2016 (Part A Fig. 1)
 const FILTERS = [['all', 'All'], ['3', 'Fitted'], ['2', 'Our choice'], ['1', 'Paper']];
 const passes = r => (circExt || !r.layer) && (filter === 'all' || String(r.cls) === filter || (filter === '3' && r.cls === 4));   // Fitted: per window or once to literature
@@ -762,6 +833,7 @@ function paramRows(parts) {
 function renderPanel(key, scroll) {
   if (key && !GROUP[key]) key = GROUP_OF[key].key;
   current = key;
+  if (!key && senseMode) { panel.innerHTML = ''; return; }   // user 2026-11-11: leave the panel empty in sensor views for now (sensePanel() kept)
   const filt = `<div class="filter"><span class="eyebrow">Show parameters</span><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
     panel.innerHTML = `<p class="role">Blood and oxygen flow from the mother's heart through the spiral arteries into the intervillous space, across the villi, along the umbilical cord to the fetal heart. Two receptors close the loop by setting the fetal heart period.</p>
@@ -1045,6 +1117,7 @@ const DEFS = `<defs>
   <marker id="mArrV" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--m-ven)"/></marker>
   <clipPath id="cWall"><path d="${MUSCLE}"/></clipPath>
   <clipPath id="cIVS"><path d="${IVS}"/></clipPath>
+  <pattern id="gHatchX" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)"><rect width="9" height="9" style="fill:color-mix(in srgb, var(--ssx) 10%, transparent)"/><line x1="0" y1="0" x2="0" y2="9" style="stroke:var(--ssx);stroke-width:2.2;opacity:.55"/></pattern>
 </defs>`;
 const ZONES = `<g class="zones" aria-hidden="true">
   <path class="amnion" transform="${FETAL}" d="M466 140 C 500 -40, 1040 -30, 992 300 C 1030 680, 520 660, 466 440 Z"/>
@@ -1166,7 +1239,7 @@ function layout() {
   dia.querySelectorAll('path[data-q]').forEach(el => {        // moving dashes show the flow
     const f = el.cloneNode(); f.setAttribute('class', 'flow'); f.removeAttribute('stroke-width'); f.dataset.flow = '1'; el.after(f);
   });
-  grabEls(); paintFocus(); applyDiagram(0);
+  grabEls(); paintFocus(); applyDiagram(0); drawSense();
   vb = null;
   if (zoomKey) { markZoom(); setVB(targetVB(zoomKey)); requestAnimationFrame(renderAnns); } else setVB(VB0());
 }
@@ -1559,7 +1632,7 @@ function circHL(key, pin) {
   if (key) circ.querySelectorAll(`.el[data-el~="${key}"]`).forEach(el => el.classList.add('hl'));
 }
 function setCircExt(on) {
-  circExt = on; circ.innerHTML = circuitSVG(); paintFocus(); circHL(circPinned);
+  circExt = on; circ.innerHTML = circuitSVG(); paintFocus(); circHL(circPinned); paintSenseCirc();
   circ.setAttribute('viewBox', on ? '-126 0 2066 720' : '0 0 1940 720');
   document.querySelectorAll('[data-cm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cm === (on ? '1' : '0'))));
   $('#circuit').classList.toggle('ext', on); diagramEl.classList.toggle('ext', on);
@@ -1569,6 +1642,237 @@ function setCircExt(on) {
 }
 document.querySelectorAll('[data-cm]').forEach(b => b.addEventListener('click', () => setCircExt(b.dataset.cm === '1')));
 setCircExt(circExt);
+
+/* ---------------- measurables overlay (2026-11-11) ----------------
+   What each sensing modality can measure (the user's modality table of 2026-11-11), drawn as highlights and arrows on
+   the cross-section and as lit elements in the circuit. "Subsystems" groups the same signals into parts of the model
+   that can be validated one at a time. Coordinates are landscape drawing units (1000 x 600). */
+const MODS = {
+  us: { name: 'Ultrasound', intro: 'Ultrasound measures the maternal heart beat to beat, the absolute thickness of the tissue layers, and maternal blood pressure.' },
+  opt: { name: 'Optics', intro: 'Optics measures maternal oxygen saturation and maternal blood flow. Systemic signals are easy; uterine signals are harder.' },
+  emg: { name: 'EMG', intro: 'EMG electrodes record the fetal heart beat to beat (the maternal heart too), heart-rate variability of both, and the contractions, including where on the uterus they spread.' },
+  fm: { name: 'Fetal movement', intro: 'Fetal movement: what exactly it will measure is still to be decided (TBD).' },
+  eeg: { name: 'EEG', intro: 'Fetal EEG: what exactly it will measure is still to be decided (TBD).' },
+};
+const SVGNS = 'http://www.w3.org/2000/svg';
+const bzY = (P, Y) => {          // x of a cubic Bézier (monotone in y) at height Y
+  const at = (t, i) => { const u = 1 - t; return u * u * u * P[0][i] + 3 * u * u * t * P[1][i] + 3 * u * t * t * P[2][i] + t * t * t * P[3][i]; };
+  let lo = 0, hi = 1; for (let k = 0; k < 40; k++) { const t = (lo + hi) / 2; if (at(t, 1) < Y) lo = t; else hi = t; }
+  return at((lo + hi) / 2, 0);
+};
+const FAT_OUT = [[233, 70], [210, 200], [210, 400], [233, 530]], MUS_OUT = [[246, 70], [224, 200], [224, 400], [246, 530]], MUS_IN = [[318, 70], [300, 200], [300, 400], [318, 530]];
+const S_FAT = 'M246 70 C 224 200, 224 400, 246 530 L 233 530 C 210 400, 210 200, 233 70 Z';
+const S_MART_UT = 'M108 264 C 110 205, 150 185, 200 185 L 200 380', S_MART_SYS = 'M86 334 C 66 362, 46 392, 42 424';
+const S_MTIS = 'M40 420 C 38 400, 70 396, 92 414 C 104 424, 100 450, 80 456 C 58 462, 40 446, 40 420 Z';
+const S_MVEN = ['M236 477 C 160 477, 112 430, 100 338', 'M88 446 C 112 458, 136 460, 159 455'];
+const S_UTV = ['M336 420 C 300 440, 270 455, 236 462', 'M336 436 C 305 470, 270 488, 236 492'];
+const S_MCTL = ['M122 218 C 116 228, 110 238, 104 250', 'M120 206 C 50 180, -44 214, -44 316 C -44 380, -8 414, 34 420'];
+const S_FART = 'M858 302 C 860 268, 894 256, 908 278 C 920 300, 924 360, 920 420 C 916 460, 896 480, 872 482';
+const S_SPIRAL = [200, 290, 380].map(y => `M200 ${y} L 238 ${y}` + coil(238, 338, y, 7, 4));
+const FBODY_T = `${FETAL} translate(1032.46 323.5) scale(-0.34 0.34)`;
+const sTr = t => t ? ` transform="${t}"` : '';
+const sK = k => k === 1 ? '' : ` style="stroke-width:${(2.6 / k).toFixed(2)};stroke-dasharray:${(8 / k).toFixed(1)} ${(5 / k).toFixed(1)}"`;   // keep line width under a scaled transform
+const sHV = (d, t) => `<g${sTr(t)}><path class="hv-glow" d="${d}"/><path class="hv-core" d="${d}"/></g>`;
+const sHA = (d, t, c = '', k = 1) => `<path class="ha ${c}" d="${d}"${sTr(t)}${sK(k)}/>`;
+const sHE = (cx, cy, rx, ry, t, c = '') => `<ellipse class="ha ${c}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${sTr(t)}/>`;
+const SH = {
+  mheart: () => sHA(HEART(100, 300, 1.15), CHEST),
+  fheart: () => sHA(HEART(852, 318, 0.75), FETAL),
+  mreflex: () => `<circle class="ha" cx="127" cy="211" r="12"/>` + S_MCTL.map(d => sHV(d)).join(''),
+  freflex: () => `<g transform="${FETAL}"><circle class="ha" cx="893" cy="267" r="16"/><circle class="ha" cx="870" cy="232" r="15"/></g>`,
+  layers: () => {                       // thickness: one dimension line across fat, myometrium and placenta
+    const Y = 245, xs = [bzY(FAT_OUT, Y), bzY(MUS_OUT, Y), bzY(MUS_IN, Y), 466];
+    const head = (x, d) => `<path class="dim-h" d="M${f1(x)} ${Y} l${-11 * d} -6 l0 12 Z"/>`;
+    return sHA(S_FAT, '', 'soft') + sHA(MUSCLE, '', 'soft') + sHA(IVS, '', 'soft') +
+      `<path class="dim" d="M${f1(xs[0] + 8)} ${Y} L${f1(xs[3] - 8)} ${Y}"/>${head(xs[0], -1)}${head(xs[3], 1)}` +
+      xs.map(x => `<path class="dim" d="M${f1(x)} ${Y - 11} L${f1(x)} ${Y + 11}"/>`).join('') +
+      `<text class="dim-t" x="${f1((xs[1] + xs[2]) / 2)}" y="${Y + 26}">muscle</text><text class="dim-t" x="${f1((xs[2] + xs[3]) / 2)}" y="${Y + 26}">placenta</text>`;
+  },
+  electrodes: () => [175, 265, 355, 445].map(y => {   // spatial EMG: several electrodes along the abdomen
+    const x = bzY(FAT_OUT, y) - 2;
+    return `<path class="ewave" d="M${f1(x + 13)} ${y - 8} q 7 8 0 16 M${f1(x + 21)} ${y - 13} q 11 13 0 26"/><circle class="edot" cx="${f1(x)}" cy="${y}" r="6.5"/>`;
+  }).join(''),
+  fetus: () => sHA(FETUS_BODY, FBODY_T, 'soft', 0.88 * 0.34),
+  brain: () => sHE(842, 138, 66, 56, FETAL),
+};
+/* one entry per measurable; px = short text on the drawing, line = the table's wording, circ = circuit elements (ANCHORS
+   keys), tag = label centre, to = arrow targets ({p, dash} = harder or secondary) */
+const SENSE = [
+  { id: 'mhr', mods: ['us', 'emg'], title: 'MHR', px: { us: 'continuous, beat-to-beat', emg: 'also from EMG' },
+    line: { us: 'Maternal heart rate: continuous, beat to beat.', emg: 'MHR is also measurable from the EMG electrodes.' },
+    circ: ['m_heart'], sub: 'S1', hl: () => SH.mheart(), tag: [44, 30], to: [[58, 247]] },
+  { id: 'bp', mods: ['us'], title: 'Maternal BP', px: 'blood pressure', line: 'Maternal blood pressure.',
+    circ: ['m_art'], sub: 'S1', hl: () => sHV(S_MART_UT) + sHV(S_MART_SYS), tag: [244, 30], to: [[162, 179]] },
+  { id: 'thick', mods: ['us'], title: 'Layer thickness', px: 'absolute value', line: 'Absolute thickness of the tissue layers between the skin and the placenta.',
+    where: 'Geometry, not a model state. The myometrium thickens during a contraction (S2), and depth tells which layer the uterine signals come from.',
+    circ: ['wall'], sub: 'S2', hl: () => SH.layers(), tag: [450, 30], to: [[352, 232]] },
+  { id: 'hrv', mods: ['emg'], title: 'HRV', px: 'fetal & maternal · reflexes', line: 'Heart-rate variability, fetal and maternal; partly linked to reflexes and neural responses.',
+    circ: ['baro_curve', 'baro_filt', 'baro_w', 'chemo_curve', 'chemo_filt', 'chemo_w', 'm_hr', 'm_vaso'], sub: 'S4 (fetal) · S1 (maternal)',
+    hl: () => SH.freflex() + SH.mreflex(), tag: [650, 30], to: [[838, 257], [818, 226]] },
+  { id: 'eeg', mods: ['eeg'], title: 'Fetal EEG', px: 'TBD', tbd: 1, line: 'To be decided.', where: 'Brain (in the model only as a circulation that uses O₂).',
+    circ: ['brain'], sub: 'S5', hl: () => SH.brain(), tag: [850, 30], to: [[800, 108]] },
+  { id: 'o2', mods: ['opt'], title: 'Maternal O₂ sat.', px: 'SpO₂ systemic · StO₂ uterine', line: 'SpO₂ / StO₂: systemic is easy, uterine is harder (dashed arrow).',
+    circ: ['m_art', 'm_tis', 'ivs', 'utv'], sub: 'S1 (systemic) · S3 (uterine)', hl: () => sHA(S_MTIS) + sHV(S_MART_SYS) + sHA(MUSCLE, '', 'soft') + sHA(IVS, '', 'soft'),
+    tag: [56, 568], to: [[60, 462], { p: [288, 508], dash: 1 }] },
+  { id: 'flow', mods: ['opt'], title: 'Maternal blood flow', px: 'uterine · systemic · head, arms', line: 'Maternal blood flow, e.g. uterine, systemic, head, arms.',
+    circ: ['spiral', 'm_tis'], sub: 'S3 (uterine) · S1 (systemic)', hl: () => sHV(S_MART_UT) + S_SPIRAL.map(d => sHV(d)).join('') + sHV(S_MART_SYS) + sHA(S_MTIS, '', 'soft'),
+    tag: [268, 568], to: [[46, 414], [200, 386], [300, 392]] },
+  { id: 'uc', mods: ['emg'], title: 'Contractions', px: 'incl. spatial distribution', line: 'Uterine contractions, including their spatial distribution.',
+    circ: ['wall', 'utv', 'm_auto'], sub: 'S2', hl: () => sHA(MUSCLE) + SH.electrodes(), tag: [462, 568], to: [[270, 522]] },
+  { id: 'fm', mods: ['fm'], title: 'Fetal movement', px: 'TBD', tbd: 1, line: 'To be decided.', where: 'Fetal body (no movement state in the model yet).',
+    circ: ['body'], sub: 'S5', hl: () => SH.fetus(), tag: [656, 568], to: [[722, 452]] },
+  { id: 'fhr', mods: ['emg'], title: 'FHR', px: 'beat-to-beat', line: 'Fetal heart rate, beat to beat.',
+    circ: ['cv', 'obs'], sub: 'S4', hl: () => SH.fheart(), tag: [850, 568], to: [[806, 344]] },
+];
+const SUBS = [
+  { id: 'S1', cls: 'ss1', title: 'S1 · Maternal circulation', px: 'MHR · BP · SpO₂ · flow · HRV', tag: [44, 30], to: [[58, 247]],
+    hl: () => SH.mheart() + sHV(S_MART_SYS) + S_MVEN.map(d => sHV(d)).join('') + sHA(S_MTIS) + SH.mreflex(),
+    circ: ['m_heart', 'm_art', 'm_ven', 'm_tis', 'm_o2', 'm_hr', 'm_vaso', 'm_thx'],
+    parts: 'Maternal heart, arteries, veins and tissue; in fetosim also the HR baroreflex, thorax and vasomotor layers.',
+    meas: [['us', 'MHR, BP'], ['emg', 'MHR, maternal HRV'], ['opt', 'systemic SpO₂ and flow']],
+    check: 'Maternal heart rate, pressure and saturation at rest and through a contraction.' },
+  { id: 'S2', cls: 'ss2', title: 'S2 · Uterine contraction', px: 'EMG contractions · thickness', tag: [400, 30], to: [[284, 72]],
+    hl: () => sHA(S_FAT, '', 'soft') + sHA(MUSCLE) + SH.electrodes(), circ: ['wall', 'toco', 'm_auto'],
+    parts: 'Myometrium and the uterine pressure it produces, which drives the rest of the model; TOCO today.',
+    meas: [['emg', 'contractions, incl. spatial distribution'], ['us', 'layer thickness']],
+    check: 'EMG and wall thickness against TOCO, and the uterine pressure they imply.' },
+  { id: 'S3', cls: 'ss3', title: 'S3 · Uteroplacental perfusion', px: 'uterine flow · uterine StO₂', tag: [214, 568], to: [[300, 392], [398, 444]],
+    hl: () => sHV(S_MART_UT) + S_SPIRAL.map(d => sHV(d)).join('') + sHA(IVS) + S_UTV.map(d => sHV(d)).join(''), circ: ['spiral', 'ivs', 'utv'],
+    parts: 'Uterine and spiral arteries, intervillous space, uterine veins.',
+    meas: [['opt', 'uterine flow, uterine StO₂ (harder)']],
+    check: 'Uterine flow and oxygenation falling and recovering with each contraction, driven by S2.' },
+  { id: 'SX', cls: 'ssx', title: 'Placental exchange & cord', px: 'not measured · inferred', tag: [560, 568], to: [[440, 432], [572, 342]], tbd: 1,
+    hl: () => `<rect class="ha hatch" x="404" y="150" width="68" height="280" rx="22"/>` + sHV(CORD, FETAL), circ: ['villi', 'exch', 'umv', 'uma', 'cordsq', 'fo2'],
+    parts: 'O₂ exchange across the villi, umbilical cord flow, fetal blood O₂.', meas: [],
+    check: 'No sensor reads these. They are checked only end to end, from the S3 signals to the S4 signals.' },
+  { id: 'S4', cls: 'ss4', title: 'S4 · Fetal heart & reflexes', px: 'FHR · fetal HRV', tag: [850, 568], to: [[806, 344]],
+    hl: () => SH.fheart() + sHV(S_FART, FETAL) + SH.freflex(),
+    circ: ['cv', 'eff', 'fart', 'fven', 'obs', 'baro_curve', 'baro_filt', 'baro_w', 'chemo_curve', 'chemo_filt', 'chemo_w'],
+    parts: 'Fetal heart and circulation, baroreceptor and chemoreceptor.', meas: [['emg', 'FHR, fetal HRV']],
+    check: 'FHR level, decelerations and variability given S2 and S3. Existing CTG records (CTU, CHOP: FHR + TOCO) already test S2 → S4 end to end.' },
+  { id: 'S5', cls: 'ss5', title: 'S5 · Fetal state', px: 'movement · EEG (TBD)', tag: [850, 30], to: [[800, 108]], tbd: 1,
+    hl: () => SH.brain() + SH.fetus(), circ: ['brain', 'body'],
+    parts: 'Not in the model yet; brain and body appear only as O₂ consumers.', meas: [['fm', 'movement (TBD)'], ['eeg', 'EEG (TBD)']],
+    check: 'Later: a fetal state (e.g. quiet / active) that changes how S4 responds.' },
+];
+function senseEntry(it, m, dots) {
+  const pick = v => (v && typeof v === 'object') ? (v[m] || Object.values(v)[0]) : v;
+  return { it, cls: 's-' + m, dots: dots.map(k => 's-' + k), label: it.title, px: pick(it.px), line: pick(it.line) };
+}
+function senseItems() {
+  if (senseMode === 'sub') return SUBS.map(s => ({ it: s, cls: s.cls, dots: [s.cls], label: s.title, px: s.px }));
+  if (!senseMode) return [];
+  return SENSE.filter(it => senseMode === 'all' || it.mods.includes(senseMode))
+    .map(it => senseMode === 'all' ? senseEntry(it, it.mods[0], it.mods) : senseEntry(it, senseMode, [senseMode]));
+}
+function arrowPath(S, E, dash) {
+  const C = [S[0] + (E[0] - S[0]) * .12, S[1] + (E[1] - S[1]) * .8];
+  let ux = E[0] - C[0], uy = E[1] - C[1]; const l = Math.hypot(ux, uy) || 1; ux /= l; uy /= l;
+  const bx = E[0] - ux * 14, by = E[1] - uy * 14, d = `M${f1(S[0])} ${f1(S[1])} Q ${f1(C[0])} ${f1(C[1])} ${f1(E[0] - ux * 7)} ${f1(E[1] - uy * 7)}`;
+  return `<path class="arw-halo" d="${d}"/><path class="arw${dash ? ' dash' : ''}" d="${d}"/>` +
+    `<path class="arw-h" d="M${f1(E[0])} ${f1(E[1])} L${f1(bx - uy * 6.5)} ${f1(by + ux * 6.5)} L${f1(bx + uy * 6.5)} ${f1(by - ux * 6.5)} Z"/>`;
+}
+function drawSense() {
+  dia.querySelector('#sense')?.remove();
+  dia.classList.toggle('sensing', !!senseMode);
+  paintSenseCirc();
+  if (!senseMode) return;
+  const L = senseItems(), g = document.createElementNS(SVGNS, 'g');
+  g.id = 'sense';
+  const shapes = L.map(({ it, cls }) => `<g class="sg ${cls}" data-si="${it.id}">${it.hl()}</g>`).join('');
+  if (portrait) { g.innerHTML = `<g transform="translate(600 0) rotate(90)">${shapes}</g>`; dia.appendChild(g); return; }   // phones: highlights only, labels in the panel
+  if (senseMode === 'all' && PAGE_Q.get('labels') === 'direct') { g.innerHTML = shapes + directLabels(); dia.appendChild(g);
+    let x = 0; const its = [...g.querySelectorAll('.dlg')];          // legend: measured widths, centred
+    its.forEach(e => { e.setAttribute('transform', `translate(${x.toFixed(1)} 0)`); x += 12 + e.querySelector('text').getComputedTextLength() + 30; });
+    g.querySelector('.dlegend').setAttribute('transform', `translate(${(X0 + 500 - (x - 30) / 2).toFixed(1)} 30)`); return; }   // slide export only
+  g.innerHTML = `${shapes}<g class="sars"></g>` + L.map(({ it, cls, dots, label, px }) => {
+    const x0 = 16 + dots.length * 13;
+    return `<g class="pill ${cls}${it.tbd ? ' tbd' : ''}" data-si="${it.id}"><rect class="pb" rx="10" height="44"/>` +
+      dots.map((d, i) => `<circle class="pd ${d}" cx="${16 + i * 13 - 3}" cy="16" r="5"/>`).join('') +
+      `<text class="pt" x="${x0}" y="21">${esc(label)}</text><text class="px" x="${x0}" y="36">${esc(px)}</text></g>`;
+  }).join('');
+  dia.appendChild(g);
+  const arrows = [];
+  g.querySelectorAll('.pill').forEach((p, i) => {
+    const { it, cls, dots } = L[i], tx = p.querySelectorAll('text'), h = 44;
+    const w = Math.max(tx[0].getComputedTextLength(), tx[1].getComputedTextLength()) + 16 + dots.length * 13 + 14;
+    const [cx, cy] = it.tag, x = Math.max(X0 + 4, Math.min(X0 + 996 - w, cx - w / 2)), y = cy - h / 2;
+    p.querySelector('rect').setAttribute('width', w.toFixed(1));
+    p.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    const sy = cy < 300 ? y + h : y, n = it.to.length;
+    arrows.push(`<g class="arg ${cls}" data-si="${it.id}">` + it.to.map((t, k) => {
+      const E = Array.isArray(t) ? t : t.p, sx = x + w / 2 + (k - (n - 1) / 2) * Math.min(34, w / (n + 1));
+      return arrowPath([sx, sy], E, !Array.isArray(t) && t.dash);
+    }).join('') + `</g>`);
+  });
+  g.querySelector('.sars').innerHTML = arrows.join('');
+}
+/* ?sense=all&labels=direct (slide figure, 2026-11-11): no arrows or boxes; each measurable is written next to its
+   highlight with the sensor name in the sensor's colour, plus a sensor legend. The interactive page never uses it. */
+const DIRECT = {
+  mhr: [{ x: 80, y: 222 }], bp: [{ x: 104, y: 158 }], thick: [{ x: 400, y: 212 }], flow: [{ x: 292, y: 163, t: 'Blood flow' }],
+  uc: [{ x: 300, y: 100 }], hrv: [{ x: 790, y: 262, a: 'end' }, { x: -52, y: 478, a: 'start', t: 'HRV (maternal)' }],
+  eeg: [{ x: 797, y: 78 }], o2: [{ x: 124, y: 532, t: 'SpO₂ systemic' }, { x: 300, y: 562, t: 'StO₂ uterine (harder)' }],
+  fm: [{ x: 640, y: 525 }], fhr: [{ x: 806, y: 378 }],
+};
+function directLabels() {
+  const lab = SENSE.flatMap(it => (DIRECT[it.id] || []).map(L => {
+    const a = L.a || 'middle', sens = it.mods.map(m => `<tspan class="s-${m}" style="fill:var(--sc)">${esc(MODS[m].name)}</tspan>`).join('<tspan class="dsep"> · </tspan>');
+    return `<g class="dl"><text class="dlt s-${it.mods[0]}" x="${L.x}" y="${L.y}" text-anchor="${a}">${esc(L.t || it.title)}</text>` +
+      `<text class="dls" x="${L.x}" y="${L.y + 18}" text-anchor="${a}">${it.tbd ? `<tspan class="s-${it.mods[0]}" style="fill:var(--sc)">TBD</tspan>` : sens}</text></g>`;
+  })).join('');
+  const leg = Object.keys(MODS).map(m => `<g class="dlg"><circle class="s-${m}" style="fill:var(--sc)" cx="0" cy="-5" r="6"/><text class="dleg" x="12" y="0">${esc(MODS[m].name)}</text></g>`).join('');
+  return lab + `<g class="dlegend">${leg}</g>`;
+}
+function paintSenseCirc() {
+  const c = document.getElementById('circ'); if (!c) return;
+  c.classList.toggle('sensing', !!senseMode);
+  c.querySelectorAll('.el.sn').forEach(el => { el.classList.remove('sn'); el.style.removeProperty('--sc'); });
+  if (!senseMode) return;
+  senseItems().slice().reverse().forEach(({ it, cls }) => (it.circ || []).forEach(k => c.querySelectorAll(`.el[data-el~="${k}"]`).forEach(el => {
+    el.classList.add('sn'); el.style.setProperty('--sc', `var(--${cls.replace(/^s-/, 's-')})`);
+  })));
+}
+function senseCard({ it, cls, label, px, line }) {
+  return `<div class="sp-item ${cls}" data-si="${it.id}"><div class="st">${esc(label)}${it.tbd ? '<span class="tbd">TBD</span>' : `<span class="sm" style="font-weight:400">${esc(px)}</span>`}</div>` +
+    `<div>${esc(line)}</div><div class="sm"><span class="sk">In the model</span>${esc(it.where || [...new Set(it.circ.map(k => ANCHORS[k] ? ANCHORS[k].name : k))].join(', '))}</div>` +
+    `<div class="sm"><span class="sk">Subsystem</span>${esc(it.sub)}</div></div>`;
+}
+function sensePanel() {
+  if (senseMode === 'sub') return `<h3>Subsystems for validation</h3>
+    <p class="sp-intro">Each subsystem has its own measured signals, so it can be checked on its own before the pieces are joined. S2 drives S3; S3 reaches the fetus through the placenta and cord, which no sensor reads; S4 responds. S1 supplies S3, and S5 may later modulate S4.</p>
+    <div class="sp-list">${SUBS.map(s => `<div class="sp-item ${s.cls}" data-si="${s.id}"><div class="st">${esc(s.title)}</div>
+      <div><span class="sk">Model</span>${esc(s.parts)}</div>
+      <div><span class="sk">Measured by</span>${s.meas.length ? s.meas.map(([m, t]) => `<span style="white-space:nowrap"><i class="sd s-${m}" style="display:inline-block;margin-right:5px"></i>${esc(MODS[m].name)}:</span> ${esc(t)}`).join('; ') : 'no sensor'}</div>
+      <div class="sm"><span class="sk">Check</span>${esc(s.check)}</div></div>`).join('')}</div>`;
+  if (senseMode === 'all') return `<h3>Measurable by each sensor</h3><p class="sp-intro">All modalities at once. Pick one above to see it alone, or <b>Subsystems</b> for how the signals split the model for validation.</p>` +
+    Object.keys(MODS).map(m => `<div class="sp-mod"><i class="sd s-${m}"></i>${MODS[m].name}</div><div class="sp-list">${SENSE.filter(it => it.mods.includes(m)).map(it => senseCard(senseEntry(it, m, [m]))).join('')}</div>`).join('');
+  return `<h3 class="sp-mod" style="font-size:18px;margin:0"><i class="sd s-${senseMode}" style="width:12px;height:12px"></i>${MODS[senseMode].name}</h3>
+    <p class="sp-intro">${esc(MODS[senseMode].intro)}</p><div class="sp-list">${senseItems().map(senseCard).join('')}</div>
+    <p class="sp-note">Arrows point to where each signal sits in the model; the circuit lights the same elements. A dashed arrow marks the harder or secondary target.</p>`;
+}
+function senseHot(id) {
+  const s = dia.querySelector('#sense');
+  if (s) { s.classList.toggle('hot', !!id); s.querySelectorAll('[data-si]').forEach(el => el.classList.toggle('on', el.dataset.si === id)); }
+  panel.querySelectorAll('.sp-item').forEach(el => el.classList.toggle('on', el.dataset.si === id));
+}
+function setSense(m, quiet) {
+  senseMode = m || '';
+  document.querySelectorAll('[data-sense]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sense === senseMode)));
+  if (senseMode && (zoomKey || selectedKey)) select(null, false);
+  drawSense();
+  if (!quiet) { renderPanel(null, false); panel.scrollTop = 0; }
+}
+document.querySelectorAll('[data-sense]').forEach(b => b.addEventListener('click', () => setSense(b.dataset.sense)));
+hooks.select.push(k => { if (k && senseMode) setSense('', true); });
+dia.addEventListener('pointerover', e => { if (senseMode) { const el = e.target.closest('#sense [data-si]'); senseHot(el ? el.dataset.si : null); } });
+dia.addEventListener('pointerleave', () => { if (senseMode) senseHot(null); });
+panel.addEventListener('pointerover', e => { if (senseMode) { const el = e.target.closest('.sp-item'); senseHot(el ? el.dataset.si : null); } });
+panel.addEventListener('pointerleave', () => { if (senseMode) senseHot(null); });
+const PAGE_Q = new URLSearchParams(location.search);     // ?fig=dia|circ (one drawing fills the window), ?sense=us|…, ?theme=light|dark
+if (PAGE_Q.get('fig')) document.body.classList.add('fig', 'fig-' + PAGE_Q.get('fig'));
+if (PAGE_Q.get('theme')) document.documentElement.dataset.theme = PAGE_Q.get('theme');
+if (PAGE_Q.get('model') === 'jongen') setCircExt(false);
 
 /* ---------------- loop and start ---------------- */
 let lastT = performance.now(), lastRO = 0, lastLive = 0;
@@ -1595,6 +1899,7 @@ new ResizeObserver(() => {
 }).observe(diagramEl);
 layout();
 commonStart();
+if (PAGE_Q.has('sense')) setSense(PAGE_Q.get('sense'));
 requestAnimationFrame(frame);
 </script>
 
