@@ -83,7 +83,7 @@
   {
    "name": "MT_V0TH",
    "symbol": "V_0,th",
-   "value": 568.9939641067258,
+   "value": 573.448653017238,
    "unit": "ml",
    "meaning": "reservoir unstressed volume",
    "part": "mother",
@@ -96,7 +96,7 @@
   {
    "name": "MT_DPF",
    "symbol": "Delta p_f",
-   "value": 3.179056277465508,
+   "value": 3.2719856425447285,
    "unit": "mmHg",
    "meaning": "resting pressure drop across MT_RVR, added back to the filling pressure",
    "part": "mother",

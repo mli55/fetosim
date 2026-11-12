@@ -9,8 +9,9 @@ Writes outputs/replication.json (relative to the current folder) and prints simu
     python examples/reproduce_jongen2016.py        (from the repo root)
 
 Known differences from the papers:
-  - D_plac = 0.0904 (paper's rule: steady-state fetal arterial pO2 18.5 mmHg) instead of the table's 0.082.
-  - Part A reference: minimum uterine flow 163 ml/min here vs about 180 in A Fig. 3 (figure reading).
+  - Maternal E_min = 5/87.5 = 0.0571 from the B §2.2.1 rule (A Table 1b prints it rounded as 0.06); with it the table's
+    D_plac = 0.082 gives the paper's 18.5 mmHg fetal arterial pO2.
+  - Part A reference: minimum uterine flow 175 ml/min here vs about 180 in A Fig. 3 (figure reading).
   - Contraction onset t_con and the block / occlusion onsets are not stated; 30 s is read from the figures.
   - IVS V_max, p_0, p_1 are derived from the stated rules (not printed in the tables).
 """

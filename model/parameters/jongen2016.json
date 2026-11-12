@@ -478,15 +478,15 @@
   {
    "name": "M_EMIN",
    "symbol": "E_min",
-   "value": 0.06,
+   "value": 0.05714285714285714,
    "unit": "mmHg/ml",
    "meaning": "maternal ventricle end-diastolic elastance",
    "part": "mother",
    "equations": "A(9)",
    "class": "paper",
-   "source": "A Table 1b",
-   "source_detail": "A-T1b",
-   "note": ""
+   "source": "B §2.2.1 rule (A Table 1b prints 0.06)",
+   "source_detail": "B s2.2.1 rule: V_min,0 = V_ee, so E_min = p_tm,v / stroke volume = 5 / (7000/80) = 0.0571; table A-T1b prints it rounded as 0.06, which gives maternal CO 6.80 L/min and q_uta 614 ml/min here",
+   "note": "Unrounded value from the paper's own rule (B §2.2.1): 5 mmHg / 87.5 ml. With it, maternal CO is 7.0 L/min and q_uta 633 ml/min, and the table's D_plac = 0.082 gives the paper's 18.5 mmHg fetal arterial pO2."
   },
   {
    "name": "M_V0MAX",
@@ -634,15 +634,15 @@
   {
    "name": "O_DPLAC",
    "symbol": "D_plac",
-   "value": 0.0904,
+   "value": 0.082,
    "unit": "ml O2/(s·mmHg)",
    "meaning": "placental O2 diffusion capacity, intervillous blood -> villi",
    "part": "placenta",
    "equations": "A(16)",
    "class": "paper",
-   "source": "B §2.2.2 rule",
-   "source_detail": "B s2.2.2 rule (steady-state fetal arterial pO2 18.5 mmHg); table A-T2 prints 0.082, which gives 18.25 here",
-   "note": "Set by the paper's rule (steady-state fetal arterial pO2 = 18.5 mmHg, B §2.2.2). The table prints 0.082, which gives 18.25 mmHg in our implementation."
+   "source": "A Table 2",
+   "source_detail": "A-T2; with M_EMIN from the B s2.2.1 rule it gives steady-state fetal arterial pO2 18.50 mmHg (B s2.2.2 target 18.5)",
+   "note": "Table value. Gives the paper's 18.5 mmHg resting fetal arterial pO2 once maternal E_min uses its unrounded value (0.0571)."
   },
   {
    "name": "O_DLUNG",

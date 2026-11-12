@@ -24,7 +24,7 @@
   {
    "name": "MR_SBP_OFF",
    "symbol": "Delta_SBP",
-   "value": 36.755226173351886,
+   "value": 34.65577662274286,
    "unit": "mmHg",
    "meaning": "SBP input = p_a,m + offset (Jongen maternal heart is not pulsatile)",
    "part": "mother",
