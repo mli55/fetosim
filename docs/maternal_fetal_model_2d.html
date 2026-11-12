@@ -278,6 +278,9 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .ann.c2 { border-left-color: var(--c2); }
 .ann.v { border-left-color: var(--muted); } .annrows.vrow { display: flex; flex-wrap: wrap; gap: 3px; } .vd { color: var(--muted); font-size: 11px; }
 .borrow { display: grid; gap: 4px; margin: 0 0 10px; }
+.trail { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.trail button { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; }
+.trail button[aria-current] { color: var(--ink); cursor: default; }
 .borrow .from { font-size: 11px; color: var(--muted); }
 .eq.hit { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .ann.c3 { border-left-color: var(--c3); background: color-mix(in srgb, var(--c3-bg) 55%, var(--surface)); }
@@ -691,7 +694,7 @@ const PARTS = {
       ['A(1), A(4)', '<i>p</i><sub>tm,villi</sub> = <span class="fr"><span><i>V</i><sub>villi</sub> − <i>V</i><sub>villi,0</sub></span><span><i>C</i><sub>villi</sub></span></span>, &nbsp; <span class="fr"><span>d<i>V</i><sub>villi</sub></span><span>d<i>t</i></span></span> = <i>q</i><sub>uma</sub> − <i>q</i><sub>umv</sub>', '<i>V</i>, <i>V</i><sub>0</sub>: volume, unstressed volume; <i>C</i>: compliance; <i>q</i><sub>in</sub>, <i>q</i><sub>out</sub>: flow in, out.'],
       ['A(16)', '<i>Q</i><sub>D,plac</sub> = <i>D</i><sub>plac</sub> (pO<sub>2,IVS</sub> − pO<sub>2,villi</sub>)', '<i>Q</i><sub>D,plac</sub>: O<sub>2</sub> diffusion from IVS to villi; <i>D</i><sub>plac</sub> = 0.082 (A Table 2).'],
       ['A(12)–(13)', 'cO<sub>2</sub> = <i>α</i> Hb <span class="fr"><span>sO<sub>2</sub></span><span>100</span></span> + <i>β</i> pO<sub>2</sub>, &nbsp; sO<sub>2</sub> = <span class="fr"><span>100</span><span>1 + <span class="fr"><span><i>c</i><sub>1</sub></span><span>pO<sub>2</sub>³ + <i>c</i><sub>2</sub> pO<sub>2</sub></span></span></span></span>', 'cO<sub>2</sub>: O<sub>2</sub> content; sO<sub>2</sub>: saturation; α, β: Hb binding, solubility; <i>c</i><sub>1</sub>, <i>c</i><sub>2</sub>: curve constants.'],
-      ['A(14)–(15)', '<span class="fr"><span>d(cO<sub>2</sub> <i>V</i>)</span><span>d<i>t</i></span></span> = <i>Q</i><sub>C</sub> + <i>Q</i><sub>D</sub> − <i>Q</i><sub>M</sub>, &nbsp; <i>Q</i><sub>C</sub> = Σ<i>q</i><sub>in</sub> cO<sub>2,in</sub> − Σ<i>q</i><sub>out</sub> cO<sub>2</sub>, &nbsp; <span class="fr"><span>d(cO<sub>2,IVS</sub> <i>V</i><sub>IVS</sub>)</span><span>d<i>t</i></span></span> = <i>q</i><sub>uta</sub> cO<sub>2,a,m</sub> − <i>q</i><sub>utv</sub> cO<sub>2,IVS</sub> − <i>Q</i><sub>D,plac</sub>, &nbsp; <span class="fr"><span>d(cO<sub>2,villi</sub> <i>V</i><sub>villi</sub>)</span><span>d<i>t</i></span></span> = <i>q</i><sub>uma</sub> cO<sub>2,a</sub> − <i>q</i><sub>umv</sub> cO<sub>2,villi</sub> + <i>Q</i><sub>D,plac</sub>, &nbsp; pO<sub>2,IVS</sub>, pO<sub>2,villi</sub> from cO<sub>2</sub> by A(12)–(13)', '<i>Q</i><sub>C</sub>: O<sub>2</sub> carried by blood; <i>Q</i><sub>D</sub>: diffusion; <i>Q</i><sub>M</sub>: consumption.'],
+      ['A(14)–(15), placenta', '<span class="fr"><span>d(cO<sub>2</sub> <i>V</i>)</span><span>d<i>t</i></span></span> = <i>Q</i><sub>C</sub> + <i>Q</i><sub>D</sub> − <i>Q</i><sub>M</sub>, &nbsp; <i>Q</i><sub>C</sub> = Σ<i>q</i><sub>in</sub> cO<sub>2,in</sub> − Σ<i>q</i><sub>out</sub> cO<sub>2</sub>, &nbsp; <span class="fr"><span>d(cO<sub>2,IVS</sub> <i>V</i><sub>IVS</sub>)</span><span>d<i>t</i></span></span> = <i>q</i><sub>uta</sub> cO<sub>2,a,m</sub> − <i>q</i><sub>utv</sub> cO<sub>2,IVS</sub> − <i>Q</i><sub>D,plac</sub>, &nbsp; <span class="fr"><span>d(cO<sub>2,villi</sub> <i>V</i><sub>villi</sub>)</span><span>d<i>t</i></span></span> = <i>q</i><sub>uma</sub> cO<sub>2,a</sub> − <i>q</i><sub>umv</sub> cO<sub>2,villi</sub> + <i>Q</i><sub>D,plac</sub>, &nbsp; pO<sub>2,IVS</sub>, pO<sub>2,villi</sub> from cO<sub>2</sub> by A(12)–(13)', '<i>Q</i><sub>C</sub>: O<sub>2</sub> carried by blood; <i>Q</i><sub>D</sub>: diffusion; <i>Q</i><sub>M</sub>: consumption.'],
     ],
   },
   spiral: {
@@ -720,7 +723,7 @@ const PARTS = {
     during: '<span class="lk">vagus-nerve signal to the heart rises</span> → each beat takes longer → FHR falls (deceleration)',
     eqs: [
       ['A(25)', '<i>T</i> = <i>T</i><sub>ref</sub> (1 + <i>z</i><sub>Tv</sub> − <i>z</i><sub>Ts</sub>), &nbsp; FHR = <span class="fr"><span>60</span><span><i>T</i></span></span>', '<i>T</i>: fetal heart period; <i>T</i><sub>ref</sub>: at rest; <i>z</i><sub>Tv</sub>, <i>z</i><sub>Ts</sub>: vagal, sympathetic effect on <i>T</i>.'],
-      ['A(23)', '<i>x</i>*(<i>t</i>) = <i>e</i>(<i>t</i> − <i>D</i>), &nbsp; <span class="fr"><span>d<i>x</i></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>x</i>* − <i>x</i></span><span><i>τ</i></span></span>, &nbsp; <i>z</i> = <b><i>g</i></b> · <i>k</i> · <i>x</i>, &nbsp; <i>z</i><sub>Tv</sub> from <i>e</i><sub>v</sub>; <i>z</i><sub>Ts</sub>, <i>z</i><sub>E</sub>, <i>z</i><sub>R</sub>, <i>z</i><sub>V</sub> from <i>e</i><sub>s</sub>', '<i>e</i>: drive; <i>D</i>: delay; τ: time constant; <i>k</i>: gain; <i>g</i>: common gain factor; <i>z</i>: effect.'],
+      ['A(23)', '<i>x</i>*(<i>t</i>) = <i>e</i>(<i>t</i> − <i>D</i>), &nbsp; <span class="fr"><span>d<i>x</i></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>x</i>* − <i>x</i></span><span><i>τ</i></span></span>, &nbsp; <i>z</i> = <b><i>g</i></b> · <i>k</i> · <i>x</i>, &nbsp; <i>z</i><sub>Tv</sub> = <b><i>g</i></b> · <i>k</i><sub>Tv</sub> · <i>x</i><sub>Tv</sub>, <i>x</i><sub>Tv</sub> driven by <i>e</i><sub>v</sub>; <i>z</i><sub>Ts</sub>, <i>z</i><sub>E</sub>, <i>z</i><sub>R</sub>, <i>z</i><sub>V</sub> likewise, driven by <i>e</i><sub>s</sub>', '<i>e</i>: drive; <i>D</i>: delay; τ: time constant; <i>k</i>: gain; <i>g</i>: common gain factor; <i>z</i>: effect.'],
       ['A(24)', '<i>R</i><sub>tisa</sub> = <i>R</i><sub>tisa,ref</sub>(1 + <i>z</i><sub>R</sub>), &nbsp; <i>E</i><sub>max</sub> = <i>E</i><sub>max,ref</sub>(1 + <i>z</i><sub>E</sub>), &nbsp; <i>V</i><sub>ven,0</sub> = <i>V</i><sub>ven,0,ref</sub>(1 + <i>z</i><sub>V</sub>)', '<i>z</i><sub>E</sub>, <i>z</i><sub>R</sub>, <i>z</i><sub>V</sub>: sympathetic effect on <i>E</i><sub>max</sub>, <i>R</i><sub>tisa</sub>, <i>V</i><sub>ven,0</sub>.'],
       ['A(9)–(11)', '<i>V</i><sub>ed</sub> = <i>V</i><sub>min,0</sub> + <span class="fr"><span><i>p</i><sub>tm,v</sub></span><span><i>E</i><sub>min</sub></span></span>, &nbsp; <i>V</i><sub>ee</sub> = <i>V</i><sub>max,0</sub> + <span class="fr"><span><i>p</i><sub>tm,a</sub></span><span><i>E</i><sub>max</sub></span></span>, &nbsp; <i>q</i><sub>CO</sub> = <span class="fr"><span><i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub></span><span><i>T</i></span></span>, &nbsp; <i>q</i><sub>in</sub> = <i>q</i><sub>CO</sub> + <span class="fr"><span>d</span><span>d<i>t</i></span></span><span class="fr"><span><i>V</i><sub>ed</sub> + <i>V</i><sub>ee</sub></span><span>2</span></span>', '<i>V</i><sub>ed</sub>, <i>V</i><sub>ee</sub>: end-diastolic, end-ejection volume; <i>E</i><sub>min</sub>, <i>E</i><sub>max</sub>: elastances; <i>q</i><sub>CO</sub>: cardiac output.'],
       ['A(1), A(4)–(5)', '<i>p</i><sub>tm,a</sub> = <span class="fr"><span><i>V</i><sub>art</sub> − <i>V</i><sub>art,0</sub></span><span><i>C</i><sub>art</sub></span></span>, <i>p</i><sub>tm,v</sub> = <span class="fr"><span><i>V</i><sub>ven</sub> − <i>V</i><sub>ven,0</sub></span><span><i>C</i><sub>ven</sub></span></span>, &nbsp; <i>p</i><sub>tm,tis</sub> = <span class="fr"><span><i>V</i><sub>tis</sub> − <i>V</i><sub>tis,0</sub></span><span><i>C</i><sub>tis</sub></span></span>, <i>p</i><sub>tm,cer</sub> = <span class="fr"><span><i>V</i><sub>cer</sub> − <i>V</i><sub>cer,0</sub></span><span><i>C</i><sub>cer</sub></span></span>, &nbsp; <i>q</i><sub>tis</sub> = <span class="fr"><span><i>p</i><sub>tm,a</sub> − <i>p</i><sub>tm,tis</sub></span><span><i>R</i><sub>tisa</sub></span></span>, <i>q</i><sub>cer</sub> = <span class="fr"><span><i>p</i><sub>tm,a</sub> − <i>p</i><sub>tm,cer</sub></span><span><i>R</i><sub>cera</sub></span></span>, &nbsp; <span class="fr"><span>d<i>V</i><sub>art</sub></span><span>d<i>t</i></span></span> = <i>q</i><sub>CO</sub> − <i>q</i><sub>tis</sub> − <i>q</i><sub>cer</sub> − <i>q</i><sub>uma</sub>, &nbsp; <span class="fr"><span>d<i>V</i><sub>tis</sub></span><span>d<i>t</i></span></span> = <i>q</i><sub>tis</sub> − <span class="fr"><span><i>p</i><sub>tm,tis</sub> − <i>p</i><sub>tm,v</sub></span><span><i>R</i><sub>tisv</sub></span></span>, &nbsp; <span class="fr"><span>d<i>V</i><sub>cer</sub></span><span>d<i>t</i></span></span> = <i>q</i><sub>cer</sub> − <span class="fr"><span><i>p</i><sub>tm,cer</sub> − <i>p</i><sub>tm,v</sub></span><span><i>R</i><sub>cerv</sub></span></span>, &nbsp; <span class="fr"><span>d<i>V</i><sub>ven</sub></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>p</i><sub>tm,tis</sub> − <i>p</i><sub>tm,v</sub></span><span><i>R</i><sub>tisv</sub></span></span> + <span class="fr"><span><i>p</i><sub>tm,cer</sub> − <i>p</i><sub>tm,v</sub></span><span><i>R</i><sub>cerv</sub></span></span> + <i>q</i><sub>umv</sub> − <i>q</i><sub>in</sub>', 'Fetal compartments; <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> cancels in the flows.'],
@@ -846,7 +849,7 @@ const EQ_CODE_AT = {
   uterus: { 'ours': ['input/toco_to_pressure.py:28', 'input/toco_to_pressure.py:37'],
     'A(8)': 'model/simulate.py:200', 'A(2)': 'model/core.c:165', 'A(5)–(7)': 'model/core.c:147' },
   placenta: { 'A(3)': 'model/core.c:146', 'A(1), A(4)': 'model/core.c:175', 'A(16)': 'model/core.c:204',
-    'A(12)–(13)': 'model/core.c:65', 'A(14)–(15)': 'model/core.c:267' },
+    'A(12)–(13)': 'model/core.c:65', 'A(14)–(15), placenta': 'model/core.c:267' },
   spiral: { 'A(5)': 'model/core.c:163', 'A §2.4': 'examples/reproduce_jongen2016.py:62' },
   cord: { 'B(2)': 'model/core.c:130', 'B(1)': 'model/core.c:176', 'A(6) with B(1)': 'model/core.c:176', 'A(5), cord': 'model/core.c:183' },
   heart: { 'A(1), A(4)–(5)': 'model/core.c:171', 'A(14)–(15), fetus': 'model/core.c:278', 'A(25)': 'model/core.c:168', 'A(23)': 'model/core.c:288', 'A(24)': 'model/core.c:169', 'A(9)–(11)': 'model/core.c:178',
@@ -857,12 +860,60 @@ const EQ_CODE_AT = {
     'HR reflex': 'model/core.c:240', 'Thorax': ['model/core.c:137', 'model/core.c:153'], 'Vasomotor': 'model/core.c:142',
     'Autotransfusion': 'model/core.c:140' },
 };
+/* every symbol inside an equation is clickable when it has a source (user 2026-11-12): a parameter opens its entry, a
+   computed quantity the row that defines it (the row where it stands left of "="). Built from PARTS and PARAMS. */
+const SYM_RE = /<i>[^<]+<\/i>\*?(?:<sub>(?:[^<]|<i>[^<]*<\/i>)*<\/sub>)?|[pcs]O<sub>2(?:[^<]|<i>[^<]*<\/i>)*<\/sub>|\b(?:FHR|MHR)\b/g;
+const symKey = (() => { const d = document.createElement('div'); return h => { d.innerHTML = h; return d.textContent.replace(/[\s ]+/g, ''); }; })();
+function lhsSyms(line) {          // the symbol each "=" of a line defines: the first symbol of its clause (clauses split at ", " or "; ")
+  const t = line.replace(/<[^>]*>/g, m => ' '.repeat(m.length)), out = [];
+  for (let i = t.indexOf('='); i >= 0; i = t.indexOf('=', i + 1)) {
+    if (/[+−<>≤≥!]/.test(t[i - 1] || '')) continue;
+    const st = Math.max(t.lastIndexOf(', ', i), t.lastIndexOf('; ', i)) + 1, m = line.slice(st, i).match(SYM_RE);
+    if (m) out.push(m[0]);
+  }
+  return out;
+}
+const EXTRA_DEF = {   // quantities a row names without "=" in front of them
+  zTs: ['heart', 'A(23)'], zE: ['heart', 'A(23)'], zR: ['heart', 'A(23)'], zV: ['heart', 'A(23)'], 'QM,cer': ['heart', 'A(17)–(19)'],
+  'pO2,a': ['heart', 'A(14)–(15), fetus'], 'pO2,v': ['heart', 'A(14)–(15), fetus'], 'pO2,tis': ['heart', 'A(14)–(15), fetus'], 'pO2,cer': ['heart', 'A(14)–(15), fetus'],
+  'pO2,IVS': ['placenta', 'A(14)–(15)'], 'pO2,villi': ['placenta', 'A(14)–(15)'],
+  'pO2,a,m': ['mother', 'A(14)–(15)'], 'pO2,ven,m': ['mother', 'A(14)–(15)'], 'pO2,tis,m': ['mother', 'A(14)–(15)'],
+};
+let DEFS = null;
+function symDefs() {
+  if (DEFS) return DEFS;
+  DEFS = { eq: {}, par: {} };
+  const add = (o, s, t) => (o[s] = o[s] || []).push(t);
+  for (const p of Object.keys(PARTS)) {
+    const g = GROUP_OF[p] && GROUP_OF[p].key; if (!g) continue;
+    PARTS[p].eqs.forEach(([n, m], i, a) => {
+      const rep = a.slice(0, i).filter(e => e[0] === n).length, key = rep ? n + '#' + (rep + 1) : n;
+      m.split(', &nbsp; ').forEach(line => lhsSyms(line).forEach(h => add(DEFS.eq, symKey(h), [g, key, n])));
+    });
+  }
+  Object.entries(EXTRA_DEF).forEach(([k, t]) => add(DEFS.eq, k, [t[0], t[1], t[1]]));
+  PARAMS.forEach(r => { if (r.symbol) add(DEFS.par, symKey(symHTML(r.symbol)), [GROUP_OF[r.part].key, r.name, r.layer]); });
+  return DEFS;
+}
+function linkSyms(line, g, key) {
+  const D = symDefs(), own = new Set(lhsSyms(line).map(symKey));
+  const pick = L => L && (L.find(t => t[0] === g) || L[0]);
+  return line.split(/(<button[\s\S]*?<\/button>)/).map((seg, i) => i % 2 ? seg : seg.replace(SYM_RE, h => {
+    const k = symKey(h); if (own.has(k)) return h;
+    const eqs = (D.eq[k] || []).filter(t => !(t[0] === g && t[1] === key) && (circExt || !FS_EQ.includes(t[2])));
+    const par = pick((D.par[k] || []).filter(t => circExt || !t[2])), eq = pick(eqs);
+    const eqHere = eq && eq[0] === g, parHere = par && par[0] === g;
+    if (par && !eqHere && (parHere || !eq)) return `<button type="button" class="psym" data-p="${par[1]}">${h}</button>`;
+    if (eq) return `<button type="button" class="psym" data-g="${eq[0]}" data-k="${esc(eq[1])}">${h}</button>`;
+    return h;
+  })).join('');
+}
 function eqRows(parts) {
   return parts.flatMap(p => PARTS[p].eqs.map(([n, m, w], i, a) => {
     const v = (EQ_CODE_AT[p] || {})[n], rep = a.slice(0, i).filter(e => e[0] === n).length, at = Array.isArray(v) ? v[rep] : v;
-    return { n, m, w, at, key: rep ? n + '#' + (rep + 1) : n };
-  })).concat({ n: GENERAL_EQ[0], m: GENERAL_EQ[1], w: GENERAL_EQ[2], at: GENERAL_AT, key: GENERAL_EQ[0] }).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key }) => `<div class="eq" data-key="${esc(key)}">
-      <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}" title="Open ${esc(at)} ${CODE_WHERE}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
+    return { n, m, w, at, key: rep ? n + '#' + (rep + 1) : n, g: GROUP_OF[p].key };
+  })).concat({ n: GENERAL_EQ[0], m: GENERAL_EQ[1], w: GENERAL_EQ[2], at: GENERAL_AT, key: GENERAL_EQ[0], g: parts.length ? GROUP_OF[parts[0]].key : '' }).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key, g }) => `<div class="eq" data-key="${esc(key)}" data-g="${g}">
+      <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}" title="Open ${esc(at)} ${CODE_WHERE}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${linkSyms(x, g, key)}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
 }
 const sentence = s => { s = String(s || '').trim(); return s && s[0].toUpperCase() + s.slice(1) + (/[.!?]$/.test(s) ? '' : '.'); };
 function paramRows(parts) {
@@ -911,7 +962,16 @@ function renderPanel(key, scroll) {
 }
 panel.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.classList.contains('psym')) goTarget(b.dataset.p ? 'param:' + b.dataset.p : SYM[b.dataset.s]);
+  if (b.classList.contains('psym')) {
+    const t = b.dataset.p ? 'param:' + b.dataset.p : b.dataset.k ? [b.dataset.g, b.dataset.k] : SYM[b.dataset.s], row = b.closest('.eq');
+    if (!row) { goTarget(t); return; }
+    if (!trail.length) {                       // the trail starts at the quantity the clicked row defines
+      const l0 = lhsSyms(row.querySelector('.ml')?.innerHTML || '')[0];
+      trail.push({ h: l0 || esc(row.querySelector('.no').textContent), t: [row.dataset.g || current, row.dataset.key] });
+    }
+    trail.push({ h: b.innerHTML, t }); goTarget(t, true);
+  }
+  else if ('trail' in b.dataset) { trail = trail.slice(0, +b.dataset.trail + 1); goTarget(trail[trail.length - 1].t, true); }
   else if (b.dataset.f) setFilter(b.dataset.f);
   else if (b.id === 'toModel') $('[data-model]').scrollIntoView({ behavior: 'smooth', block: 'start' });
   else if ('part' in b.dataset) { select(b.dataset.part || null, false); panel.scrollTop = 0; }
@@ -956,11 +1016,13 @@ const ANCHORS = {
   m_hr: { g: 'mother', name: 'HR baroreflex', xy: [127, 211] },
   m_thx: { g: 'mother', name: 'Thorax (fetosim)', xy: [-14, 330] },
   m_vaso: { g: 'mother', name: 'Vasomotor reflex (fetosim)', xy: [-44, 330] },
-  m_auto: { g: 'mother', name: 'Autotransfusion (fetosim)', xy: [280, 410] },
+  m_auto: { g: 'mother', name: 'Autotransfusion', xy: [280, 410] },
   wall: { g: 'uterus', name: 'Uterine wall', xy: [272, 300] },
-  utv: { g: 'uterus', name: 'Uterine veins: collapse law', xy: [285, 446] },
+  utv: { g: 'uterus', name: 'Uterine veins', xy: [285, 446] },
   toco: { g: 'uterus', name: 'TOCO', xy: [211, 110] },
   spiral: { g: 'spiral', name: 'Spiral arteries', xy: [288, 290] },
+  u_ivs: { g: 'uterus', name: 'IVS', xy: [402, 158] }, s_ivs: { g: 'spiral', name: 'IVS', xy: [402, 158] },   // route steps in the IVS
+  c_fo2: { g: 'cord', name: 'Fetal arteries', xy: [800, 350] },
   ivs: { g: 'placenta', name: 'Intervillous space', xy: [402, 158] },
   villi: { g: 'placenta', name: 'Villi', xy: [440, 290] },
   exch: { g: 'placenta', name: 'O₂ exchange', xy: [370, 410] },
@@ -1007,19 +1069,30 @@ PARAMS.forEach(r => { const gk = GROUP_OF[r.part].key; if (!PARAM_ANCHOR[r.name]
    Parameters (T_ref, E_min, ...) are listed in the side panel only. */
 const VS = (x, y) => `<i>${x}</i>${y ? `<sub>${y}</sub>` : ''}`, VO2 = y => `pO<sub>2${y ? ',' + y : ''}</sub>`;
 const FS_ANCHOR = ['m_hr', 'm_thx', 'm_vaso', 'm_auto'];   // fetosim only
-const VARS = {   // clinical quantities only, plain name + symbol (user 2026-11-12); everything else is in the equations
-  m_heart: [['Maternal HR', 'maternal heart rate, fixed 80 bpm in Jongen 2016', 'A(9)–(10)', 'M_T']],
+const VARS = {   // one label per step of the part's route, at the place where it happens (user 2026-11-12)
+  m_auto: [['Myometrial blood to veins (' + VS('V', 'sq') + VS('x', 'c') + '/' + VS('p', 'ref') + ')', 'blood pushed into the maternal veins', 'Autotransfusion']],
+  m_heart: [['Cardiac output (' + VS('q', 'CO,m') + ')', 'maternal cardiac output (stroke volume × rate)', 'A(9)–(10)']],
   m_art: [['Maternal BP (' + VS('p', 'a,m') + ')', 'maternal arterial blood pressure', 'A(1)']],
+  m_hr: [['Maternal HR (MHR)', 'maternal heart rate from the baroreflex', 'HR reflex']],
+  toco: [['Contraction peaks (TOCO, ' + VS('t', '<i>k</i>') + ')', 'contraction peak times from TOCO', 'ours', 't_k']],
   wall: [['Uterine pressure (' + VS('p', 'ut') + ')', 'uterine pressure', 'ours#2']],
-  toco: [['Contractions (TOCO, ' + VS('t', '<i>k</i>') + ')', 'contraction peak times from TOCO', 'ours', 't_k']],
-  spiral: [['Uterine blood flow (' + VS('q', 'uta') + ')', 'maternal blood flow into the placenta', 'A(5)']],
-  villi: [['Umbilical-vein O₂ (' + VO2('villi') + ')', 'O₂ of the blood leaving the placenta for the fetus', 'A(14)–(15)']],
-  cordsq: [['Cord compression (' + VS('p', 'um') + ')', 'pressure squeezing the cord', 'B(2)']],
-  umv: [['Umbilical blood flow (' + VS('q', 'umv') + ')', 'umbilical-vein flow to the fetus', 'A(5), cord']],
-  cv: [['FHR', 'fetal heart rate; late decelerations come from low fetal O₂, variable ones from cord compression', 'A(25)']],
-  fo2: [['Fetal O₂ (' + VO2('a') + ', sO<sub>2</sub>)', 'fetal arterial O₂ pressure and saturation', 'A(14)–(15), fetus']],
-  baro_curve: [['Fetal BP (' + VS('p', 'tm,a') + ')', 'fetal arterial blood pressure', 'A(1), A(4)–(5)']],
-  chemo_curve: [['Fetal O₂ (' + VO2('a') + ')', 'fetal arterial O₂', 'A(14)–(15), fetus']],
+  u_ivs: [['IVS pressure (' + VS('p', 'tm,IVS') + ')', 'pressure in the intervillous space', 'A(5)']],
+  utv: [['Uterine-vein resistance (' + VS('R', 'utv') + ')', 'rises as the veins are compressed', 'A(5)–(7)']],
+  s_ivs: [['IVS pressure (' + VS('p', 'tm,IVS') + ')', 'pressure in the intervillous space', 'A(5)'], ['IVS blood (' + VS('V', 'IVS') + ')', 'maternal blood volume in the IVS', 'A(3)']],
+  spiral: [['Spiral-artery flow (' + VS('q', 'uta') + ')', 'maternal blood flowing into the IVS', 'A(5)']],
+  ivs: [['IVS blood (' + VS('V', 'IVS') + ')', 'maternal blood volume in the IVS', 'A(3)']],
+  exch: [['O₂ transfer (' + VS('Q', 'D,plac') + ')', 'O₂ crossing from the IVS into the villi', 'A(16)']],
+  villi: [['Villi O₂ (' + VO2('villi') + ')', 'O₂ of the fetal blood in the villi', 'A(14)–(15), placenta']],
+  umv: [['Umbilical-vein O₂ (' + VO2('villi') + ')', 'the villi blood carried to the fetus', 'A(14)–(15), placenta']],
+  c_fo2: [['Fetal arterial O₂ (' + VO2('a') + ')', 'fetal arterial O₂', 'A(14)–(15), fetus']],
+  chemo_curve: [['Fetal arterial O₂ (' + VO2('a') + ')', 'sensed by the chemoreceptors', 'A(14)–(15), fetus']],
+  chemo_filt: [['Chemoreceptor output (' + VS('r', 'c') + ')', 'chemoreceptor firing', 'A(20)']],
+  chemo_w: [['Vagal signal (' + VS('e', 'v') + ')', 'vagus-nerve signal to the heart', 'A(22)']],
+  eff: [['Vagal effect (' + VS('z', 'Tv') + ')', 'vagal effect on the heart period', 'A(23)']],
+  cv: [['Heart period (' + VS('T') + ')', 'time per beat', 'A(25)'], ['FHR', 'fetal heart rate = 60/<i>T</i>', 'A(25)']],
+  baro_curve: [['Fetal arterial pressure (' + VS('p', 'tm,a') + ')', 'sensed by the baroreceptors', 'A(1), A(4)–(5)']],
+  baro_filt: [['Baroreceptor output (' + VS('r', 'b') + ')', 'baroreceptor firing', 'A(20)']],
+  baro_w: [['Vagal signal (' + VS('e', 'v') + ')', 'vagus-nerve signal to the heart', 'A(22)']],
 };
 /* quantities of one numbered part, grouped by element */
 function annGroups(gkey) {
@@ -1504,7 +1577,7 @@ const SYM = {
   t_k: 'param:t_k', a: 'param:a', sigma: 'param:sigma', p_rest: 'param:S_PREST', w_um: 'param:S_WUM', R_uta: 'param:M_RUTA', T_ref: 'param:F_TREF',
   // computed quantities -> defining equation
   p_ut: ['uterus', 'ours#2'], p_ext: ['uterus', 'A(2)'], R_utv: ['uterus', 'A(5)–(7)'], p_tm_utv: ['uterus', 'A(5)–(7)'],
-  p_IVS: ['placenta', 'A(3)'], q_uta: ['spiral', 'A(5)'], pO2_IVS: ['placenta', 'A(14)–(15)'], pO2_villi: ['placenta', 'A(14)–(15)'],
+  p_IVS: ['placenta', 'A(3)'], q_uta: ['spiral', 'A(5)'], pO2_IVS: ['placenta', 'A(14)–(15), placenta'], pO2_villi: ['placenta', 'A(14)–(15), placenta'],
   Q_D_plac: ['placenta', 'A(16)'], pO2_a: ['placenta', 'A(12)–(13)'], r_c: ['chemo', 'A(20)'], r_b: ['baro', 'A(20)'], e_vs: ['chemo', 'A(22)'],
   z_T: ['heart', 'A(23)'], T: ['heart', 'A(25)'], FHR: ['heart', 'A(25)'], p_um: ['cord', 'B(2)'],
 };
@@ -1526,7 +1599,19 @@ function eqGroup(key, prefer) {
 }
 /* a click never changes the selected part or the zoom (user 2026-11-12): a target in the current part is highlighted
    there; a target in another part is shown in place, above the equations, under a small "from <part>" tag */
-function goTarget(t) {
+let trail = [];   // symbols clicked inside equations, to trace a quantity back to its source: T ← z_Tv ← e_v ← ...
+function goTarget(t, trace) {
+  if (!trace) trail = [];
+  const ok = showTarget(t);
+  panel.querySelector('.trail')?.remove();
+  if (trail.length > 1) {
+    const d = document.createElement('div'); d.className = 'trail';
+    d.innerHTML = trail.map((x, i) => `<button type="button" data-trail="${i}"${i === trail.length - 1 ? ' aria-current="true"' : ''}>${x.h}</button>`).join(' ← ');
+    const at = panel.querySelector('.borrow') || panel.querySelector('.eqs'); at ? at.before(d) : panel.prepend(d);
+  }
+  return ok;
+}
+function showTarget(t) {
   if (!t) return false;
   panel.querySelector('.borrow')?.remove();
   const tmp = document.createElement('div');
