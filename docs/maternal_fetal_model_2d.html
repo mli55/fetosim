@@ -662,8 +662,8 @@ const M = s => `<span class="m">${s}</span>`;
 const PARTS = {
   uterus: {
     title: 'Uterine wall', short: 'Uterus',
-    role: 'The muscle that contracts. In the model it is not a compartment of its own: it is the external pressure <i>p</i><sub>ut</sub> on the intervillous space, on the uterine veins and on every fetal compartment.',
-    during: 'p<sub>ut</sub> rises from 15 to 85 mmHg. The uterine veins narrow and IVS pressure rises, so less blood enters through the spiral arteries.',
+    role: 'The contracting muscle. Not a compartment of its own; it sets the external pressure <i>p</i><sub>ut</sub> on the IVS, the uterine veins and every fetal compartment.',
+    during: 'TOCO peaks → <i>t</i><sub>k</sub> → <i>p</i><sub>ut</sub> ↑ → uterine veins compressed, IVS pressure ↑ → spiral-artery inflow ↓',
     eqs: [
       ['A(8)', '<i>p</i><sub>ut</sub> = <span class="cases"><span><i>p</i><sub>rest</sub> + <i>p</i><sub>con</sub> sin²<span class="fr"><span>π(<i>t</i> − <i>t</i><sub>con</sub>)</span><span><i>T</i><sub>con</sub></span></span></span><span><i>t</i><sub>con</sub> &lt; <i>t</i> &lt; <i>t</i><sub>con</sub> + <i>T</i><sub>con</sub></span><span><i>p</i><sub>rest</sub></span><span>otherwise</span></span>', 'Paper reference: 15 + 70 mmHg for 60 s. CTG fits use the TOCO pulses below.'],
       ['A(2)', '<i>p</i><sub>tm</sub> = <i>p</i> − <i>p</i><sub>ext</sub>, &nbsp; <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> for the IVS and all fetal compartments', 'Volumes follow transmural pressure, flows absolute pressure, A(5).'],
@@ -672,8 +672,8 @@ const PARTS = {
   },
   placenta: {
     title: 'Placenta and intervillous space', short: 'Placenta / IVS',
-    role: 'Maternal blood fills the intervillous space (IVS); fetal blood runs through the villi. The IVS is a nonlinear compliance squeezed by <i>p</i><sub>ut</sub>. Oxygen diffuses from IVS blood into the villi.',
-    during: 'IVS volume falls from about 175 ml at rest (A p.2470) to about 120 ml at the peak (A Fig. 3), and less oxygen crosses to the fetus. In Part A this is the whole cause of the late deceleration.',
+    role: 'IVS (maternal blood) ↔ villi (fetal blood); O<sub>2</sub> diffuses across.',
+    during: 'IVS squeezed → O<sub>2</sub> into the villi ↓ → umbilical-vein pO<sub>2</sub> ↓',
     eqs: [
       ['A(3)', '<i>V</i><sub>IVS</sub> = <i>V</i><sub>max</sub> <i>f</i>(<i>p</i><sub>tm</sub>), &nbsp; <i>f</i>(<i>p</i><sub>tm</sub>) = <span class="fr"><span>1</span><span>2</span></span> + <span class="fr"><span>1</span><span>π</span></span> arctan <span class="fr"><span><i>p</i><sub>tm</sub> − <i>p</i><sub>0</sub></span><span><i>p</i><sub>1</sub></span></span>', '<i>V</i><sub>max</sub>, <i>p</i><sub>0</sub>, <i>p</i><sub>1</sub> derived from B p.2475.'],
       ['A(1), A(4)', '<i>p</i><sub>tm</sub> = <span class="fr"><span><i>V</i> − <i>V</i><sub>0</sub></span><span><i>C</i></span></span> (villi), &nbsp; <span class="fr"><span>d<i>V</i></span><span>d<i>t</i></span></span> = <i>q</i><sub>in</sub> − <i>q</i><sub>out</sub>', 'Linear compliance and volume balance.'],
@@ -684,8 +684,8 @@ const PARTS = {
   },
   spiral: {
     title: 'Spiral (uterine) arteries', short: 'Spiral arteries',
-    role: 'Carry maternal arterial blood into the IVS. They are one constant resistance <i>R</i><sub>uta</sub>. The paper states that they are not squeezed by the contraction (B p.2476); inflow falls because IVS pressure rises.',
-    during: 'In our simulation of the reference contraction, inflow <i>q</i><sub>uta</sub> falls from about 615 to 163 ml/min at the peak. The paper gives about 630 ml/min at rest (A p.2470).',
+    role: 'Maternal arterial inflow to the IVS; one constant resistance <i>R</i><sub>uta</sub>, not squeezed by the contraction.',
+    during: 'IVS pressure ↑ → inflow <i>q</i><sub>uta</sub> ↓ → fresh maternal O<sub>2</sub> into the IVS ↓',
     eqs: [
       ['A(5)', '<i>q</i><sub>uta</sub> = <span class="fr"><span><i>p</i><sub>art,m</sub> − <i>p</i><sub>IVS,abs</sub></span><span><i>R</i><sub>uta</sub></span></span>, &nbsp; <i>p</i><sub>IVS,abs</sub> = <i>p</i><sub>tm,IVS</sub> + <i>p</i><sub>ut</sub>', 'Segment flow from absolute pressures.'],
       ['A §2.4', '<i>R</i><sub>uta</sub>(<i>t</i>) ramps to 100 × over 5 s, held 20 or 30 s, back over 5 s', 'Sheep comparison only (A Fig. 4).'],
@@ -693,8 +693,8 @@ const PARTS = {
   },
   cord: {
     title: 'Umbilical cord', short: 'Umbilical cord',
-    role: 'One vein and two arteries between placenta and fetus. In Part B the contraction also presses on the cord, an extra external pressure <i>p</i><sub>um</sub>. The vein closes first (above about 40 mmHg), the arteries over 40–90 mmHg (B p.2476).',
-    during: 'Venous return from the placenta stops, blood pools in the villi, fetal arterial pressure dips and then overshoots, and pO<sub>2</sub> falls fast. This is the variable deceleration of Part B.',
+    role: 'One vein and two arteries between placenta and fetus. In Part B the contraction also squeezes the cord (<i>p</i><sub>um</sub>).',
+    during: 'Part B: <i>p</i><sub>um</sub> ↑ → umbilical vein closes → venous return ↓ → fetal pO<sub>2</sub> ↓ fast',
     eqs: [
       ['B(2)', '<i>p</i><sub>um</sub> = <i>w</i><sub>um</sub> (<i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub>)', '<i>w</i><sub>um</sub> = 1 in Part B (B §2.3), 0 in Part A; fitted 0–2.'],
       ['B(1)', '<i>p</i><sub>tm,umv</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>villi</sub> + <i>p</i><sub>ven</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>), &nbsp; <i>p</i><sub>tm,uma</sub> = <span class="fr"><span>1</span><span>2</span></span>(<i>p</i><sub>villi</sub> + <i>p</i><sub>art</sub>) − (<i>p</i><sub>ut</sub> + <i>p</i><sub>um</sub>)', 'Transmural pressure of the umbilical vein and arteries.'],
@@ -703,8 +703,8 @@ const PARTS = {
   },
   heart: {
     title: 'Fetal heart and circulation', short: 'Fetal heart',
-    role: 'One combined ventricle pumps into fetal arteries, body tissue, brain and the umbilical circulation. Vagal and sympathetic effectors set its period <i>T</i>, its contractility and the peripheral resistance. FHR = 60/<i>T</i>.',
-    during: 'The chemoreflex drives the vagal effector and lengthens <i>T</i>: the deceleration. Sympathetic effectors raise resistance and contractility. In the CTG fit, <i>g</i> scales all five effector gains.',
+    role: 'One ventricle pumping into fetal arteries, tissue, brain and the umbilical circulation; FHR = 60/<i>T</i>.',
+    during: 'vagal ↑ → <i>T</i> ↑ → FHR = 60/<i>T</i> ↓',
     eqs: [
       ['A(25)', '<i>T</i> = <i>T</i><sub>ref</sub> (1 + <i>z</i><sub>Tv</sub> − <i>z</i><sub>Ts</sub>), &nbsp; FHR = <span class="fr"><span>60</span><span><i>T</i></span></span>', '<i>T</i><sub>ref</sub> = 60/135 s.'],
       ['A(23)', '<i>x</i>*(<i>t</i>) = <i>e</i>(<i>t</i> − <i>D</i>), &nbsp; <span class="fr"><span>d<i>x</i></span><span>d<i>t</i></span></span> = <span class="fr"><span><i>x</i>* − <i>x</i></span><span><i>τ</i></span></span>, &nbsp; <i>z</i> = <b><i>g</i></b> · <i>k</i> · <i>x</i>', 'Five effectors; <b><i>g</i></b> is ours (paper: 1).'],
@@ -716,8 +716,8 @@ const PARTS = {
   },
   baro: {
     title: 'Baroreceptor', short: 'Baroreceptor',
-    role: 'Senses fetal mean arterial transmural pressure <i>p</i><sub>tm,a</sub>. Its output <i>r</i><sub>b</sub> lies in [−1, 1] and is 0 at the set point of 45 mmHg. It inhibits sympathetic output and adds to vagal output, with weight ¼.',
-    during: 'In Part B the arterial pressure overshoot gives the second dip at about 1.6 min (B p.2478). The paper attributes the pressure rise to the sympathetic reflex (B p.2477).',
+    role: 'Senses fetal arterial transmural pressure <i>p</i><sub>tm,a</sub> (set point 45 mmHg); weight ¼.',
+    during: '<i>p</i><sub>tm,a</sub> ↑ → <i>r</i><sub>b</sub> ↑ → vagal ↑, sympathetic ↓',
     eqs: [
       ['A(21)', '<i>r</i>*<sub>b</sub> = <i>r</i><sub>min</sub> + (<i>r</i><sub>max</sub> − <i>r</i><sub>min</sub>) exp(<i>η</i><sub>1</sub> exp(<i>η</i><sub>2</sub>(<i>p</i><sub>tm,a</sub> − <i>y</i><sub>ref</sub>)))', 'Gompertz curve, <i>η</i><sub>2</sub> = −0.06 mmHg⁻¹.'],
       ['B(3)', '<i>η</i><sub>1</sub> = ln <span class="fr"><span>−<i>r</i><sub>min</sub></span><span><i>r</i><sub>max</sub> − <i>r</i><sub>min</sub></span></span>', 'Exact ln 0.5 (table: −0.69).'],
@@ -727,8 +727,8 @@ const PARTS = {
   },
   chemo: {
     title: 'Chemoreceptor', short: 'Chemoreceptor',
-    role: 'Senses fetal arterial pO<sub>2</sub>. Its output <i>r</i><sub>c</sub> rises toward 1 as pO<sub>2</sub> falls below the set point of 18.1 mmHg. With weight ¾ in both efferents it dominates the deceleration.',
-    during: 'Part A: a small, delayed pO<sub>2</sub> fall gives a shallow late deceleration. Part B: a fast, large fall gives the nadir at about 1.3 min.',
+    role: 'Senses fetal arterial pO<sub>2</sub> (set point 18.1 mmHg); weight ¾, so it dominates the deceleration.',
+    during: 'pO<sub>2,a</sub> ↓ → <i>r</i><sub>c</sub> ↑ → vagal ↑ → <i>T</i> ↑ → FHR ↓',
     eqs: [
       ['A(21)', '<i>r</i>*<sub>c</sub> = <i>r</i><sub>min</sub> + (<i>r</i><sub>max</sub> − <i>r</i><sub>min</sub>) exp(<i>η</i><sub>1</sub> exp(<i>η</i><sub>2</sub>(pO<sub>2,a</sub> − <i>y</i><sub>ref</sub>)))', 'Gompertz curve, <i>η</i><sub>2</sub> = 0.52 mmHg⁻¹, <i>r</i> in [−0.001, 1].'],
       ['B(3)', '<i>η</i><sub>1</sub> = ln <span class="fr"><span>0.001</span><span>1.001</span></span>', 'Exact (table: −6.91).'],
@@ -738,8 +738,8 @@ const PARTS = {
   },
   toco: {
     title: 'TOCO sensor and our input', short: 'TOCO sensor',
-    role: 'The external tocodynamometer on the fundus measures belly-wall tension, not intrauterine pressure (general CTG background, not from the papers). It has no absolute scale, so we use only the timing of its peaks to build <i>p</i><sub>ut</sub> for the model.',
-    during: 'The demo on this page uses the paper\'s single sin² contraction, not a TOCO-derived input.',
+    role: 'External sensor on the fundus; it measures belly-wall tension in arbitrary units, not intrauterine pressure.',
+    during: '',
     eqs: [
       ['ours, replaces A(8)', '<i>p</i><sub>ut</sub>(<i>t</i>) = 15 + <i>a</i>·70 Σ<sub><i>k</i></sub> exp(−<span class="fr"><span>(<i>t</i> − <i>t</i><sub><i>k</i></sub>)²</span><span>2<i>σ</i>²</span></span>), &nbsp; <i>σ</i> = 15 s', 'One height <i>a</i> per 20-min window; <i>a</i> = 1 gives 85 mmHg.'],
       ['ours', '<i>t</i><sub><i>k</i></sub> = peaks of medfilt<sub>10 s</sub>(TOCO): prominence ≥ 15, distance ≥ 80 s, width ≥ 16 s', 'Peak detection on 2-s bins.'],
@@ -747,8 +747,8 @@ const PARTS = {
   },
   mother: {
     title: 'Maternal circulation', short: 'Mother',
-    role: 'Maternal heart, arteries, veins and tissue. In Jongen 2016 the heart beats at a fixed 80 bpm and nothing is regulated; the lungs add oxygen to maternal venous blood, so maternal oxygenation stays nearly constant. fetosim adds four maternal layers, each off by default (all off = Jongen 2016 exactly): the <b>HR baroreflex</b> of Randall 2019, a <b>thorax</b> after Lu 2001, a <b>vasomotor reflex</b> and <b>contraction autotransfusion</b>. The fetosim tab at the top draws them in the cross-section and the circuit.',
-    during: 'Jongen 2016: little changes on the maternal side; the uterine branch is where the contraction acts. With all four layers: a 70 mmHg contraction squeezes myometrial blood into the veins, stroke volume rises 16 % (fitted to Lee 1989) and MAP 6.7 mmHg, and the baroreflex slows the heart by 8 bpm (CHOP: −1 to 0). Three 40 mmHg pushes raise <i>P</i><sub>th</sub>: CO falls 28 % and MAP/CO rises 93 % (Kuhn 2017: −32 %, SVR +88 %), but MHR rises only 0.5 bpm (CHOP +9.6). This MHR mismatch is open; it goes to a clinical expert before anything is added.',
+    role: 'Maternal heart, arteries, veins and tissue; a fixed 80 bpm in Jongen 2016. fetosim adds an optional HR baroreflex, thorax, vasomotor reflex and contraction autotransfusion.',
+    during: 'fetosim only: contraction → myometrial blood into the veins → SV ↑, MAP ↑ → baroreflex → MHR ↓',
     eqs: [
       ['A(1)', '<i>p</i><sub>tm</sub> = <span class="fr"><span><i>V</i> − <i>V</i><sub>0</sub></span><span><i>C</i></span></span>', 'Linear compliances.'],
       ['A(9)–(10)', '<i>q</i><sub>CO</sub> = <span class="fr"><span><i>V</i><sub>ed</sub> − <i>V</i><sub>ee</sub></span><span><i>T</i><sub>m</sub></span></span>, &nbsp; <i>T</i><sub>m</sub> = <span class="fr"><span>60</span><span>80</span></span> s', 'Same ventricle as the fetus, fixed 80 bpm.'],
@@ -877,7 +877,7 @@ function renderPanel(key, scroll) {
   const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
     panel.innerHTML = `${filt}
-      <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span><span class="ps">${PARTS[g.key].role.split('. ')[0].replace(/:.*$/, '')}.</span></button>`).join('')}</div>
+      <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span><span class="ps">${PARTS[g.key].role.split('. ')[0].replace(/:.*$/, '').replace(/\.$/, '')}.</span></button>`).join('')}</div>
 `;
   } else {
     const g = GROUP[key], Ps = g.parts.map(p => PARTS[p]);
