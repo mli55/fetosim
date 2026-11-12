@@ -903,7 +903,9 @@ function linkSyms(line, g, key) {
   return line.split(/(<button[\s\S]*?<\/button>)/).map((seg, i) => i % 2 ? seg : seg.replace(SYM_RE, h => {
     const k = symKey(h); if (own.has(k)) return h;
     const eqs = (D.eq[k] || []).filter(t => !(t[0] === g && t[1] === key) && (circExt || !FS_EQ.includes(t[2])));
-    const par = pick((D.par[k] || []).filter(t => circExt || !t[2])), eq = pick(eqs);
+    // parameter tables drop the ",m" of maternal symbols and keep the ",f" of some fetal ones: C_art,m -> C_art, Q_M,0,tis -> Q_M,0,tis,f
+    const parL = D.par[k] || (k.endsWith(',m') && (D.par[k.slice(0, -2)] || []).filter(t => t[0] === 'mother')) || (D.par[k + ',f'] || []).filter(t => t[0] === 'heart');
+    const par = pick((parL || []).filter(t => circExt || !t[2])), eq = pick(eqs);
     const eqHere = eq && eq[0] === g, parHere = par && par[0] === g;
     if (par && !eqHere && (parHere || !eq)) return `<button type="button" class="psym" data-p="${par[1]}">${h}</button>`;
     if (eq) return `<button type="button" class="psym" data-g="${eq[0]}" data-k="${esc(eq[1])}">${h}</button>`;
