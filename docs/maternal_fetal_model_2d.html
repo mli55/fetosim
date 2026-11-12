@@ -935,7 +935,7 @@ function commonStart() {
    PARAM_ANCHOR: parameter name -> anchor key. The 3D page uses the same groups for its tags. */
 const ANCHORS = {
   m_heart: { g: 'mother', name: 'Maternal heart', xy: [80, 300] },
-  m_o2: { g: 'mother', name: 'Lungs and maternal blood O₂', xy: [40, 266] },
+  m_o2: { g: 'mother', name: 'Lungs', xy: [40, 266] },
   m_art: { g: 'mother', name: 'Maternal arteries and BP', xy: [160, 188] },
   m_tis: { g: 'mother', name: 'Maternal tissue', xy: [66, 434] },
   m_ven: { g: 'mother', name: 'Maternal veins', xy: [194, 471] },
@@ -990,15 +990,16 @@ Object.entries({
 // every parameter must have an anchor in its own part; fall back to the group's first anchor
 PARAMS.forEach(r => { const gk = GROUP_OF[r.part].key; if (!PARAM_ANCHOR[r.name] || ANCHORS[PARAM_ANCHOR[r.name]].g !== gk) PARAM_ANCHOR[r.name] = Object.keys(ANCHORS).find(k => ANCHORS[k].g === gk); });
 /* close-up labels: the quantities each element carries (symbol, what it is, defining equation in the side panel).
-   Parameters (T_ref, E_min, ...) are listed in the side panel only. */
+   One rule (2026-11-12): every compartment shows V, p_tm, pO2; every blood connection its flow q; every O2 exchange
+   or consumption its O2 flow Q. Parameters (T_ref, E_min, ...) are listed in the side panel only. */
 const VS = (x, y) => `<i>${x}</i>${y ? `<sub>${y}</sub>` : ''}`, VO2 = y => `pO<sub>2${y ? ',' + y : ''}</sub>`;
 const FS_ANCHOR = ['m_hr', 'm_thx', 'm_vaso', 'm_auto'];   // fetosim only
 const VARS = {
   m_heart: [[VS('q', 'CO,m'), 'cardiac output', 'A(9)–(10)'], [VS('T', 'm'), 'heart period', 'A(9)–(10)', 'M_T']],
-  m_o2: [[VS('Q', 'D,lung'), 'lung O₂ uptake', 'A(16)'], [VO2('m'), 'maternal blood O₂', 'A(16)']],
-  m_art: [[VS('p', 'a,m'), 'arterial pressure (BP)', 'A(1)'], [VS('V', 'art,m'), 'volume', 'A(1)']],
-  m_tis: [[VS('q', 'tis,m'), 'tissue flow', 'A(1)'], [VS('Q', 'M,tis,m'), 'O₂ use', 'A(17)']],
-  m_ven: [[VS('p', 'v,m'), 'venous pressure', 'A(1)'], [VS('V', 'ven,m'), 'volume', 'A(1)']],
+  m_o2: [[VS('Q', 'D,lung'), 'lung O₂ uptake', 'A(16)']],
+  m_art: [[VS('V', 'art,m'), 'volume', 'A(1)'], [VS('p', 'a,m'), 'arterial pressure (BP)', 'A(1)'], [VO2('a,m'), 'O₂', 'A(14)–(15)']],
+  m_tis: [[VS('V', 'tis,m'), 'volume', 'A(1)'], [VS('p', 't,m'), 'pressure', 'A(1)'], [VO2('tis,m'), 'O₂', 'A(14)–(15)'], [VS('q', 'tis,m'), 'tissue flow', 'General'], [VS('Q', 'M,tis,m'), 'O₂ use', 'A(17)']],
+  m_ven: [[VS('V', 'ven,m'), 'volume', 'A(1)'], [VS('p', 'v,m'), 'venous pressure', 'A(1)'], [VO2('ven,m'), 'O₂', 'A(14)–(15)']],
   m_hr: [['MHR', 'heart rate', 'HR reflex'], [VS('T', 'pb') + ', ' + VS('T', 's'), 'vagal, sympathetic tone', 'HR reflex']],
   m_thx: [[VS('P', 'th'), 'intrathoracic pressure', 'Thorax'], [VS('q', 'vr'), 'venous return, one way', 'Thorax#2']],
   m_vaso: [[VS('x', 'R'), 'tissue resistance drive', 'Vasomotor'], [VS('x', 'V'), 'venoconstriction', 'Vasomotor']],
@@ -1007,19 +1008,23 @@ const VARS = {
   utv: [[VS('R', 'utv'), 'resistance, collapses', 'A(6)–(7)'], [VS('q', 'utv'), 'outflow from the IVS', 'A(6)–(7)']],
   toco: [[VS('t', '<i>k</i>'), 'contraction times', 'ours', 't_k'], [VS('a'), 'contraction height', 'ours#2', 'a']],
   spiral: [[VS('q', 'uta'), 'inflow to the IVS', 'A(5)']],
-  ivs: [[VS('V', 'IVS'), 'volume', 'A(3)'], [VS('p', 'tm,IVS'), 'transmural pressure', 'A(3)'], [VO2('IVS'), 'maternal O₂', 'A(14)–(15)']],
-  villi: [[VS('V', 'villi'), 'volume', 'A(1), A(4)'], [VO2('villi'), 'fetal O₂', 'A(14)–(15)']],
+  ivs: [[VS('V', 'IVS'), 'volume', 'A(3)'], [VS('p', 'tm,IVS'), 'transmural pressure', 'A(3)'], [VO2('IVS'), 'maternal O₂', 'A(14)–(15)'],
+    [VS('q', 'uta'), 'inflow, spiral arteries', 'A(5)'], [VS('q', 'utv'), 'outflow, uterine veins', 'A(6)–(7)']],
+  villi: [[VS('V', 'villi'), 'volume', 'A(1), A(4)'], [VS('p', 'tm,villi'), 'transmural pressure', 'A(1), A(4)'], [VO2('villi'), 'fetal O₂', 'A(14)–(15)'],
+    [VS('q', 'uma'), 'inflow, umbilical arteries', 'General'], [VS('q', 'umv'), 'outflow, umbilical vein', 'General']],
   exch: [[VS('Q', 'D,plac'), 'O₂ diffusion', 'A(16)']],
   umv: [[VS('q', 'umv'), 'flow to the fetus', 'General'], [VS('R', 'umv'), 'resistance, collapses', 'A(6)']],
   uma: [[VS('q', 'uma'), 'flow to the placenta', 'General'], [VS('R', 'uma'), 'resistance, collapses', 'A(6)']],
   cordsq: [[VS('p', 'um'), 'cord compression pressure', 'B(2)']],
   cv: [[VS('T'), 'heart period → FHR = 60/<i>T</i>', 'A(25)'], [VS('V', 'ed') + ', ' + VS('V', 'ee'), 'filled, ejected volume', 'A(9)–(11)'], [VS('q', 'CO'), 'cardiac output', 'A(9)–(11)']],
   eff: [[VS('z', 'Tv') + ', ' + VS('z', 'Ts'), 'period, vagal and sympathetic', 'A(23)'], [VS('z', 'E') + ', ' + VS('z', 'R') + ', ' + VS('z', 'V'), 'contractility, resistance, volume', 'A(24)']],
-  fart: [[VS('p', 'tm,a'), 'arterial pressure', 'General'], [VS('V', 'art'), 'volume', 'General']],
-  fven: [[VS('p', 'tm,v'), 'venous pressure', 'General'], [VS('V', 'ven'), 'volume', 'General']],
-  body: [[VS('q', 'tis'), 'tissue flow', 'A(17)–(19)'], [VS('Q', 'M,tis'), 'O₂ use', 'A(17)–(19)']],
-  brain: [[VS('q', 'cer'), 'brain flow', 'A(17)–(19)'], [VS('R', 'cera'), 'autoregulated resistance', 'A(17)–(19)']],
-  fo2: [[VO2('a'), 'arterial O₂', 'A(12)–(13)'], ['cO<sub>2</sub>, sO<sub>2</sub>', 'content, saturation', 'A(12)–(13)']],
+  fart: [[VS('V', 'art'), 'volume', 'General'], [VS('p', 'tm,a'), 'arterial pressure', 'General'], [VO2('a'), 'arterial O₂', 'A(14)–(15)']],
+  fven: [[VS('V', 'ven'), 'volume', 'General'], [VS('p', 'tm,v'), 'venous pressure', 'General'], [VO2('v'), 'venous O₂', 'A(14)–(15)']],
+  body: [[VS('V', 'tis'), 'volume', 'General'], [VS('p', 'tm,tis'), 'transmural pressure', 'General'], [VO2('tis'), 'O₂', 'A(14)–(15)'],
+    [VS('q', 'tis'), 'tissue flow', 'General'], [VS('Q', 'M,tis'), 'O₂ use', 'A(17)–(19)']],
+  brain: [[VS('V', 'cer'), 'volume', 'General'], [VS('p', 'tm,cer'), 'transmural pressure', 'General'], [VO2('cer'), 'O₂', 'A(14)–(15)'],
+    [VS('q', 'cer'), 'brain flow', 'General'], [VS('Q', 'M,cer'), 'O₂ use', 'A(17)–(19)'], [VS('R', 'cera'), 'autoregulated resistance', 'A(17)–(19)']],
+  fo2: [['cO<sub>2</sub>, sO<sub>2</sub>', 'content, saturation', 'A(12)–(13)']],
   obs: [['FHR̂', 'model FHR fitted to the CTG', 'ours']],
   baro_curve: [[VS('r', 'b') + '*', 'response to <i>p</i><sub>tm,a</sub>', 'A(21)']],
   baro_filt: [[VS('r', 'b'), 'filtered response', 'A(20)']],
