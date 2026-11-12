@@ -174,10 +174,9 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .prow .mean { grid-column: 1 / -1; font-size: 13.5px; }
 .prow .pf { grid-column: 1 / -1; font-family: var(--font-math); font-size: 16px; line-height: 1.45; padding-top: 2px; }
 .prow .pf sub, .prow .pf sup { font-size: 70%; }
-.prow.code { cursor: pointer; } .prow.code:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .prow .codeat, .eq .codeat { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-decoration: none; }
-.prow.code:hover .codeat, .eq.code:hover .codeat { color: var(--accent); text-decoration: underline; }
-.eq.code { cursor: pointer; } .eq.code:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.prow .codeat { margin-left: 8px; }
+.codeat:hover { color: var(--accent); text-decoration: underline; }
 .eq .eqh { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
 .psym { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; border-bottom: 1px dotted var(--accent); }
 .psym:hover { color: var(--accent); }
@@ -836,11 +835,7 @@ function setFilter(f) {
 /* ---------------- panel ---------------- */
 let current = null;
 const panel = $('#panel');
-panel.addEventListener('click', e => {           // a parameter or equation row opens its line of code (VS Code locally, GitHub on the web)
-  const row = e.target.closest('.prow.code, .eq.code'); if (!row || e.target.closest('a, button')) return;
-  const url = row.dataset.at ? atURL(row.dataset.at) : codeURL(row.dataset.p);
-  if (ON_WEB) window.open(url, '_blank', 'noopener'); else location.href = url;
-});
+/* only the small a.codeat link opens code (VS Code locally, GitHub on the web); rows and label chips are not clickable */
 /* where each parameter is set in the fetosim code (github.com/mli55/fetosim; Jongen at main c64dc4c, maternal layers on
    branch maternal-circulation 7a3e4c2), opened in VS Code on click; on the web (GitHub Pages) the line on GitHub main */
 const LAYER_NAME = { base: 'Jongen 2016', hr: 'HR baroreflex · Randall 2019 · MR_MODE', thx: 'Thorax · after Lu 2001 · MT_MODE',
@@ -876,8 +871,8 @@ function eqRows(parts) {
   return parts.flatMap(p => PARTS[p].eqs.map(([n, m, w], i, a) => {
     const v = (EQ_CODE_AT[p] || {})[n], rep = a.slice(0, i).filter(e => e[0] === n).length, at = Array.isArray(v) ? v[rep] : v;
     return { n, m, w, at, key: rep ? n + '#' + (rep + 1) : n };
-  })).concat({ n: GENERAL_EQ[0], m: GENERAL_EQ[1], w: GENERAL_EQ[2], at: GENERAL_AT, key: GENERAL_EQ[0] }).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key }) => `<div class="eq${at ? ' code' : ''}" data-key="${esc(key)}"${at ? ` data-at="${esc(at)}" title="Open ${esc(at)} ${CODE_WHERE}"` : ''}>
-      <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
+  })).concat({ n: GENERAL_EQ[0], m: GENERAL_EQ[1], w: GENERAL_EQ[2], at: GENERAL_AT, key: GENERAL_EQ[0] }).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key }) => `<div class="eq" data-key="${esc(key)}">
+      <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}" title="Open ${esc(at)} ${CODE_WHERE}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
 }
 const sentence = s => { s = String(s || '').trim(); return s && s[0].toUpperCase() + s.slice(1) + (/[.!?]$/.test(s) ? '' : '.'); };
 function paramRows(parts) {
@@ -890,8 +885,8 @@ function paramRows(parts) {
     // two questions only (user 2026-11-11): what it is, and its value or how it is obtained (+ formula if any)
     const fixed = r.cls !== 3 && r.value !== null && r.value !== undefined;
     const how = r.how || (fixed ? '' : r.range ? `Fitted to each window, range ${r.range[0]}–${r.range[1]}.` : 'Fitted to each window.');
-    return head + `<div class="prow${CODE_AT[r.name] ? ' code' : ''}" data-p="${esc(r.name)}"${CODE_AT[r.name] ? ` title="Open ${esc(CODE_AT[r.name])} ${CODE_WHERE}"` : ''}>
-      <div><span class="sym">${symHTML(r.symbol) || '<span class="mono" style="font-style:normal;font-size:13px">' + esc(r.name) + '</span>'}</span></div>
+    return head + `<div class="prow" data-p="${esc(r.name)}">
+      <div><span class="sym">${symHTML(r.symbol) || '<span class="mono" style="font-style:normal;font-size:13px">' + esc(r.name) + '</span>'}</span>${CODE_AT[r.name] ? `<a class="codeat" href="${codeURL(r.name)}" title="Open ${esc(CODE_AT[r.name])} ${CODE_WHERE}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(CODE_AT[r.name])}</a>` : ''}</div>
       <div class="val">${fixed ? `${fmtNum(r.value)} <span class="muted">${esc(r.unit && r.unit !== '–' ? r.unit : '')}</span>` : ''}</div>
       <div class="mean">${esc(sentence(r.meaning))}</div>${how ? `
       <div class="mean">${esc(how)}</div>` : ''}${r.formula ? `
