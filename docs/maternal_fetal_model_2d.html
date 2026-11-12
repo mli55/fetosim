@@ -519,7 +519,7 @@ body { margin: 0; }
   --ss1: #e86a85; --ss2: #e0ab4a; --ss3: #41c9a8; --ss4: #79a0ef; --ss5: #b08cf0; --ssx: #9aa5b5; }
 .s-us { --sc: var(--s-us); } .s-opt { --sc: var(--s-opt); } .s-emg { --sc: var(--s-emg); } .s-fm { --sc: var(--s-fm); } .s-eeg { --sc: var(--s-eeg); }
 .ss1 { --sc: var(--ss1); } .ss2 { --sc: var(--ss2); } .ss3 { --sc: var(--ss3); } .ss4 { --sc: var(--ss4); } .ss5 { --sc: var(--ss5); } .ssx { --sc: var(--ssx); }
-.sense-lab { margin-left: 8px; }
+.sense-lab, #walkStart { margin-left: 8px; }
 .sense-tab button { display: inline-flex; align-items: center; gap: 6px; }
 .sd { width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; }
 #dia.sensing #art { opacity: .42; filter: saturate(.55); }
@@ -591,7 +591,6 @@ body.fig-circ .circ-key { font-size: 15px; }
     <div class="seg model-tab" role="group" aria-label="Model version"><button type="button" data-cm="0" aria-pressed="true">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="false">fetosim: + maternal layers</button></div>
     <span class="eyebrow sense-lab">Measurable by</span>
     <div class="seg sense-tab" role="group" aria-label="What each sensor can measure"><button type="button" data-sense="" aria-pressed="true">Off</button><button type="button" data-sense="us"><i class="sd s-us"></i>Ultrasound</button><button type="button" data-sense="opt"><i class="sd s-opt"></i>Optics</button><button type="button" data-sense="emg"><i class="sd s-emg"></i>EMG</button><button type="button" data-sense="fm"><i class="sd s-fm"></i>Fetal movement</button><button type="button" data-sense="eeg"><i class="sd s-eeg"></i>EEG</button><button type="button" data-sense="all">All</button><button type="button" data-sense="sub">Subsystems</button></div>
-    <span class="eyebrow sense-lab">Step by step</span>
     <button class="btn" type="button" id="walkStart" aria-pressed="false">TOCO → FHR</button>
   </div>
   <div class="explorer">
