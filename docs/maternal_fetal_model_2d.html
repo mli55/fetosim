@@ -913,7 +913,6 @@ function renderPanel(key, scroll) {
   } else {
     const g = GROUP[key], Ps = g.parts.map(p => PARTS[p]);
     panel.innerHTML = `<h3 class="ptitle">${numHTML(g.n)}<span>${g.title}</span></h3>
-      ${Ps.map(P => P.role ? `<p class="role">${P.role}</p>` : '').join('')}
       <p class="during">${Ps.map(P => `<span class="row">${P.during}</span>`).join('')}</p>
       <div class="eqs">${eqRows(g.parts)}</div>
       ${filt}
