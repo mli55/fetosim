@@ -170,9 +170,6 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .pdet { border-top: 1px solid var(--line); padding-top: 8px; }
 .pdet > summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 4px 0; }
 .pdet[open] > summary { margin-bottom: 8px; }
-.clin { font-size: 14.5px; line-height: 1.6; margin: 0 0 10px; }
-.clink { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; }
-.clink:hover { text-decoration: underline; }
 .lk { color: var(--accent); }
 .psub { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--maternal); padding: 14px 0 4px; }
 .prow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
@@ -280,6 +277,8 @@ td.partc .num { width: 19px; height: 19px; font-size: 10.5px; margin-right: 6px;
 .prow.hit { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: inset 3px 0 0 var(--accent); padding-left: 8px; border-radius: 4px; }
 .ann.c2 { border-left-color: var(--c2); }
 .ann.v { border-left-color: var(--muted); } .annrows.vrow { display: flex; flex-wrap: wrap; gap: 3px; } .vd { color: var(--muted); font-size: 11px; }
+.borrow { display: grid; gap: 4px; margin: 0 0 10px; }
+.borrow .from { font-size: 11px; color: var(--muted); }
 .eq.hit { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .ann.c3 { border-left-color: var(--c3); background: color-mix(in srgb, var(--c3-bg) 55%, var(--surface)); }
 .ann.c4 { border-left-color: var(--c4); background: color-mix(in srgb, var(--c4-bg) 55%, var(--surface)); }
@@ -885,11 +884,7 @@ function paramRows(parts) {
     </div>`;
   }).join('');
 }
-/* overview: the clinical quantities first, each opens the part where it sits */
 const CHAIN = ['uterus', 'spiral', 'placenta', 'cord', 'chemo', 'heart', 'baro', 'mother'];   // part order along the contraction chain (routes link end to start)
-const CLIN = [['FHR', 'heart'], ['late decelerations', 'chemo'], ['variable decelerations', 'cord'], ['maternal HR', 'mother'],
-  ['maternal BP', 'mother'], ['contractions (TOCO)', 'uterus'], ['fetal O<sub>2</sub>', 'heart'], ['uterine blood flow', 'spiral'],
-  ['umbilical blood flow', 'cord']];
 panel.addEventListener('toggle', e => { if (e.target.matches('details.pdet')) paramsOpen = e.target.open; }, true);
 function renderPanel(key, scroll) {
   if (key && !GROUP[key]) key = GROUP_OF[key].key;
@@ -898,8 +893,7 @@ function renderPanel(key, scroll) {
   if (!key && senseMode) { panel.innerHTML = ''; return; }   // user 2026-11-11: leave the panel empty in sensor views for now (sensePanel() kept)
   const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
-    panel.innerHTML = `<p class="clin">${CLIN.map(([t, g]) => `<button type="button" class="clink" data-part="${g}">${t}</button>`).join(', ')}.</p>
-      <div class="partlist">${CHAIN.map(k => GROUP[k]).map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span></button>`).join('')}</div>
+    panel.innerHTML = `<div class="partlist">${CHAIN.map(k => GROUP[k]).map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span></button>`).join('')}</div>
       <div class="eqs">${eqRows([])}</div>
 `;
   } else {
@@ -1530,14 +1524,31 @@ function eqGroup(key, prefer) {
   const n = key.replace(/#\d+$/, ''), has = g => GROUP[g].parts.some(p => PARTS[p].eqs.some(e => e[0] === n));
   return prefer && GROUP[prefer] && has(prefer) ? prefer : (GROUPS.find(g => has(g.key)) || {}).key;
 }
+/* a click never changes the selected part or the zoom (user 2026-11-12): a target in the current part is highlighted
+   there; a target in another part is shown in place, above the equations, under a small "from <part>" tag */
 function goTarget(t) {
   if (!t) return false;
-  const go = g => { if (g && current !== g) select(g, false); };   // open group g in the panel
+  panel.querySelector('.borrow')?.remove();
+  const tmp = document.createElement('div');
   if (typeof t === 'string') {
     const n = t.slice(6), r = PARAMS.find(x => x.name === n); if (!r) return false;
-    go(GROUP_OF[r.part].key); return showParamInPanel([n].concat(GO_WITH[n] || []));
+    const names = [n].concat(GO_WITH[n] || []), g = GROUP_OF[r.part].key;
+    if (g === current) return showParamInPanel(names);
+    const f = filter; filter = 'all'; tmp.innerHTML = paramRows([r.part]); filter = f;
+    return borrowRows(g, names.map(x => tmp.querySelector(`.prow[data-p="${CSS.escape(x)}"]`)));
   }
-  go(t[0]); showEqsInPanel([t[1]]); return true;
+  if (!t[0] || t[0] === current) { showEqsInPanel([t[1]]); return true; }
+  tmp.innerHTML = eqRows(GROUP[t[0]].parts);
+  return borrowRows(t[0], [tmp.querySelector(`.eq[data-key="${CSS.escape(t[1])}"]`)]);
+}
+function borrowRows(g, rows) {
+  rows = rows.filter(Boolean); if (!rows.length) return false;
+  panel.querySelectorAll('.prow.hit, .eq.hit').forEach(el => el.classList.remove('hit'));
+  const box = document.createElement('div'); box.className = 'borrow';
+  box.innerHTML = `<div class="from">from ${GROUP[g].title}</div>`; rows.forEach(el => { el.classList.add('hit'); box.appendChild(el); });
+  const at = panel.querySelector('.eqs'); at ? at.before(box) : panel.prepend(box);
+  box.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+  return true;
 }
 function showEqsInPanel(keys, noScroll) {
   const panel = $('#panel');
