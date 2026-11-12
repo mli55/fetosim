@@ -922,7 +922,7 @@ function renderPanel(key, scroll) {
 }
 panel.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.classList.contains('psym')) showParamInPanel(b.dataset.p);
+  if (b.classList.contains('psym')) goTarget(b.dataset.p ? 'param:' + b.dataset.p : SYM[b.dataset.s]);
   else if (b.dataset.f) setFilter(b.dataset.f);
   else if (b.id === 'toModel') $('[data-model]').scrollIntoView({ behavior: 'smooth', block: 'start' });
   else if ('part' in b.dataset) { select(b.dataset.part || null, false); panel.scrollTop = 0; }
@@ -1025,10 +1025,10 @@ const VARS = {
   m_tis: [[VS('q', 'tis,m'), 'tissue flow', 'A(1)'], [VS('Q', 'M,tis,m'), 'O₂ use', 'A(17)']],
   m_ven: [[VS('p', 'v,m'), 'venous pressure', 'A(1)'], [VS('V', 'ven,m'), 'volume', 'A(1)']],
   m_hr: [['MHR', 'heart rate', 'HR reflex'], [VS('T', 'pb') + ', ' + VS('T', 's'), 'vagal, sympathetic tone', 'HR reflex']],
-  m_thx: [[VS('P', 'th'), 'intrathoracic pressure', 'Thorax'], [VS('q', 'vr'), 'venous return, one way', 'Thorax']],
+  m_thx: [[VS('P', 'th'), 'intrathoracic pressure', 'Thorax'], [VS('q', 'vr'), 'venous return, one way', 'Thorax#2']],
   m_vaso: [[VS('x', 'R'), 'tissue resistance drive', 'Vasomotor'], [VS('x', 'V'), 'venoconstriction', 'Vasomotor']],
-  m_auto: [[VS('x', 'c'), 'contraction drive', 'Autotransfusion'], [VS('V', 'sq') + VS('x', 'c') + '/' + VS('p', 'ref'), 'blood squeezed out', 'Autotransfusion', 'MA_VSQ']],
-  wall: [[VS('p', 'ut'), 'uterine pressure (input)', 'A(8)']],
+  m_auto: [[VS('x', 'c'), 'contraction drive', 'Autotransfusion'], [VS('V', 'sq') + VS('x', 'c') + '/' + VS('p', 'ref'), 'blood squeezed out', 'Autotransfusion']],
+  wall: [[VS('p', 'ut'), 'uterine pressure (input)', 'ours, replaces A(8)']],
   utv: [[VS('R', 'utv'), 'resistance, collapses', 'A(6)–(7)'], [VS('q', 'utv'), 'outflow from the IVS', 'A(6)–(7)']],
   toco: [[VS('t', '<i>k</i>'), 'contraction times', 'ours', 't_k'], [VS('a'), 'contraction height', 'ours, replaces A(8)', 'a']],
   spiral: [[VS('q', 'uta'), 'inflow to the IVS', 'A(5)']],
@@ -1441,7 +1441,7 @@ function renderAnns() {
       if (n > 6) { rw.style.gridTemplateRows = `repeat(${Math.ceil(n / Math.ceil(n / 6))}, auto)`; rw.style.gridAutoFlow = 'column'; box.style.maxWidth = 'none'; }
       rw.classList.add('vrow');   // symbols side by side; what each one is shows on hover
       G.rows.forEach(r => { const b = btn(`<span class="as">${r.sym}</span>`, 'v' + (r.name === pickedParam ? ' on' : ''), G, r);
-        b.title = (r.d + ' · ' + r.eq).replace(/<[^>]+>/g, ''); rw.appendChild(b); });
+        b.title = (r.d + ' · ' + (r.p ? 'parameter' : r.eq.replace(/#\d+$/, ''))).replace(/<[^>]+>/g, ''); rw.appendChild(b); });
       box.appendChild(rw);
     }
     annlayer.appendChild(box);
@@ -1515,10 +1515,7 @@ function renderAnns() {
     annlayer.querySelectorAll('.ann.on').forEach(el => el.classList.remove('on')); b.classList.add('on');
     annlines.querySelectorAll('.lead').forEach(el => el.classList.toggle('sel', el.dataset.g === G.key));
     circHL(G.key, true);
-    // a close-up symbol opens its parameter entry (user 2026-11-11); a model quantity without its own entry opens the
-    // parameters of its element, and only an element without parameters falls back to the equation
-    const names = r.p ? [r.p] : Object.keys(PARAM_ANCHOR).filter(n => PARAM_ANCHOR[n] === r.k);
-    if (!showParamInPanel(names)) showEqInPanel(r.eq);
+    goTarget(r.p ? 'param:' + r.p : [eqGroup(r.eq, G.key && ANCHORS[G.key].g), r.eq]);   // the one click rule, see SYM
   }));
 }
 /* a clicked label: highlight its row in the side panel and bring it into view */
@@ -1534,17 +1531,46 @@ function showParamInPanel(names) {           // one name or a list; returns fals
   rows[0].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
   return true;
 }
-/* a clicked circuit element: the equations it appears in (keys = equation label, '#2' for a repeated label) */
-const EL_EQS = {
-  m_heart: ['A(9)–(10)', 'HR reflex'], m_art: ['A(1)', 'Thorax', 'HR reflex'], m_ven: ['A(1)', 'Thorax', 'Thorax#2', 'Vasomotor', 'Autotransfusion'],
-  m_o2: ['A(16)'], m_tis: ['A(1)', 'A(17)', 'Vasomotor'], m_thx: ['Thorax', 'Thorax#2'], m_hr: ['HR reflex'], m_vaso: ['Vasomotor'],
-  m_auto: ['Autotransfusion'], spiral: ['A(5)', 'A §2.4'], utv: ['A(6)–(7)'], 'wall toco': ['A(8)', 'A(2)', 'ours, replaces A(8)', 'ours'],
-  ivs: ['A(3)', 'A(12)–(13)', 'A(14)–(15)'], villi: ['A(1), A(4)', 'A(12)–(13)', 'A(14)–(15)'], exch: ['A(16)'],
-  'uma cordsq': ['B(2)', 'B(1)', 'A(6)'], 'umv cordsq': ['B(2)', 'B(1)', 'A(6)'],
-  'cv eff obs': ['A(25)', 'A(23)', 'A(24)', 'A(9)–(11)', 'ours'], 'fart fo2': ['A(9)–(11)', 'A(17)–(19)'], 'fven fo2': ['A(9)–(11)', 'A(24)'],
-  brain: ['A(17)–(19)'], 'body eff': ['A(24)', 'A(17)–(19)'],
-  'baro_curve baro_filt': ['A(21)', 'B(3)', 'A(20)'], baro_w: ['A(22)'], 'chemo_curve chemo_filt': ['A(21)', 'B(3)', 'A(20)'], chemo_w: ['A(22)'],
+/* ONE click rule for every symbol on the page (close-up labels, circuit elements, equations, walkthrough; user
+   2026-11-12): a parameter (a PARAMS row: value, range or grid) opens its parameter entry; a computed quantity opens
+   the equation that defines it. Target = 'param:NAME' or [group, equation key] ('#2' = second row with that label). */
+const SYM = {
+  // parameters
+  t_k: 'param:t_k', a: 'param:a', sigma: 'param:sigma', p_rest: 'param:S_PREST', w_um: 'param:S_WUM', R_uta: 'param:M_RUTA', T_ref: 'param:F_TREF',
+  // computed quantities -> defining equation
+  p_ut: ['uterus', 'ours, replaces A(8)'], p_ext: ['uterus', 'A(2)'], R_utv: ['uterus', 'A(6)–(7)'], p_tm_utv: ['uterus', 'A(6)–(7)'],
+  p_IVS: ['placenta', 'A(3)'], q_uta: ['spiral', 'A(5)'], pO2_IVS: ['placenta', 'A(14)–(15)'], pO2_villi: ['placenta', 'A(14)–(15)'],
+  Q_D_plac: ['placenta', 'A(16)'], pO2_a: ['placenta', 'A(12)–(13)'], r_c: ['chemo', 'A(20)'], r_b: ['baro', 'A(20)'], e_vs: ['chemo', 'A(22)'],
+  z_T: ['heart', 'A(23)'], T: ['heart', 'A(25)'], FHR: ['heart', 'A(25)'], p_um: ['cord', 'B(2)'],
 };
+/* a circuit element -> the quantity it stands for (a resistor, compartment, receptor or source) */
+const EL_TARGET = {
+  m_heart: ['mother', 'A(9)–(10)'], m_art: ['mother', 'A(1)'], m_ven: ['mother', 'A(1)'], m_o2: ['mother', 'A(16)'], m_tis: ['mother', 'A(1)'],
+  m_thx: ['mother', 'Thorax#2'], m_hr: ['mother', 'HR reflex'], m_vaso: ['mother', 'Vasomotor'], m_auto: ['mother', 'Autotransfusion'],
+  spiral: SYM.R_uta, utv: SYM.R_utv, 'wall toco': SYM.p_ut, ivs: SYM.p_IVS, villi: ['placenta', 'A(1), A(4)'], exch: SYM.Q_D_plac,
+  'uma cordsq': ['cord', 'A(6)'], 'umv cordsq': ['cord', 'A(6)'], 'cv eff obs': SYM.T, 'fart fo2': ['placenta', 'A(1), A(4)'],
+  'fven fo2': ['placenta', 'A(1), A(4)'], brain: ['heart', 'A(17)–(19)'], 'body eff': ['heart', 'A(24)'],
+  'baro_curve baro_filt': SYM.r_b, baro_w: ['baro', 'A(22)'], 'chemo_curve chemo_filt': SYM.r_c, chemo_w: ['chemo', 'A(22)'],
+};
+const SB = (s, h) => `<button type="button" class="psym" data-s="${s}" title="${typeof SYM[s] === 'string' ? 'Show this parameter' : 'Show its equation'}">${h}</button>`;
+/* the group whose equation list holds `key`, preferring `prefer` */
+function eqGroup(key, prefer) {
+  const n = key.replace(/#\d+$/, ''), has = g => GROUP[g].parts.some(p => PARTS[p].eqs.some(e => e[0] === n));
+  return prefer && GROUP[prefer] && has(prefer) ? prefer : (GROUPS.find(g => has(g.key)) || {}).key;
+}
+function goTarget(t) {
+  if (!t) return false;
+  const go = g => {                                // open group g in the panel; a running walkthrough keeps going
+    if (!g || current === g) return;
+    const w = walking; walking = walkI >= 0; select(g, false); walking = w;
+    if (walkI >= 0) { focusParts = WALK[walkI].parts; paintFocus(); }
+  };
+  if (typeof t === 'string') {
+    const n = t.slice(6), r = PARAMS.find(x => x.name === n); if (!r) return false;
+    go(GROUP_OF[r.part].key); return showParamInPanel(n);
+  }
+  go(t[0]); showEqsInPanel([t[1]]); return true;
+}
 function showEqsInPanel(keys, noScroll) {
   const panel = $('#panel');
   panel.querySelectorAll('.prow.hit, .eq.hit').forEach(el => el.classList.remove('hit'));
@@ -1704,7 +1730,7 @@ circ.addEventListener('click', e => {
   if (g && el) {                                   // pin the clicked element: its close-up label opens and stays lit
     const k = el.dataset.el.split(' ').find(k => ANCHORS[k] && ANCHORS[k].g === zoomKey);
     if (k) { expanded = k; circHL(k, true); }
-    if (EL_EQS[el.dataset.el]) showEqsInPanel(EL_EQS[el.dataset.el]);   // and its equations in the side panel
+    goTarget(EL_TARGET[el.dataset.el]);   // the one click rule, see SYM
   }
 });
 /* element hover in the circuit -> the same element's close-up label on the cross-section (the reverse of hovering a
@@ -1745,25 +1771,29 @@ setCircExt(circExt);
    One step per link of the contraction path: zoom to the part, light up the parts involved, one sentence and the
    equation labels (a label opens that equation in the side panel). Step 3 draws p_ut pressing on the IVS and veins.
    Labels and claims follow PARTS and model/core.c. Any other part selection ends the walkthrough. */
+/* clickable symbols used in the step chains (targets in SYM) */
+const W = { tk: SB('t_k', VS('t', '<i>k</i>')), a: SB('a', VS('a')), put: SB('p_ut', VS('p', 'ut')), prest: SB('p_rest', VS('p', 'rest')),
+  sig: SB('sigma', '<i>σ</i>'), pivs: SB('p_IVS', VS('p', 'IVS')), po2a: SB('pO2_a', VO2('a')), rc: SB('r_c', VS('r', 'c')),
+  ev: SB('e_vs', VS('e', 'v')), es: SB('e_vs', VS('e', 's')) };
 const WALK = [
   { part: 'uterus', parts: ['uterus'], eqs: [['uterus', 'ours']],
-    text: `TOCO gives only the timing of contractions: its peaks are the contraction times ${VS('t', '<i>k</i>')} (10-s median filter, prominence ≥ 15, at least 80 s apart, width ≥ 16 s).` },
+    text: `TOCO → peak detection (10-s median filter, prominence ≥ 15, ≥ 80 s apart, ≥ 16 s wide) → contraction times ${W.tk}` },
   { part: 'uterus', parts: ['uterus'], eqs: [['uterus', 'ours, replaces A(8)'], ['uterus', 'A(8)']],
-    text: `Each peak becomes one Gaussian pulse of height 70 ${VS('a')} mmHg on the 15 mmHg resting tone: ${VS('p', 'ut')}(<i>t</i>) = ${VS('p', 'rest')} + 70 <i>a</i> Σ<sub><i>k</i></sub> exp(−(<i>t</i> − ${VS('t', '<i>k</i>')})² / 2<i>σ</i>²), <i>σ</i> = 15 s.` },
+    text: `${W.tk}, ${W.a} → one Gaussian pulse per peak → ${W.put}(<i>t</i>) = ${W.prest} + 70 <i>a</i> Σ<sub><i>k</i></sub> exp(−(<i>t</i> − <i>t</i><sub><i>k</i></sub>)² / 2${W.sig}²), <i>σ</i> = 15 s` },
   { part: 'uterus', parts: ['uterus', 'placenta'], press: true, eqs: [['uterus', 'A(2)'], ['placenta', 'A(3)'], ['uterus', 'A(6)–(7)']],
-    text: `${VS('p', 'ut')} presses on the IVS and on the uterine veins at the same time. The IVS takes ${VS('p', 'ext')} = ${VS('p', 'ut')}, so ${VS('p', 'IVS')} rises. The uterine veins see ${VS('p', 'tm,utv')} = ½(${VS('p', 'IVS')} + ${VS('p', 'ven')}) − ${VS('p', 'ut')}, which falls, so they collapse and ${VS('R', 'utv')} rises. ${VS('p', 'ut')} also acts on every fetal compartment.` },
+    text: `${W.put} ↑ → IVS: ${SB('p_ext', VS('p', 'ext'))} = <i>p</i><sub>ut</sub> → ${W.pivs} ↑<br>${W.put} ↑ → uterine veins: ${SB('p_tm_utv', VS('p', 'tm,utv'))} = ½(<i>p</i><sub>IVS</sub> + <i>p</i><sub>ven</sub>) − <i>p</i><sub>ut</sub> ↓ → collapse → ${SB('R_utv', VS('R', 'utv'))} ↑<br>${W.put} also acts on every fetal compartment` },
   { part: 'spiral', parts: ['spiral', 'placenta'], eqs: [['spiral', 'A(5)'], ['placenta', 'A(14)–(15)']],
-    text: `With ${VS('p', 'IVS')} higher, the spiral-artery inflow ${VS('q', 'uta')} = (${VS('p', 'art,m')} − ${VS('p', 'IVS')}) / ${VS('R', 'uta')} drops, so less fresh oxygenated maternal blood reaches the IVS and ${VO2('IVS')} falls.` },
+    text: `${W.pivs} ↑ → spiral inflow ${SB('q_uta', VS('q', 'uta'))} = (<i>p</i><sub>art,m</sub> − <i>p</i><sub>IVS</sub>) / ${SB('R_uta', VS('R', 'uta'))} ↓ → less fresh maternal blood in the IVS → ${SB('pO2_IVS', VO2('IVS'))} ↓` },
   { part: 'placenta', parts: ['placenta'], eqs: [['placenta', 'A(16)']],
-    text: `Placental O₂ diffusion ${VS('Q', 'D,plac')} = ${VS('D', 'plac')} (${VO2('IVS')} − ${VO2('villi')}) falls, so ${VO2('villi')} falls and the umbilical vein carries less O₂ to the fetus.` },
+    text: `${SB('pO2_IVS', VO2('IVS'))} ↓ → placental O₂ diffusion ${SB('Q_D_plac', VS('Q', 'D,plac'))} = <i>D</i><sub>plac</sub>(pO<sub>2,IVS</sub> − pO<sub>2,villi</sub>) ↓ → ${SB('pO2_villi', VO2('villi'))} ↓ → less O₂ in the umbilical vein` },
   { part: 'cord', parts: ['cord', 'heart'], eqs: [['placenta', 'A(14)–(15)']],
-    text: `The umbilical vein brings this blood into the fetal veins, heart and arteries, so fetal arterial ${VO2('a')} falls.` },
+    text: `umbilical vein → fetal veins → heart → arteries → fetal arterial ${W.po2a} ↓` },
   { part: 'chemo', parts: ['chemo'], eqs: [['chemo', 'A(21)'], ['chemo', 'A(20)'], ['chemo', 'A(22)']],
-    text: `${VO2('a')} falls below the chemoreceptor set point 18.1 mmHg, so its response ${VS('r', 'c')} rises (low-pass, <i>τ</i> = 2 s). ${VS('r', 'c')} raises both drives: ${VS('e', 'v')} and ${VS('e', 's')} each gain ¾ ${VS('r', 'c')}.` },
+    text: `${W.po2a} ↓ below the set point 18.1 mmHg → chemoreceptor ${W.rc} ↑ (low-pass, <i>τ</i> = 2 s)<br>→ vagal drive ${W.ev} ↑ and sympathetic drive ${W.es} ↑ (each by ¾ <i>r</i><sub>c</sub>)` },
   { part: 'heart', parts: ['heart', 'chemo'], eqs: [['heart', 'A(23)'], ['heart', 'A(25)']],
-    text: `The drives reach the heart after delays. The vagal effect (gain 2.4, delay 0.2 s) outweighs the sympathetic one (gain 1.2, delay 2 s), so ${VS('T')} = ${VS('T', 'ref')}(1 + ${VS('z', 'Tv')} − ${VS('z', 'Ts')}) lengthens and FHR = 60/<i>T</i> falls: a late deceleration.` },
+    text: `${W.ev}, ${W.es} → effectors after delays (vagal: gain 2.4, 0.2 s; sympathetic: gain 1.2, 2 s) → vagal effect dominates → ${SB('T', VS('T'))} = ${SB('T_ref', VS('T', 'ref'))}(1 + ${SB('z_T', VS('z', 'Tv'))} − ${SB('z_T', VS('z', 'Ts'))}) ↑ → ${SB('FHR', 'FHR')} = 60/<i>T</i> ↓ (late deceleration)` },
   { part: 'cord', parts: ['cord', 'baro'], side: true, eqs: [['cord', 'B(2)'], ['cord', 'B(1)'], ['baro', 'A(21)'], ['baro', 'A(22)']],
-    text: `Side branch, only when ${VS('w', 'um')} > 0: the same ${VS('p', 'ut')} squeezes the cord, ${VS('p', 'um')} = ${VS('w', 'um')}(${VS('p', 'ut')} − ${VS('p', 'rest')}). The umbilical vessels collapse, fetal arterial pressure rises, and the baroreceptor raises vagal and lowers sympathetic drive, which also lengthens <i>T</i>.` },
+    text: `Side branch, only if ${SB('w_um', VS('w', 'um'))} > 0: ${W.put} ↑ → cord squeezed: ${SB('p_um', VS('p', 'um'))} = <i>w</i><sub>um</sub>(<i>p</i><sub>ut</sub> − <i>p</i><sub>rest</sub>) → umbilical vessels collapse → fetal arterial pressure ↑ → baroreceptor ${SB('r_b', VS('r', 'b'))} ↑ → vagal ↑, sympathetic ↓ → <i>T</i> ↑` },
 ];
 function walkSelect(g) { walking = true; select(g, false); walking = false; focusParts = WALK[walkI].parts; paintFocus(); }
 function walkShow(i) {
