@@ -861,14 +861,14 @@ const EQ_CODE_AT = {
 };
 /* every symbol inside an equation is clickable when it has a source (user 2026-11-12): a parameter opens its entry, a
    computed quantity the row that defines it (the row where it stands left of "="). Built from PARTS and PARAMS. */
-const SYM_RE = /<i>[^<]+<\/i>\*?(?:<sub>(?:[^<]|<i>[^<]*<\/i>)*<\/sub>)?|[pcs]O<sub>2(?:[^<]|<i>[^<]*<\/i>)*<\/sub>|\b(?:FHR|MHR)\b/g;
+const SYM_RE = /<i>[^<]+<\/i>\*?(?:<sub>(?:[^<]|<i>[^<]*<\/i>)*<\/sub>)?|[pcs]O<sub>2(?:[^<]|<i>[^<]*<\/i>)*<\/sub>|(?<![A-Za-ce-z])(?:FHR|MHR)\b/g;   // (a 'd' may precede: dMHR/dt)
 const symKey = (() => { const d = document.createElement('div'); return h => { d.innerHTML = h; return d.textContent.replace(/[\s ]+/g, ''); }; })();
 function lhsSyms(line) {          // the symbol each "=" of a line defines: the first symbol of its clause (clauses split at ", " or "; ")
   const t = line.replace(/<[^>]*>/g, m => ' '.repeat(m.length)), out = [];
   for (let i = t.indexOf('='); i >= 0; i = t.indexOf('=', i + 1)) {
     if (/[+−<>≤≥!]/.test(t[i - 1] || '')) continue;
     const st = Math.max(t.lastIndexOf(', ', i), t.lastIndexOf('; ', i)) + 1, m = line.slice(st, i).match(SYM_RE);
-    if (m) out.push(m[0]);
+    if (m && m[0] !== '<i>t</i>') out.push(m[0]);   // never time itself
   }
   return out;
 }
@@ -941,7 +941,7 @@ const CHAIN = ['uterus', 'spiral', 'placenta', 'cord', 'chemo', 'heart', 'baro',
 panel.addEventListener('toggle', e => { if (e.target.matches('details.pdet')) paramsOpen = e.target.open; }, true);
 function renderPanel(key, scroll) {
   if (key && !GROUP[key]) key = GROUP_OF[key].key;
-  current = key;
+  current = key; trail = [];
   if (key !== paramsKey) { paramsOpen = false; paramsKey = key; }
   if (!key && senseMode) { panel.innerHTML = ''; return; }   // user 2026-11-11: leave the panel empty in sensor views for now (sensePanel() kept)
   const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
@@ -1601,7 +1601,7 @@ function eqGroup(key, prefer) {
 }
 /* a click never changes the selected part or the zoom (user 2026-11-12): a target in the current part is highlighted
    there; a target in another part is shown in place, above the equations, under a small "from <part>" tag */
-let trail = [];   // symbols clicked inside equations, to trace a quantity back to its source: T ← z_Tv ← e_v ← ...
+var trail = [];   // symbols clicked inside equations, to trace a quantity back to its source: T ← z_Tv ← e_v ← ...
 function goTarget(t, trace) {
   if (!trace) trail = [];
   const ok = showTarget(t);
