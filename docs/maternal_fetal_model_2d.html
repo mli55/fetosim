@@ -572,7 +572,7 @@ body.fig-circ .circ-key { font-size: 15px; }
 <section id="explore" aria-label="Cross-section and circuit">
   <div class="modelbar">
     <span class="eyebrow">Model</span>
-    <div class="seg model-tab" role="group" aria-label="Model version"><button type="button" data-cm="0" aria-pressed="false">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="true">fetosim: + maternal layers</button></div>
+    <div class="seg model-tab" role="group" aria-label="Model version"><button type="button" data-cm="0" aria-pressed="true">Jongen 2016</button><button type="button" data-cm="1" aria-pressed="false">fetosim: + maternal layers</button></div>
     <span class="eyebrow sense-lab">Measurable by</span>
     <div class="seg sense-tab" role="group" aria-label="What each sensor can measure"><button type="button" data-sense="" aria-pressed="true">Off</button><button type="button" data-sense="us"><i class="sd s-us"></i>Ultrasound</button><button type="button" data-sense="opt"><i class="sd s-opt"></i>Optics</button><button type="button" data-sense="emg"><i class="sd s-emg"></i>EMG</button><button type="button" data-sense="fm"><i class="sd s-fm"></i>Fetal movement</button><button type="button" data-sense="eeg"><i class="sd s-eeg"></i>EEG</button><button type="button" data-sense="all">All</button><button type="button" data-sense="sub">Subsystems</button></div>
   </div>
@@ -785,7 +785,7 @@ const hooks = { filter: [], select: [] };     // page-specific listeners
 /* ---------------- filter state (shared by panel and table) ---------------- */
 let filter = 'all';
 let senseMode = '';   // measurables overlay: '', us, opt, emg, fm, eeg, all, sub
-let circExt = true;   // model tab: true = fetosim with the maternal layers; false = Jongen 2016 (Part A Fig. 1)
+let circExt = false;  // model tab: true = fetosim with the maternal layers; false = Jongen 2016 (Part A Fig. 1, the default)
 const FILTERS = [['all', 'All'], ['3', 'Fitted'], ['2', 'Our choice'], ['1', 'Paper']];
 const passes = r => (circExt || !r.layer) && (filter === 'all' || String(r.cls) === filter || (filter === '3' && r.cls === 4));   // Fitted: per window or once to literature
 function counts(part) {
@@ -874,10 +874,9 @@ function renderPanel(key, scroll) {
   if (key && !GROUP[key]) key = GROUP_OF[key].key;
   current = key;
   if (!key && senseMode) { panel.innerHTML = ''; return; }   // user 2026-11-11: leave the panel empty in sensor views for now (sensePanel() kept)
-  const filt = `<div class="filter"><span class="eyebrow">Show parameters</span><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
+  const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
-    panel.innerHTML = `<p class="role">Blood and oxygen flow from the mother's heart through the spiral arteries into the intervillous space, across the villi, along the umbilical cord to the fetal heart. Two receptors close the loop by setting the fetal heart period.</p>
-      ${filt}
+    panel.innerHTML = `${filt}
       <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span><span class="ps">${PARTS[g.key].role.split('. ')[0].replace(/:.*$/, '')}.</span></button>`).join('')}</div>
 `;
   } else {
@@ -1940,7 +1939,7 @@ panel.addEventListener('pointerleave', () => { if (senseMode) senseHot(null); })
 const PAGE_Q = new URLSearchParams(location.search);     // ?fig=dia|circ (one drawing fills the window), ?sense=us|…, ?theme=light|dark
 if (PAGE_Q.get('fig')) document.body.classList.add('fig', 'fig-' + PAGE_Q.get('fig'));
 if (PAGE_Q.get('theme')) document.documentElement.dataset.theme = PAGE_Q.get('theme');
-if (PAGE_Q.get('model') === 'jongen') setCircExt(false);
+if (PAGE_Q.get('model') === 'fetosim') setCircExt(true);   // default is Jongen 2016; ?model=fetosim opens the maternal layers
 
 /* ---------------- loop and start ---------------- */
 let lastT = performance.now(), lastRO = 0, lastLive = 0;
