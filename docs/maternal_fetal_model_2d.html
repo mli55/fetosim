@@ -172,8 +172,10 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .prow .val { font-family: var(--font-mono); font-size: 13px; text-align: right; white-space: nowrap; }
 .prow .mean { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
 .prow.code { cursor: pointer; } .prow.code:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-.prow .codeat { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-decoration: none; }
-.prow.code:hover .codeat { color: var(--accent); text-decoration: underline; }
+.prow .codeat, .eq .codeat { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-decoration: none; }
+.prow.code:hover .codeat, .eq.code:hover .codeat { color: var(--accent); text-decoration: underline; }
+.eq.code { cursor: pointer; } .eq.code:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.eq .eqh { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
 .prow .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
 .partlist { display: grid; gap: 6px; }
 .partlist button { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 10px; cursor: pointer;
@@ -806,9 +808,10 @@ function setFilter(f) {
 /* ---------------- panel ---------------- */
 let current = null;
 const panel = $('#panel');
-panel.addEventListener('click', e => {           // a parameter row opens its line of code (VS Code locally, GitHub on the web)
-  const row = e.target.closest('.prow.code'); if (!row || e.target.closest('a, button')) return;
-  if (ON_WEB) window.open(codeURL(row.dataset.p), '_blank', 'noopener'); else location.href = codeURL(row.dataset.p);
+panel.addEventListener('click', e => {           // a parameter or equation row opens its line of code (VS Code locally, GitHub on the web)
+  const row = e.target.closest('.prow.code, .eq.code'); if (!row || e.target.closest('a, button')) return;
+  const url = row.dataset.at ? atURL(row.dataset.at) : codeURL(row.dataset.p);
+  if (ON_WEB) window.open(url, '_blank', 'noopener'); else location.href = url;
 });
 /* where each parameter is set in the fetosim code (github.com/mli55/fetosim; Jongen at main c64dc4c, maternal layers on
    branch maternal-circulation 7a3e4c2), opened in VS Code on click; on the web (GitHub Pages) the line on GitHub main */
@@ -819,7 +822,32 @@ const CODE_AT = {"F_TREF": "model/parameters/jongen2016.json:13", "F_VART0": "mo
 const ON_WEB = /^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 const CODE_WHERE = ON_WEB ? 'on GitHub' : 'in VS Code';
 const ghURL = at => { const [f, ln] = at.split(':'); return 'https://github.com/mli55/fetosim/blob/main/' + f + (ln ? '#L' + ln : ''); };
-const codeURL = n => !CODE_AT[n] ? null : ON_WEB ? ghURL(CODE_AT[n]) : 'vscode://file' + encodeURI(FETOSIM_DIR + '/' + CODE_AT[n]);
+const atURL = at => ON_WEB ? ghURL(at) : 'vscode://file' + encodeURI(FETOSIM_DIR + '/' + at);
+const codeURL = n => !CODE_AT[n] ? null : atURL(CODE_AT[n]);
+/* where each equation is computed (fetosim main 77135b9), per part and equation label; a repeated label takes the
+   next entry of its list. Several equations are spread over a few lines; the link goes to the main one. */
+const EQ_CODE_AT = {
+  uterus: { 'A(8)': 'model/simulate.py:200', 'A(2)': 'model/core.c:165', 'A(6)–(7)': 'model/core.c:147' },
+  placenta: { 'A(3)': 'model/core.c:146', 'A(1), A(4)': 'model/core.c:175', 'A(16)': 'model/core.c:204',
+    'A(12)–(13)': 'model/core.c:65', 'A(14)–(15)': 'model/core.c:267' },
+  spiral: { 'A(5)': 'model/core.c:163', 'A §2.4': 'examples/reproduce_jongen2016.py:62' },
+  cord: { 'B(2)': 'model/core.c:130', 'B(1)': 'model/core.c:176', 'A(6)': 'model/core.c:71' },
+  heart: { 'A(25)': 'model/core.c:168', 'A(23)': 'model/core.c:288', 'A(24)': 'model/core.c:169', 'A(9)–(11)': 'model/core.c:178',
+    'A(17)–(19)': 'model/core.c:206', 'ours': 'fit/fit_window.py:35' },
+  baro: { 'A(21)': 'model/core.c:221', 'B(3)': 'model/parameters/jongen2016.json:897', 'A(20)': 'model/core.c:286', 'A(22)': 'model/core.c:225' },
+  chemo: { 'A(21)': 'model/core.c:222', 'B(3)': 'model/parameters/jongen2016.json:975', 'A(20)': 'model/core.c:287', 'A(22)': 'model/core.c:225' },
+  toco: { 'ours, replaces A(8)': 'input/toco_to_pressure.py:37', 'ours': 'input/toco_to_pressure.py:28' },
+  mother: { 'A(1)': 'model/core.c:138', 'A(9)–(10)': 'model/core.c:159', 'A(16)': 'model/core.c:204', 'A(17)': 'model/core.c:205',
+    'HR reflex': 'model/core.c:240', 'Thorax': ['model/core.c:137', 'model/core.c:153'], 'Vasomotor': 'model/core.c:142',
+    'Autotransfusion': 'model/core.c:140' },
+};
+function eqRows(parts) {
+  return parts.flatMap(p => PARTS[p].eqs.map(([n, m, w], i, a) => {
+    const v = (EQ_CODE_AT[p] || {})[n], at = Array.isArray(v) ? v[a.slice(0, i).filter(e => e[0] === n).length] : v;
+    return { n, m, w, at };
+  })).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at }) => `<div class="eq${at ? ' code' : ''}"${at ? ` data-at="${esc(at)}" title="Open ${esc(at)} ${CODE_WHERE}"` : ''}>
+      <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
+}
 function paramRows(parts) {
   const rows = PARAMS.filter(r => parts.includes(r.part) && passes(r));
   if (!rows.length) return `<p class="muted" style="padding-top:8px;border-top:1px solid var(--line)">No ${filter === '3' ? 'fitted' : filter === '2' ? 'our-choice' : 'paper'} parameters in this part.</p>`;
@@ -850,7 +878,7 @@ function renderPanel(key, scroll) {
     panel.innerHTML = `<h3 class="ptitle">${numHTML(g.n)}<span>${g.title}</span></h3>
       ${Ps.map(P => `<p class="role">${P.role}</p>`).join('')}
       <p class="during"><b>During a contraction.</b> ${Ps.map(P => P.during).join(' ')}</p>
-      <div class="eqs">${Ps.flatMap(P => P.eqs).filter(([n]) => circExt || !FS_EQ.includes(n)).map(([n, m, w]) => `<div class="eq"><span class="no">${n}</span>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('')}</div>
+      <div class="eqs">${eqRows(g.parts)}</div>
       ${filt}
       <div class="plist">${paramRows(g.parts)}</div>
       <button class="btn only-phone" type="button" id="toModel">↑ Back to the model</button>`;
