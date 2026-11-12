@@ -855,6 +855,9 @@ const atURL = at => ON_WEB ? ghURL(at) : 'vscode://file' + encodeURI(FETOSIM_DIR
 const codeURL = n => !CODE_AT[n] ? null : atURL(CODE_AT[n]);
 /* where each equation is computed (fetosim main 77135b9), per part and equation label; a repeated label takes the
    next entry of its list. Several equations are spread over a few lines; the link goes to the main one. */
+/* general equations of Jongen 2016 A §2.1, used in every part; shown at the end of every equation list */
+const GENERAL_EQ = ['General', 'A(1) &nbsp;<i>p</i><sub>tm</sub> = <span class="fr"><span><i>V</i> − <i>V</i><sub>0</sub></span><span><i>C</i></span></span>, &nbsp; A(4) &nbsp;<span class="fr"><span>d<i>V</i></span><span>d<i>t</i></span></span> = <i>q</i><sub>in</sub> − <i>q</i><sub>out</sub>, &nbsp; A(5) &nbsp;<i>q</i> = <span class="fr"><span>Δ<i>p</i></span><span><i>R</i></span></span>', 'Jongen 2016 A §2.1, for the whole model: A(1) for every compliant compartment (maternal arteries, veins, tissues; fetal arteries, veins, tissues, brain, villi), A(4) for every compartment, A(5) for every segment with Δ<i>p</i> the absolute pressure difference. The IVS uses A(3) instead of A(1); the uterine vein and umbilical vessels have pressure-dependent <i>R</i> (A(6)–(7), B(1)). Fetal <i>p</i><sub>ext</sub> = <i>p</i><sub>ut</sub> cancels in fetal flows.'];
+const GENERAL_AT = 'model/core.c:171';
 const EQ_CODE_AT = {
   uterus: { 'ours': 'input/toco_to_pressure.py:28', 'ours, replaces A(8)': 'input/toco_to_pressure.py:37',
     'A(8)': 'model/simulate.py:200', 'A(2)': 'model/core.c:165', 'A(6)–(7)': 'model/core.c:147' },
@@ -874,7 +877,7 @@ function eqRows(parts) {
   return parts.flatMap(p => PARTS[p].eqs.map(([n, m, w], i, a) => {
     const v = (EQ_CODE_AT[p] || {})[n], rep = a.slice(0, i).filter(e => e[0] === n).length, at = Array.isArray(v) ? v[rep] : v;
     return { n, m, w, at, key: rep ? n + '#' + (rep + 1) : n };
-  })).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key }) => `<div class="eq${at ? ' code' : ''}" data-key="${esc(key)}"${at ? ` data-at="${esc(at)}" title="Open ${esc(at)} ${CODE_WHERE}"` : ''}>
+  })).concat({ n: GENERAL_EQ[0], m: GENERAL_EQ[1], w: GENERAL_EQ[2], at: GENERAL_AT, key: GENERAL_EQ[0] }).filter(e => circExt || !FS_EQ.includes(e.n)).map(({ n, m, w, at, key }) => `<div class="eq${at ? ' code' : ''}" data-key="${esc(key)}"${at ? ` data-at="${esc(at)}" title="Open ${esc(at)} ${CODE_WHERE}"` : ''}>
       <div class="eqh"><span class="no">${n}</span>${at ? `<a class="codeat" href="${atURL(at)}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>${esc(at)}</a>` : ''}</div>${M(m.split(', &nbsp; ').map(x => `<span class="ml">${x}</span>`).join(''))}<span class="why">${w}</span></div>`).join('');
 }
 const sentence = s => { s = String(s || '').trim(); return s && s[0].toUpperCase() + s.slice(1) + (/[.!?]$/.test(s) ? '' : '.'); };
@@ -905,6 +908,7 @@ function renderPanel(key, scroll) {
   if (!key) {
     panel.innerHTML = `${filt}
       <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span><span class="ps">${PARTS[g.key].role.split('. ')[0].replace(/:.*$/, '').replace(/\.$/, '')}.</span></button>`).join('')}</div>
+      <div class="eqs">${eqRows([])}</div>
 `;
   } else {
     const g = GROUP[key], Ps = g.parts.map(p => PARTS[p]);
@@ -1035,13 +1039,13 @@ const VARS = {
   ivs: [[VS('V', 'IVS'), 'volume', 'A(3)'], [VS('p', 'tm,IVS'), 'transmural pressure', 'A(3)'], [VO2('IVS'), 'maternal O₂', 'A(14)–(15)']],
   villi: [[VS('V', 'villi'), 'volume', 'A(1), A(4)'], [VO2('villi'), 'fetal O₂', 'A(14)–(15)']],
   exch: [[VS('Q', 'D,plac'), 'O₂ diffusion', 'A(16)']],
-  umv: [[VS('q', 'umv'), 'flow to the fetus', 'B(1)'], [VS('R', 'umv'), 'resistance, collapses', 'A(6)']],
-  uma: [[VS('q', 'uma'), 'flow to the placenta', 'B(1)'], [VS('R', 'uma'), 'resistance, collapses', 'A(6)']],
+  umv: [[VS('q', 'umv'), 'flow to the fetus', 'General'], [VS('R', 'umv'), 'resistance, collapses', 'A(6)']],
+  uma: [[VS('q', 'uma'), 'flow to the placenta', 'General'], [VS('R', 'uma'), 'resistance, collapses', 'A(6)']],
   cordsq: [[VS('p', 'um'), 'cord compression pressure', 'B(2)']],
   cv: [[VS('T'), 'heart period → FHR = 60/<i>T</i>', 'A(25)'], [VS('V', 'ed') + ', ' + VS('V', 'ee'), 'filled, ejected volume', 'A(9)–(11)'], [VS('q', 'CO'), 'cardiac output', 'A(9)–(11)']],
   eff: [[VS('z', 'Tv') + ', ' + VS('z', 'Ts'), 'period, vagal and sympathetic', 'A(23)'], [VS('z', 'E') + ', ' + VS('z', 'R') + ', ' + VS('z', 'V'), 'contractility, resistance, volume', 'A(24)']],
-  fart: [[VS('p', 'tm,a'), 'arterial pressure', 'A(1), A(4)'], [VS('V', 'art'), 'volume', 'A(1), A(4)']],
-  fven: [[VS('p', 'tm,v'), 'venous pressure', 'A(1), A(4)'], [VS('V', 'ven'), 'volume', 'A(1), A(4)']],
+  fart: [[VS('p', 'tm,a'), 'arterial pressure', 'General'], [VS('V', 'art'), 'volume', 'General']],
+  fven: [[VS('p', 'tm,v'), 'venous pressure', 'General'], [VS('V', 'ven'), 'volume', 'General']],
   body: [[VS('q', 'tis'), 'tissue flow', 'A(17)–(19)'], [VS('Q', 'M,tis'), 'O₂ use', 'A(17)–(19)']],
   brain: [[VS('q', 'cer'), 'brain flow', 'A(17)–(19)'], [VS('R', 'cera'), 'autoregulated resistance', 'A(17)–(19)']],
   fo2: [[VO2('a'), 'arterial O₂', 'A(12)–(13)'], ['cO<sub>2</sub>, sO<sub>2</sub>', 'content, saturation', 'A(12)–(13)']],
@@ -1548,13 +1552,14 @@ const EL_TARGET = {
   m_heart: ['mother', 'A(9)–(10)'], m_art: ['mother', 'A(1)'], m_ven: ['mother', 'A(1)'], m_o2: ['mother', 'A(16)'], m_tis: ['mother', 'A(1)'],
   m_thx: ['mother', 'Thorax#2'], m_hr: ['mother', 'HR reflex'], m_vaso: ['mother', 'Vasomotor'], m_auto: ['mother', 'Autotransfusion'],
   spiral: SYM.R_uta, utv: SYM.R_utv, 'wall toco': SYM.p_ut, ivs: SYM.p_IVS, villi: ['placenta', 'A(1), A(4)'], exch: SYM.Q_D_plac,
-  'uma cordsq': ['cord', 'A(6)'], 'umv cordsq': ['cord', 'A(6)'], 'cv eff obs': SYM.T, 'fart fo2': ['placenta', 'A(1), A(4)'],
-  'fven fo2': ['placenta', 'A(1), A(4)'], brain: ['heart', 'A(17)–(19)'], 'body eff': ['heart', 'A(24)'],
+  'uma cordsq': ['cord', 'A(6)'], 'umv cordsq': ['cord', 'A(6)'], 'cv eff obs': SYM.T, 'fart fo2': ['heart', 'General'],
+  'fven fo2': ['heart', 'General'], brain: ['heart', 'A(17)–(19)'], 'body eff': ['heart', 'A(24)'],
   'baro_curve baro_filt': SYM.r_b, baro_w: ['baro', 'A(22)'], 'chemo_curve chemo_filt': SYM.r_c, chemo_w: ['chemo', 'A(22)'],
 };
 const SB = (s, h) => `<button type="button" class="psym" data-s="${s}" title="${typeof SYM[s] === 'string' ? 'Show this parameter' : 'Show its equation'}">${h}</button>`;
 /* the group whose equation list holds `key`, preferring `prefer` */
 function eqGroup(key, prefer) {
+  if (key === GENERAL_EQ[0]) return prefer || current || 'heart';     // the general row is in every list
   const n = key.replace(/#\d+$/, ''), has = g => GROUP[g].parts.some(p => PARTS[p].eqs.some(e => e[0] === n));
   return prefer && GROUP[prefer] && has(prefer) ? prefer : (GROUPS.find(g => has(g.key)) || {}).key;
 }
