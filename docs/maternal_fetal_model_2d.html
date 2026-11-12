@@ -907,7 +907,7 @@ function renderPanel(key, scroll) {
   const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
     panel.innerHTML = `${filt}
-      <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span><span class="ps">${PARTS[g.key].role.split('. ')[0].replace(/:.*$/, '').replace(/\.$/, '')}.</span></button>`).join('')}</div>
+      <div class="partlist">${GROUPS.map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span></button>`).join('')}</div>
       <div class="eqs">${eqRows([])}</div>
 `;
   } else {
