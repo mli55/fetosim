@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Landscape and Sensors</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: the model_relations figure redrawn as SVG, with a sensor band above the compartment headers. */
+:root {
+  --bg: #ffffff; --fg: #0f1b3d; --sub: #3b4a6b; --faint: #6b7896; --line: #dfe4ec; --surface: #f6f8fb;
+  --panel: #f2f6fd; --band: #f6f8fb; --band-panel: #e7eefa; --sens-band: #faf8fe;
+  --h0: #fde2df; --h1: #f9d3cd; --h2: #fbe6e3; --h3: #f1e3f6; --h4: #f5ecd2; --h5: #dbe8fa; --h6: #e2f2e7; --h7: #fde4ea; --h8: #eceef2;
+  --tu: #3d74d6; --ak: #1f9e89; --yf: #7b4fb0; --pv: #4f8f87; --ehg: #c98a00; --si: #6b7280; --ours: #e8710a;
+  --tu-ink: #3d74d6; --ak-ink: #1a8a77; --yf-ink: #7b4fb0; --pv-ink: #4f8f87; --ehg-ink: #a87300; --si-ink: #6b7280; --ours-ink: #d9650a;
+  --muted-name: #5d6780; --in: #1565c0; --gap: #c62828; --on-pill: #ffffff;
+  --ctg: #44506a; --ctg-fill: #e4e8ef;
+  --sens: #5e35b1; --sens-fill: #f1ecfb;
+  --lab: #8a5a00; --lab-fill: #fbf1dc;
+  --data: #2e7d32;
+  --hl: #5e35b1; --hl-fill: rgba(94, 53, 177, 0.07);
+  --font: "Avenir Next LT Pro", "Avenir Next", "Mulish", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
+    --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
+    --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
+    --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
+    --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
+    --ctg: #c3cbda; --ctg-fill: #2a3140;
+    --sens: #b9a2ea; --sens-fill: #241c3b;
+    --lab: #e3b55a; --lab-fill: #33290f;
+    --data: #7fcf84;
+    --hl: #b9a2ea; --hl-fill: rgba(185, 162, 234, 0.08);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
+  --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
+  --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
+  --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
+  --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
+  --ctg: #c3cbda; --ctg-fill: #2a3140;
+  --sens: #b9a2ea; --sens-fill: #241c3b;
+  --lab: #e3b55a; --lab-fill: #33290f;
+  --data: #7fcf84;
+  --hl: #b9a2ea; --hl-fill: rgba(185, 162, 234, 0.08);
+  color-scheme: dark;
+}
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1500px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+h1 { font-size: 30px; line-height: 1.15; margin: 0; font-weight: 800; text-wrap: balance; }
+h2 { font-size: 19px; margin: 0; font-weight: 800; text-wrap: balance; }
+h3 { font-size: 15px; margin: 0; font-weight: 700; }
+p { margin: 0; }
+.lede { color: var(--sub); max-width: 70ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; font-size: 13px; color: var(--sub); }
+.legend .item { display: inline-flex; align-items: center; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 1px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
+  border: 2px solid transparent; white-space: nowrap; line-height: 1.45; }
+.chip.ctg { background: var(--ctg-fill); color: var(--ctg); border-color: var(--ctg); }
+.chip.slide { background: var(--sens-fill); color: var(--sens); border-color: var(--sens); }
+.chip.target { background: var(--sens-fill); color: var(--sens); border-color: var(--sens); }
+.dot.d-1 { display: none; }
+.chip.notes { background: var(--sens-fill); color: var(--sens); border-color: var(--sens); border-style: dashed; }
+.chip.label { background: var(--lab-fill); color: var(--lab); border-color: var(--lab); border-radius: 5px; }
+.chip.none { background: transparent; color: var(--faint); border-color: var(--faint); border-style: dotted; }
+.dot { width: 9px; height: 9px; border-radius: 50%; border: 1.6px solid var(--data); display: inline-block; flex: none; box-sizing: border-box; }
+.dot.d2 { background: var(--data); }
+.dot.d1 { background: linear-gradient(90deg, var(--data) 50%, transparent 50%); }
+.figbox { overflow-x: auto; background: var(--bg); }
+.figbox svg { display: block; width: 100%; min-width: 1180px; height: auto; font-family: var(--font); }
+@media (max-width: 720px) {
+  h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="figbox"><svg id="fig" role="img" aria-label="Model relations figure with sensor band"></svg></div>
+</div>
+
+<script>
+(() => {
+  const W = 1456, NAME_X = 104, COL0 = 360, CW = 120, ROW_H = 31, SEC_H = 26, PILL = 11, PILL_PX = 8, PILL_H = 21;
+  // sensor chips sit directly above each column header, bottom-aligned (at most 3 per column)
+  const LINE_DY = 13.5, HEAD_Y = 12 + 4 * LINE_DY + 12, HEAD_H = 46, TOP = HEAD_Y + HEAD_H + 14;
+  const GRID_END = COL0 + 9 * CW;
+  const colX = i => COL0 + CW * i;
+
+  const COLS = [["Maternal", "circulation"], ["Uterine", "activity"], ["Uterine", "vessels"], ["IVS &", "placenta"],
+    ["Umbilical", "cord"], ["Fetal", "circulation"], ["Reflexes", "& FHR"], ["Fetal", "brain"], ["Acid–base", "pH, BD"]];
+  const JONGEN = [0, 2, 3, 4, 5, 6, 7];
+  const P_UT = "input: p_{ut}";
+  // [section, colour key, style, tag, rows]; row = [name, solid, hollow, {col: label}, extras]
+  const SECTIONS = [
+    ["TU/E · MÁXIMA LINEAGE", "tu", "full", "", [
+      ["van der Hout-van der Jagt 2012–13", JONGEN, [1], {1: P_UT, 6: "output: FHR"}, {}],
+      ["Bullens 2014", JONGEN, [1], {1: P_UT, 6: "output: FHR"}, {}],
+      ["Jongen 2016 A/B", JONGEN, [1], {1: P_UT, 6: "output: FHR"}, {}],
+      ["Jongen 2017 · FHR variability", JONGEN, [1], {1: P_UT, 6: "output: FHRV"}, {}],
+      ["van Willigen 2024–25 · PLS twin", [3, 5, 6, 7], [4], {4: "input: occlusion", 5: "output: flows"}, {}]]],
+    ["OURS", "ours", "full", "", [
+      ["Ours · reproduces Jongen 2016", JONGEN, [1], {0: "+ Randall, Lu", 1: "input: TOCO", 6: "output: FHR"}, {}]]],
+    ["AUCKLAND BIOENGINEERING INSTITUTE LINEAGE", "ak", "full", "", [
+      ["Clark 2018 · uterine tree + AVA", [2], [0], {0: "input: iliac wave", 2: "output: UtA PI"}, {}],
+      ["Allerkamp 2022–23 · radial tone", [2], [], {2: "output: radial R"}, {}],
+      ["James 2018 · Saghian 2019 · plugs", [2], [], {2: "output: SA flow, shear"}, {}],
+      ["Saghian 2017 · Lee 2023–26 CFD", [3], [2], {2: "input: SA inflow", 3: "output: IVS shear"}, {}],
+      ["Clark 2015 · Lin 2016 · villous O_{2}", [3], [4], {3: "output: O_{2} uptake", 4: "input: UA flow"}, {}],
+      ["Byrne 2021 · reprosim · fetal side", [3, 4, 5], [], {5: "output: fetal CO"}, {}]]],
+    ["WANG ET AL. LINEAGE", "yf", "muted", "", [
+      ["Wang et al. 2015", [0, 3, 5, 6, 7, 8], [4], {4: "input: occlusion", 8: "output: pH, BD"}, {}],
+      ["Fetal Twin · Frasch 2026", [0, 3, 5, 6, 7, 8], [4], {4: "input: occlusion", 8: "output: pH, BD"}, {}]]],
+    ["PLACENTONE CFD", "pv", "muted", "", [
+      ["Roth 2017 · Najmi 2024–26 (CFD)", [3], [], {3: "output: IVS flow"}, {}]]],
+    ["UTERINE ELECTROPHYSIOLOGY", "ehg", "muted", "", [
+      ["Laforêt · Rabotti · Yochum", [1], [], {1: "output: EHG, force"}, {}],
+      ["Means 2025 · Hussan 2026 · FTU", [1], [], {1: "output: excitation"}, {}]]],
+    ["SYSTEM IDENTIFICATION", "si", "muted", "", [
+      ["Warrick & Kearney 2009–10", [], [], {}, {blackbox: [1, 6, "input: IUP  ·  linear IRF  ·  output: FHR"]}],
+      ["Vargas-Calixto 2022", [], [], {}, {blackbox: [1, 6, "input: IUP  ·  Hammerstein  ·  output: FHR"]}]]],
+  ];
+  const LINKS = [["van der Hout-van der Jagt 2012–13", "Bullens 2014", 0], ["Bullens 2014", "Jongen 2016 A/B", 0],
+    ["Jongen 2016 A/B", "Jongen 2017 · FHR variability", 0],
+    ["Clark 2018 · uterine tree + AVA", "Allerkamp 2022–23 · radial tone", 0],
+    ["Clark 2018 · uterine tree + AVA", "James 2018 · Saghian 2019 · plugs", 1],
+    ["James 2018 · Saghian 2019 · plugs", "Saghian 2017 · Lee 2023–26 CFD", 0],
+    ["Clark 2015 · Lin 2016 · villous O_{2}", "Byrne 2021 · reprosim · fetal side", 0],
+    ["Warrick & Kearney 2009–10", "Vargas-Calixto 2022", 0]];
+  const LANES = [94, 82];
+
+  // Sensor / signal names drawn above each compartment header.
+  const SIG = [
+    { sigs: [{ chip: "Maternal BP" }, { chip: "Maternal ECG" }, { chip: "MHR" }, { chip: "Maternal SpO₂" }] },
+    { sigs: [{ chip: "TOCO" }, { chip: "EHG/HD-EMG" }, { chip: "US patch" }] },
+    { sigs: [{ chip: "UtA PI" }, { chip: "fdNIRS StO₂" }, { chip: "SCOS flow" }] },
+    { sigs: [{ chip: "Placental O₂" }] },
+    { sigs: [{ chip: "UA PI" }] },
+    { sigs: [{ chip: "Cardiac Doppler" }] },
+    { sigs: [{ chip: "FHR" }, { chip: "Fetal ECG" }, { chip: "HD-EMG FHR" }] },
+    { sigs: [{ chip: "Fetal EEG" }, { chip: "Evoked latency" }] },
+    { sigs: [{ chip: "Cord pH, BD" }] },
+  ];
+
+  // ---------------------------------------------------------------- helpers
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("fig");
+  const ctx = document.createElement("canvas").getContext("2d");
+  const plain = s => s.replace(/_\{([^}]*)\}/g, "$1");
+  const tw = (s, size, bold) => { ctx.font = `${bold ? 700 : 400} ${size}px ${getComputedStyle(document.body).fontFamily}`;
+    return ctx.measureText(plain(s)).width; };
+  function el(tag, attrs, parent, style) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (style) e.setAttribute("style", style);
+    (parent || svg).appendChild(e); return e;
+  }
+  const rect = (g, x, y, w, h, rx, style, extra = {}) => el("rect", { x, y, width: w, height: h, rx, ...extra }, g, style);
+  function text(g, x, y, s, size, bold, color, anchor = "start", extra = {}) {
+    const t = el("text", { x, y, "font-size": size, "font-weight": bold ? 700 : 400, "text-anchor": anchor, ...extra }, g,
+      `fill:var(--${color})`);
+    s.split(/(_\{[^}]*\})/).forEach(part => {
+      if (!part) return;
+      const m = part.match(/^_\{(.*)\}$/);
+      const sp = el("tspan", m ? { "baseline-shift": "sub", "font-size": size * 0.68 } : {}, t);
+      sp.textContent = m ? m[1] : part;
+    });
+    return t;
+  }
+  function line(g, pts, color, w, opts = {}) {
+    const p = el("polyline", { points: pts.map(q => q.join(",")).join(" "), fill: "none", "stroke-width": w,
+      ...(opts.dash ? { "stroke-dasharray": opts.dash } : {}) }, g, `stroke:${color}`);
+    if (opts.arrow) {
+      const [a, b] = pts.slice(-2), ang = Math.atan2(b[1] - a[1], b[0] - a[0]), L = 4 + 2.4 * w, H = 2 + 1.6 * w;
+      const tip = b, base = [b[0] - L * Math.cos(ang), b[1] - L * Math.sin(ang)];
+      const l = [base[0] + H * Math.sin(ang), base[1] - H * Math.cos(ang)], r = [base[0] - H * Math.sin(ang), base[1] + H * Math.cos(ang)];
+      el("polygon", { points: [tip, l, r].map(q => q.join(",")).join(" ") }, g, `fill:${color}`);
+    }
+    return p;
+  }
+  const mixv = (key, pct, base = "var(--bg)") => `color-mix(in srgb, var(--${key}) ${pct}%, ${base})`;
+
+  // ---------------------------------------------------------------- draw
+  function draw() {
+    svg.textContent = "";
+    let yEnd = TOP; SECTIONS.forEach(s => yEnd += SEC_H + ROW_H * s[4].length);
+    const H = yEnd + 10;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const bg = el("g", {});
+    rect(bg, 0, 0, W, H, 0, "fill:var(--bg)");
+    for (let i = 0; i < 9; i += 2) {
+      rect(bg, colX(i), HEAD_Y, CW, yEnd - HEAD_Y, 0, "fill:var(--band)");
+    }
+    COLS.forEach(([a, b], i) => {
+      rect(bg, colX(i) + 3, HEAD_Y, CW - 6, HEAD_H, 10, `fill:var(--h${i})`);
+      text(bg, colX(i) + CW / 2, HEAD_Y + 19, a, 13, true, "fg", "middle");
+      text(bg, colX(i) + CW / 2, HEAD_Y + 36, b, 13, true, "fg", "middle");
+    });
+
+    // sensors: a plain list of short names above each column header (bottom-aligned)
+    const SHORT = { "Maternal BP": "BP", "Maternal ECG": "ECG", "Maternal SpO₂": "SpO₂", "Fetal SpO₂": "SpO₂",
+      "Fetal ECG": "fECG", "Fetal EEG": "EEG" };
+    const band = el("g", {});
+    const yLast = HEAD_Y - 15;
+    line(band, [[COL0 + 6, HEAD_Y - 7], [GRID_END - 6, HEAD_Y - 7]], "var(--line)", 1);   // rule between sensors and headers
+    SIG.forEach((col, i) => {
+      const chips = col.sigs;
+      chips.forEach((s, k) => {
+        text(band, colX(i) + CW / 2, yLast - (chips.length - 1 - k) * LINE_DY, SHORT[s.chip] || s.chip, 11, false, "sens", "middle");
+      });
+    });
+
+    // rows
+    const rowsG = el("g", {});
+    let y = TOP; const rowsY = {}, pills = {}, secColor = {};
+    SECTIONS.forEach(([sec, key, style, tag, rows]) => {
+      const strong = style !== "muted";
+      if (y > TOP) line(rowsG, [[16, y], [W - 8, y]], "var(--line)", 1);
+      text(rowsG, 18, y + 17, sec, 12.5, true, strong ? `${key}-ink` : `${key}-ink`, "start", strong ? {} : { opacity: 0.85 });
+      y += SEC_H;
+      rows.forEach(([name, solid, hollow, labels, ex]) => {
+        const cy = y + ROW_H / 2; rowsY[name] = cy; secColor[name] = key;
+        const cells = [...new Set([...solid, ...hollow])].sort((a, b) => a - b);
+        if (cells.length > 1) line(rowsG, [[colX(cells[0]) + CW / 2, cy], [colX(cells[cells.length - 1]) + CW / 2, cy]],
+          mixv(key, strong ? 45 : 25), 3);
+        cells.forEach(i => {
+          const lab = labels[i]; let w = CW - 2 * PILL_PX;
+          if (lab) { const t = tw(lab, PILL, true) + 12, crowded = cells.includes(i - 1) || cells.includes(i + 1);
+            w = Math.max(w, crowded ? Math.min(t, CW + 8) : t); }
+          const x0 = colX(i) + CW / 2 - w / 2, inp = hollow.includes(i);
+          pills[name + "|" + i] = [x0, w, cy];
+          const fill = inp ? "var(--bg)" : strong ? `var(--${key})` : mixv(key, 30);
+          const stroke = inp ? (strong ? `var(--${key})` : mixv(key, 60)) : "none";
+          rect(rowsG, x0, cy - PILL_H / 2, w, PILL_H, PILL_H / 2, `fill:${fill};stroke:${stroke};stroke-width:${inp ? 2 : 0}`);
+          if (lab) {
+            const ink = inp ? `${key}-ink` : strong ? "on-pill" : `${key}-ink`;
+            text(rowsG, colX(i) + CW / 2, cy + 4, lab, PILL, true, ink, "middle");
+          }
+          if ((ex.plus || []).includes(i)) {
+            const bx = x0 + w - 3, by = cy - PILL_H / 2;
+            el("circle", { cx: bx, cy: by, r: 6 }, rowsG, "fill:var(--bg);stroke:var(--ours);stroke-width:1.5;stroke-dasharray:2.5 2");   // dashed: optional module, off by default
+            text(rowsG, bx, by + 4.3, "+", 12.5, true, "ours-ink", "middle");
+          }
+        });
+        if (ex.blackbox) {
+          const [a, b, lab] = ex.blackbox, x0 = colX(a) + PILL_PX, x1 = colX(b) + CW - PILL_PX;
+          rect(rowsG, x0, cy - PILL_H / 2, x1 - x0, PILL_H, PILL_H / 2, `fill:var(--bg);stroke:${mixv(key, 60)};stroke-width:2`,
+            { "stroke-dasharray": "7 5" });
+          text(rowsG, (x0 + x1) / 2, cy + 4, lab.replace(/  /g, " "), PILL, true, `${key}-ink`, "middle", { "xml:space": "preserve" });
+        }
+        text(rowsG, NAME_X, cy + 5.5, name, 15, true, strong ? "fg" : "muted-name");
+        y += ROW_H;
+      });
+    });
+
+    // builds-on arrows
+    LINKS.forEach(([a, b, lane]) => line(rowsG, [[LANES[lane], rowsY[a] - 3], [LANES[lane], rowsY[b] + 6]], `var(--${secColor[b]})`, 2, { arrow: true }));
+  }
+
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
