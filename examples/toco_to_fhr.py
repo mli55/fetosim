@@ -5,6 +5,7 @@ plus a plot of every intermediate signal (one panel per block of the TOCO -> FHR
     toco_bins(toco_4hz)            4 Hz TOCO -> 2-s bins
     uterine_pressure(bins, a)      bins -> peaks -> p_ut(t) = 15 + 70a sum_k exp(-(t - t_k)^2 / 2 sigma^2)
     fhr(p_ut, nb, w_um, g)         p_ut -> Jongen 2016 ODEs (core.c) -> FHR = 60 / T, in 2-s bins
+    mhr(p_ut, nb, vaso, autotx)    p_ut -> same ODEs with the maternal baroreflex closed (Randall 2019) -> MHR, 2-s bins
 
 usage: python examples/toco_to_fhr.py [--csv FILE] [--a A] [--w-um W] [--g G] [--out PNG] [--no-show]
 
@@ -61,6 +62,15 @@ def fhr(p_ut: np.ndarray, nb: int, w_um: float = 1.0, g: float = 1.0) -> np.ndar
     if f is None:
         raise RuntimeError('model run became non-finite')
     return f
+
+
+def mhr(p_ut: np.ndarray, nb: int, vaso: bool = True, autotx: bool = True) -> np.ndarray:
+    """Run the model with the maternal heart-rate baroreflex closed (Randall 2019, mhr=2) and return MHR (bpm)
+    averaged over nb 2-s bins. vaso = maternal vasomotor reflex, autotx = contraction autotransfusion."""
+    o, _, ok = S.run(p_ut, du=S.DU, mhr=2, vaso=int(vaso), autotx=int(autotx))
+    if not ok:
+        raise RuntimeError('model run became non-finite')
+    return o['mhr'][:nb * int(2 / (S.DTS * S.OE))].reshape(nb, -1).mean(1)
 
 
 def synthetic_toco() -> np.ndarray:
