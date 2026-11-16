@@ -14,8 +14,8 @@
   --bg: #ffffff; --fg: #0f1b3d; --sub: #3b4a6b; --faint: #6b7896; --line: #dfe4ec; --surface: #f6f8fb;
   --panel: #f2f6fd; --band: #f6f8fb; --band-panel: #e7eefa; --sens-band: #faf8fe;
   --h0: #fde2df; --h1: #f9d3cd; --h2: #fbe6e3; --h3: #f1e3f6; --h4: #f5ecd2; --h5: #dbe8fa; --h6: #e2f2e7; --h7: #fde4ea; --h8: #eceef2;
-  --tu: #3d74d6; --ak: #1f9e89; --yf: #7b4fb0; --pv: #4f8f87; --ehg: #c98a00; --si: #6b7280; --ours: #e8710a;
-  --tu-ink: #3d74d6; --ak-ink: #1a8a77; --yf-ink: #7b4fb0; --pv-ink: #4f8f87; --ehg-ink: #a87300; --si-ink: #6b7280; --ours-ink: #d9650a;
+  --tu: #3d74d6; --ak: #1f9e89; --yf: #7b4fb0; --pv: #4f8f87; --ehg: #c98a00; --si: #6b7280; --ours: #e8710a; --cl: #b03a6b;
+  --tu-ink: #3d74d6; --ak-ink: #1a8a77; --yf-ink: #7b4fb0; --pv-ink: #4f8f87; --ehg-ink: #a87300; --si-ink: #6b7280; --ours-ink: #d9650a; --cl-ink: #b03a6b;
   --muted-name: #5d6780; --in: #1565c0; --gap: #c62828; --on-pill: #ffffff;
   --ctg: #44506a; --ctg-fill: #e4e8ef;
   --sens: #5e35b1; --sens-fill: #f1ecfb;
@@ -29,7 +29,7 @@
     --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
     --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
     --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
-    --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
+    --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45; --cl-ink: #ec8db4;
     --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
     --ctg: #c3cbda; --ctg-fill: #2a3140;
     --sens: #b9a2ea; --sens-fill: #241c3b;
@@ -43,7 +43,7 @@
   --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
   --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
   --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
-  --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
+  --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45; --cl-ink: #ec8db4;
   --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
   --ctg: #c3cbda; --ctg-fill: #2a3140;
   --sens: #b9a2ea; --sens-fill: #241c3b;
@@ -111,7 +111,11 @@ p { margin: 0; }
       ["Jongen 2017 · FHR variability", JONGEN, [1], {1: P_UT, 6: "output: FHRV"}, {}],
       ["van Willigen 2024–25 · PLS twin", [3, 5, 6, 7], [4], {4: "input: occlusion", 5: "output: flows"}, {}]]],
     ["OURS", "ours", "full", "", [
-      ["Ours · reproduces Jongen 2016", JONGEN, [1], {0: "+ Randall, Lu", 1: "input: TOCO", 6: "output: FHR"}, {}]]],
+      ["Ours · reproduces Jongen 2016", JONGEN, [1], {0: "+ Ursino, Randall, Lu", 1: "input: TOCO", 3: "+ Hill", 6: "output: FHR"}, {}]]],
+    // published submodels reimplemented in fetosim as optional modules (run(circ=1), run(placenta=1))
+    ["PUBLISHED SUBMODELS IN OURS", "cl", "full", "", [
+      ["Ursino 1998 · baroreflex", [0], [], {0: "output: BP, MHR"}, {}],
+      ["Hill 1972 · placental O_{2}", [3], [2, 4], {2: "input: UtA flow", 3: "output: O_{2} transfer", 4: "input: UA flow"}, {}]]],
     ["AUCKLAND BIOENGINEERING INSTITUTE LINEAGE", "ak", "full", "", [
       ["Clark 2018 · uterine tree + AVA", [2], [0], {0: "input: iliac wave", 2: "output: UtA PI"}, {}],
       ["Allerkamp 2022–23 · radial tone", [2], [], {2: "output: radial R"}, {}],
