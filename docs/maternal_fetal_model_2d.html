@@ -201,8 +201,6 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .iof button { display: inline-flex; gap: 5px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 9px 2px 3px; cursor: pointer; font-size: 13px; color: var(--ink); }
 .iof button:hover { border-color: var(--accent); }
 .iof .num { width: 18px; height: 18px; font-size: 10.5px; }
-.iok { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 12.5px; color: var(--ink); padding-top: 8px; border-top: 1px solid var(--line); }
-.iok .io-given { border-bottom: 1px dotted var(--accent); }
 .tf { display: grid; gap: 10px; }
 .tfs { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px 10px; display: grid; gap: 6px; min-width: 0; position: relative; }
 .tfs + .tfs::before { content: ""; position: absolute; left: 20px; top: -11px; height: 10px; border-left: 1.5px solid var(--line); }
@@ -1030,10 +1028,12 @@ const IO_GIVEN = {   // constants with no parameter entry to link to (symKey for
 const ioRows = L => L.filter(r => circExt || !r[3]).map(([h, steps, ext]) => [h, steps.filter(k => circExt || !k.startsWith('x:')).map(k => k.replace('x:', '')), ext]);
 function ioHTML(key) {
   const io = IO[key]; if (!io) return '';
-  const grp = (kind, label, arrow, L) => `<div class="iog"><span class="iol io-${kind}">${label}</span>${ioRows(L).map(([h, steps, ext]) => `
+  /* one step per signal: the nearest in step number (first listed wins a tie), so a row reads as a single hand-off */
+  const near = steps => steps.length < 2 ? steps
+    : [steps.reduce((a, k) => Math.abs(GROUP[k].n - GROUP[key].n) < Math.abs(GROUP[a].n - GROUP[key].n) ? k : a)];
+  const grp = (kind, label, arrow, L) => `<div class="iog"><span class="iol io-${kind}">${label}</span>${ioRows(L).map(([h, steps, ext]) => [h, near(steps), ext]).map(([h, steps, ext]) => `
       <div class="ior">${M(`<span class="io-${kind}">${h}</span>`)}<span class="iof"><span class="ar" aria-hidden="true">${arrow}</span>${steps.map(k => `<button type="button" data-part="${k}">${numHTML(GROUP[k].n)}<span>${GROUP[k].name}</span></button>`).join('')}${ext ? `<span class="ext">${ext}</span>` : ''}</span></div>`).join('')}</div>`;
-  return `<div class="iob">${grp('in', 'Input', '←', io.in)}${grp('out', 'Output', '→', io.out)}
-      <div class="iok"><span class="io-in">input</span><span class="io-out">output</span><span class="io-given">given</span><span>internal</span></div></div>`;
+  return `<div class="iob">${grp('in', 'Input', '←', io.in)}${grp('out', 'Output', '→', io.out)}</div>`;
 }
 function tagRoles(key) {           // tint the step's in / out symbols inside its equations; parameter links are the given values
   const io = IO[key]; if (!io) return;
@@ -1203,8 +1203,59 @@ const VARS = {   // one label per step of the part's route, at the place where i
   baro_filt: [['Baroreceptor output (' + VS('r', 'b') + ')', 'baroreceptor firing', 'A(20)']],
   baro_w: [['Vagal signal (' + VS('e', 'v') + ')', 'vagus-nerve signal to the heart', 'A(22)']],
 };
+/* close-up labels as the step's inputs and outputs, where a step has them placed: one entry per IO[key] row, in the same
+   order, as [anchor, what it is, defining equation, parameter]. Steps without an entry keep their VARS labels. */
+const IO_AT = {
+  uterus: {
+    in: [['toco', 'TOCO recording', 'ours', 't_k'], ['u_ivs', 'absolute pressure in the intervillous space', 'A(5)'], ['m_ven', 'maternal venous pressure', 'A(5)–(7)']],
+    out: [['wall', 'uterine pressure', 'ours#2'], ['utv', 'uterine-vein flow', 'A(5)–(7)']],
+  },
+  spiral: {
+    in: [['wall', 'uterine pressure', 'ours#2'], ['m_art', 'maternal arterial pressure', 'A(1)'], ['s_ivs', 'transmural pressure in the intervillous space', 'A(5)']],
+    out: [['spiral', 'spiral-artery flow into the intervillous space', 'A(5)'], ['s_ivs', 'absolute pressure in the intervillous space', 'A(5)']],
+  },
+  placenta: {
+    in: [['spiral', 'spiral-artery flow into the intervillous space', 'A(5)'], ['utv', 'uterine-vein flow', 'A(5)–(7)'], ['uma', 'umbilical-artery flow', 'A(5)'],
+      ['umv', 'umbilical-vein flow', 'A(5)'], ['spiral', 'O₂ content of maternal arterial blood', 'A(14)–(15)'], ['uma', 'O₂ content of fetal arterial blood', 'A(14)–(15)']],
+    out: [['ivs', 'transmural pressure in the intervillous space', 'A(5)'], ['villi', 'transmural pressure in the villi', 'A(1)'],
+      ['villi', 'O₂ content of the villi blood', 'A(14)–(15)'], ['ivs', 'O₂ content of the intervillous blood', 'A(14)–(15)']],
+  },
+  cord: {
+    in: [['cordsq', 'uterine pressure', 'ours#2'], ['villi', 'pressure in the villi', 'A(1)'], ['c_fo2', 'fetal arterial pressure', 'A(1)'], ['fven', 'fetal venous pressure', 'A(1)']],
+    out: [['uma', 'umbilical-artery flow', 'A(5)'], ['umv', 'umbilical-vein flow', 'A(5)']],
+  },
+  heart: {
+    in: [['eff', 'vagal signal', 'A(22)'], ['eff', 'sympathetic signal', 'A(22)'], ['uma', 'umbilical-artery flow', 'A(5)'], ['umv', 'umbilical-vein flow', 'A(5)'],
+      ['umv', 'O₂ content of the villi blood', 'A(14)–(15)'], ['body', 'uterine pressure', 'ours#2']],
+    out: [['cv', 'fetal heart rate', 'A(25)'], ['fo2', 'fetal arterial pO₂', 'A(14)–(15)'], ['fart', 'fetal arterial transmural pressure', 'A(1)'],
+      ['fven', 'fetal venous transmural pressure', 'A(1)'], ['fo2', 'O₂ content of fetal arterial blood', 'A(14)–(15)']],
+  },
+  baro: {
+    in: [['baro_curve', 'fetal arterial transmural pressure', 'A(1)'], ['chemo_filt', 'chemoreceptor output', 'A(20)']],
+    out: [['baro_w', 'vagal signal', 'A(22)'], ['baro_w', 'sympathetic signal', 'A(22)']],
+  },
+  chemo: {
+    in: [['chemo_curve', 'fetal arterial pO₂', 'A(14)–(15)'], ['baro_filt', 'baroreceptor output', 'A(20)']],
+    out: [['chemo_w', 'vagal signal', 'A(22)'], ['chemo_w', 'sympathetic signal', 'A(22)']],
+  },
+  mother: {
+    in: [['spiral', 'spiral-artery flow into the intervillous space', 'A(5)'], ['utv', 'uterine-vein flow', 'A(5)–(7)'], ['utv', 'O₂ content of the intervillous blood', 'A(14)–(15)'],
+      ['m_auto', 'uterine pressure', 'Autotransfusion']],
+    out: [['m_art', 'maternal arterial pressure', 'A(1)'], ['m_ven', 'maternal venous pressure', 'A(1)'], ['m_o2', 'O₂ content of maternal arterial blood', 'A(16)'],
+      ['m_hr', 'maternal heart rate', 'HR reflex']],
+  },
+};
 /* quantities of one numbered part, grouped by element */
 function annGroups(gkey) {
+  if (IO_AT[gkey]) {
+    const by = {};
+    ['in', 'out'].forEach(kind => IO[gkey][kind].forEach((r, i) => {
+      if (!circExt && r[3]) return;
+      const [k, d, eq, p] = IO_AT[gkey][kind][i];
+      (by[k] = by[k] || { key: k, name: ANCHORS[k].name, xy: ANCHORS[k].xy, rows: [] }).rows.push({ name: k + ':' + kind + i, sym: `<span class="io-${kind}">${r[0]}</span>`, d, eq, p, k, g: gkey });
+    }));
+    return Object.values(by);
+  }
   const out = [];
   for (const k of Object.keys(ANCHORS)) {
     if (ANCHORS[k].g !== gkey || !VARS[k] || (!circExt && FS_ANCHOR.includes(k))) continue;
@@ -1660,7 +1711,7 @@ function renderAnns() {
     annlayer.querySelectorAll('.ann.on').forEach(el => el.classList.remove('on')); b.classList.add('on');
     annlines.querySelectorAll('.lead').forEach(el => el.classList.toggle('sel', el.dataset.g === G.key));
     circHL(G.key, true);
-    goTarget(r.p ? 'param:' + r.p : [eqGroup(r.eq, G.key && ANCHORS[G.key].g), r.eq]);   // the one click rule, see SYM
+    goTarget(r.p ? 'param:' + r.p : [eqGroup(r.eq, r.g || (G.key && ANCHORS[G.key].g)), r.eq]);   // the one click rule, see SYM
   }));
 }
 /* a clicked label: highlight its row in the side panel and bring it into view */
