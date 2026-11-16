@@ -184,6 +184,44 @@ section > header { display: grid; gap: 6px; max-width: 72ch; }
 .psym { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; border-bottom: 1px dotted var(--accent); }
 .psym:hover { color: var(--accent); }
 .prow .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+:root { --io-in: #1b62ad; --io-in-bg: #dfecfa; --io-out: #a34a12; --io-out-bg: #fbe7d8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --io-in: #8fc0f5; --io-in-bg: #1d3552; --io-out: #f2b184; --io-out-bg: #4a2c17; } }
+.io-in, .io-out { border-radius: 4px; padding: 0 3px; }
+.io-in { color: var(--io-in); background: var(--io-in-bg); }
+.io-out { color: var(--io-out); background: var(--io-out-bg); }
+.io-given { color: var(--muted); }
+.iob { display: grid; gap: 10px; }
+.iog { display: grid; gap: 4px; }
+.iol { justify-self: start; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; }
+.ior { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.ior .m { font-family: var(--font-math); font-size: 16px; white-space: nowrap; }
+.ior .m sub { font-size: 70%; }
+.iof { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 13.5px; color: var(--muted); }
+.iof .ar { color: var(--muted); }
+.iof button { display: inline-flex; gap: 5px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 9px 2px 3px; cursor: pointer; font-size: 13px; color: var(--ink); }
+.iof button:hover { border-color: var(--accent); }
+.iof .num { width: 18px; height: 18px; font-size: 10.5px; }
+.iok { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 12.5px; color: var(--ink); padding-top: 8px; border-top: 1px solid var(--line); }
+.iok .io-given { border-bottom: 1px dotted var(--accent); }
+.tf { display: grid; gap: 10px; }
+.tfs { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px 10px; display: grid; gap: 6px; min-width: 0; position: relative; }
+.tfs + .tfs::before { content: ""; position: absolute; left: 20px; top: -11px; height: 10px; border-left: 1.5px solid var(--line); }
+.tfs .sh { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.tfs .sn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--on-accent); background: var(--accent); border-radius: 5px; padding: 1px 6px; flex: none; }
+.tfs .fn { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; min-width: 0; }
+.tfs .fn b { color: var(--ink); font-weight: 600; }
+.tfs .codeat { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-decoration: none; flex: none; }
+.tfs .io { font-size: 13.5px; color: var(--muted); }
+.tfs .io .ar { margin: 0 6px; color: var(--accent); }
+.tfs .sm .m { font-family: var(--font-math); font-size: 16px; }
+.tfs .sm sub, .tfs .sm sup, .sigs .m sub { font-size: 70%; }
+.sigs { display: grid; gap: 4px; }
+.sigs button { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; text-align: left; border: 1px solid transparent;
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface)); border-radius: 6px; padding: 5px 8px; cursor: pointer; font-size: 14px; color: var(--ink); }
+.sigs button:hover { border-color: var(--accent); }
+.sigs .sg { font-weight: 600; }
+.sigs .m { font-family: var(--font-math); font-size: 15px; color: var(--muted); white-space: nowrap; }
+.sigs .num { color: var(--muted); }
 .partlist { display: grid; gap: 6px; }
 .partlist button { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 10px; cursor: pointer;
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; }
@@ -939,8 +977,73 @@ function paramRows(parts) {
     </div>`;
   }).join('');
 }
-const CHAIN = ['uterus', 'spiral', 'placenta', 'cord', 'chemo', 'heart', 'baro', 'mother'];   // part order along the contraction chain (routes link end to start)
+/* default panel: the TOCO -> FHR path as code, one stage per function of examples/toco_to_fhr.py; under each stage the
+   signals it passes through (the panels of plot_blocks), each opening the part that computes it */
+const PIPE_SRC = 'examples/toco_to_fhr.py';
+const PIPE = [
+  { fn: 'toco_bins', args: 'toco_4hz', ln: 48, io: ['4 Hz TOCO', '2-s bins'],
+    rows: [['TOCO', '', 'uterus']] },
+  { fn: 'uterine_pressure', args: 'bins, a', ln: 54, io: ['bins', 'TOCO peaks', '<i>p</i><sub>ut</sub>'],
+    m: '<i>p</i><sub>ut</sub> = 15 + 70<i>a</i> ∑<sub><i>k</i></sub> exp(−(<i>t</i> − <i>t</i><sub><i>k</i></sub>)<sup>2</sup> / 2<i>σ</i><sup>2</sup>)',
+    rows: [['Uterine pressure', '<i>p</i><sub>ut</sub>', 'uterus']] },
+  { fn: 'fhr', args: 'p_ut, nb, w_um, g', ln: 59, io: ['<i>p</i><sub>ut</sub>', 'Jongen 2016 ODEs', 'FHR'],
+    rows: [['Placenta inflow', '<i>q</i><sub>uta</sub>', 'spiral'], ['Cord flow', '<i>q</i><sub>uma</sub>', 'cord'],
+      ['Fetal oxygen', '<i>p</i>O<sub>2,a</sub>', 'placenta'], ['Fetal pressure', '<i>p</i><sub>a</sub>', 'heart'],
+      ['Chemoreceptor', '<i>r</i><sub>c</sub>', 'chemo'], ['Baroreceptor', '<i>r</i><sub>b</sub>', 'baro'],
+      ['Vagal, sympathetic drive', '<i>e</i><sub>v</sub>, <i>e</i><sub>s</sub>', 'baro'],
+      ['Effect on heart period', '<i>z</i><sub>Tv</sub>, <i>z</i><sub>Ts</sub>', 'heart'], ['FHR', '60 / <i>T</i>', 'heart']] },
+  { fn: 'mhr', args: 'p_ut, nb, vaso, autotx', ln: 67, io: ['<i>p</i><sub>ut</sub>', 'same ODEs, maternal baroreflex closed', 'MHR'],
+    rows: [['Maternal heart rate', 'MHR', 'mother']] },
+];
+function pipeStage(st, i) {
+  const at = PIPE_SRC + ':' + st.ln;
+  return `<section class="tfs"><div class="sh"><span class="sn">${i + 1}</span><code class="fn"><b>${st.fn}</b>(${st.args})</code><a class="codeat" href="${atURL(at)}" title="Open ${esc(at)} ${CODE_WHERE}"${ON_WEB ? ' target="_blank" rel="noopener"' : ''}>:${st.ln}</a></div>
+      <div class="io">${st.io.join('<span class="ar" aria-hidden="true">→</span>')}</div>${st.m ? `
+      <div class="sm">${M(st.m)}</div>` : ''}
+      <div class="sigs">${st.rows.map(([name, sym, part]) => `<button type="button" data-part="${part}" title="${esc(GROUP[part].title)}"><span class="sg">${name}</span>${sym ? M(sym) : ''}${numHTML(GROUP[part].n)}</button>`).join('')}</div></section>`;
+}
 panel.addEventListener('toggle', e => { if (e.target.matches('details.pdet')) paramsOpen = e.target.open; }, true);
+/* step panel: what each step takes from other steps (in) and hands on (out). Entry: [symbol, [steps], external text].
+   A step or a whole entry prefixed / flagged with 'x' exists only with the fetosim maternal layers. In the equations,
+   in / out symbols are tinted, parameter-linked symbols are "given", and whatever is left is internal to the step. */
+const sy = (b, sub) => `<i>${b}</i><sub>${sub}</sub>`, o2 = (c, sub) => `${c}O<sub>2,${sub}</sub>`;
+const IO = {
+  uterus: { in: [['TOCO', [], 'CTG recording'], [sy('p', 'IVS,abs'), ['spiral']], [sy('p', 'ven'), ['mother']]],
+    out: [[sy('p', 'ut'), ['spiral', 'cord', 'heart', 'x:mother']], [sy('q', 'utv'), ['placenta', 'mother']]] },
+  spiral: { in: [[sy('p', 'ut'), ['uterus']], [sy('p', 'a,m'), ['mother']], [sy('p', 'tm,IVS'), ['placenta']]],
+    out: [[sy('q', 'uta'), ['placenta', 'mother']], [sy('p', 'IVS,abs'), ['uterus']]] },
+  placenta: { in: [[sy('q', 'uta'), ['spiral']], [sy('q', 'utv'), ['uterus']], [sy('q', 'uma'), ['cord']], [sy('q', 'umv'), ['cord']], [o2('c', 'a,m'), ['mother']], [o2('c', 'a'), ['heart']]],
+    out: [[sy('p', 'tm,IVS'), ['spiral']], [sy('p', 'tm,villi'), ['cord']], [o2('c', 'villi'), ['heart']], [o2('c', 'IVS'), ['mother']]] },
+  cord: { in: [[sy('p', 'ut'), ['uterus']], [sy('p', 'villi'), ['placenta']], [sy('p', 'art'), ['heart']], [sy('p', 'ven'), ['heart']]],
+    out: [[sy('q', 'uma'), ['placenta', 'heart']], [sy('q', 'umv'), ['placenta', 'heart']]] },
+  heart: { in: [[sy('e', 'v'), ['baro', 'chemo']], [sy('e', 's'), ['baro', 'chemo']], [sy('q', 'uma'), ['cord']], [sy('q', 'umv'), ['cord']], [o2('c', 'villi'), ['placenta']], [sy('p', 'ut'), ['uterus']]],
+    out: [['FHR', [], 'model output'], [o2('p', 'a'), ['chemo']], [sy('p', 'tm,a'), ['baro', 'cord']], [sy('p', 'tm,v'), ['cord']], [o2('c', 'a'), ['placenta']]] },
+  baro: { in: [[sy('p', 'tm,a'), ['heart']], [sy('r', 'c'), ['chemo']]], out: [[sy('e', 'v'), ['heart']], [sy('e', 's'), ['heart']]] },
+  chemo: { in: [[o2('p', 'a'), ['heart']], [sy('r', 'b'), ['baro']]], out: [[sy('e', 'v'), ['heart']], [sy('e', 's'), ['heart']]] },
+  mother: { in: [[sy('q', 'uta'), ['spiral']], [sy('q', 'utv'), ['uterus']], [o2('c', 'IVS'), ['placenta']], [sy('p', 'ut'), ['uterus'], '', 1]],
+    out: [[sy('p', 'a,m'), ['spiral']], [sy('p', 'v,m'), ['uterus']], [o2('c', 'a,m'), ['placenta']], ['MHR', [], 'model output', 1]] },
+};
+const IO_GIVEN = {   // constants with no parameter entry to link to (symKey form); still given, not computed in the step
+  uterus: ['pcon', 'tcon', 'Tcon'], placenta: ['Vmax', 'p0', 'p1'], heart: ['D', 'τ', 'k'],
+  baro: ['rmin', 'rmax', 'η2', 'yref'], chemo: ['rmin', 'rmax', 'η2', 'yref'], mother: ['QM,0'],
+};
+const ioRows = L => L.filter(r => circExt || !r[3]).map(([h, steps, ext]) => [h, steps.filter(k => circExt || !k.startsWith('x:')).map(k => k.replace('x:', '')), ext]);
+function ioHTML(key) {
+  const io = IO[key]; if (!io) return '';
+  const grp = (kind, label, arrow, L) => `<div class="iog"><span class="iol io-${kind}">${label}</span>${ioRows(L).map(([h, steps, ext]) => `
+      <div class="ior">${M(`<span class="io-${kind}">${h}</span>`)}<span class="iof"><span class="ar" aria-hidden="true">${arrow}</span>${steps.map(k => `<button type="button" data-part="${k}">${numHTML(GROUP[k].n)}<span>${GROUP[k].name}</span></button>`).join('')}${ext ? `<span class="ext">${ext}</span>` : ''}</span></div>`).join('')}</div>`;
+  return `<div class="iob">${grp('in', 'Input', '←', io.in)}${grp('out', 'Output', '→', io.out)}
+      <div class="iok"><span class="io-in">input</span><span class="io-out">output</span><span class="io-given">given</span><span>internal</span></div></div>`;
+}
+function tagRoles(key) {           // tint the step's in / out symbols inside its equations; parameter links are the given values
+  const io = IO[key]; if (!io) return;
+  const role = Object.fromEntries((IO_GIVEN[key] || []).map(k => [k, 'given']));
+  ioRows(io.in).forEach(r => { role[symKey(r[0])] = 'in'; }); ioRows(io.out).forEach(r => { role[symKey(r[0])] = 'out'; });
+  panel.querySelectorAll('.eqs .eq .ml').forEach(ml => {
+    ml.innerHTML = ml.innerHTML.replace(SYM_RE, h => role[symKey(h)] ? `<span class="io-${role[symKey(h)]}">${h}</span>` : h);
+  });
+  panel.querySelectorAll('.eqs .psym[data-p]').forEach(b => { if (!b.querySelector('.io-in, .io-out')) b.classList.add('io-given'); });
+}
 function renderPanel(key, scroll) {
   if (key && !GROUP[key]) key = GROUP_OF[key].key;
   current = key; trail = [];
@@ -948,18 +1051,20 @@ function renderPanel(key, scroll) {
   if (!key && senseMode) { panel.innerHTML = ''; return; }   // user 2026-11-11: leave the panel empty in sensor views for now (sensePanel() kept)
   const filt = `<div class="filter"><div class="seg" role="group" aria-label="Parameter class">${segHTML()}</div></div>`;
   if (!key) {
-    panel.innerHTML = `<div class="partlist">${CHAIN.map(k => GROUP[k]).map(g => `<button type="button" data-part="${g.key}"><span class="pt">${numHTML(g.n)}<span>${g.title}</span></span></button>`).join('')}</div>
+    panel.innerHTML = `<div class="tf">${PIPE.map(pipeStage).join('')}</div>
       <div class="eqs">${eqRows([])}</div>
 `;
   } else {
     const g = GROUP[key], Ps = g.parts.map(p => PARTS[p]);
     panel.innerHTML = `<h3 class="ptitle">${numHTML(g.n)}<span>${g.title}</span></h3>
       <p class="during">${Ps.map(P => `<span class="row">${P.during}</span>`).join('')}</p>
+      ${ioHTML(key)}
       <div class="eqs">${eqRows(g.parts)}</div>
       <details class="pdet"${paramsOpen ? ' open' : ''}><summary>Parameters (${PARAMS.filter(r => g.parts.includes(r.part) && (circExt || !r.layer)).length})</summary>
       ${filt}
       <div class="plist">${paramRows(g.parts)}</div></details>
       <button class="btn only-phone" type="button" id="toModel">↑ Back to the model</button>`;
+    tagRoles(key);
   }
   if (scroll && window.matchMedia('(max-width: 900px)').matches) panel.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
   else if (scroll) panel.scrollTop = 0;
