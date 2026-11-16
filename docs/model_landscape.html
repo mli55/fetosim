@@ -131,15 +131,16 @@ p { margin: 0; }
       ["Clark 2018 · uterine tree + AVA", [5], [0], {0: "input: iliac wave", 5: "output: UtA PI"}, {}],
       ["Allerkamp 2022–23 · radial tone", [5], [], {5: "output: radial R"}, {}],
       ["James 2018 · Saghian 2019 · plugs", [5], [], {5: "output: SA flow, shear"}, {}],
-      ["Saghian 2017 · Lee 2023–26 CFD", [6], [5], {5: "input: SA inflow", 6: "output: IVS shear"}, {}],
       ["Clark 2015 · Lin 2016 · villous O_{2}", [6], [7], {6: "output: O_{2} uptake", 7: "input: UA flow"}, {}],
-      ["Byrne 2021 · reprosim · fetal side", [6, 7, 8], [], {8: "output: fetal CO"}, {}]]],
+      ["Byrne 2021 · reprosim · fetal side", [6, 7, 8], [], {8: "output: fetal CO"}, {}],
+      // rows run from 0D (everything above this section) to 1D networks to 3D CFD, so the CFD row is last
+      ["Saghian 2017 · Lee 2023–26 CFD", [6], [5], {5: "input: SA inflow", 6: "output: IVS shear"}, {}]]],
   ];
   const LINKS = [["van der Hout-van der Jagt 2012–13", "Bullens 2014", 0], ["Bullens 2014", "Jongen 2016 A/B", 0],
     ["Jongen 2016 A/B", "Jongen 2017 · FHR variability", 0],
     ["Clark 2018 · uterine tree + AVA", "Allerkamp 2022–23 · radial tone", 0],
     ["Clark 2018 · uterine tree + AVA", "James 2018 · Saghian 2019 · plugs", 1],
-    ["James 2018 · Saghian 2019 · plugs", "Saghian 2017 · Lee 2023–26 CFD", 0],
+    ["James 2018 · Saghian 2019 · plugs", "Saghian 2017 · Lee 2023–26 CFD", 1],
     ["Clark 2015 · Lin 2016 · villous O_{2}", "Byrne 2021 · reprosim · fetal side", 0]];
   const LANES = [94, 82];
 
