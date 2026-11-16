@@ -1,8 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Model Landscape and Sensors</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,9 +9,9 @@
 :root {
   --bg: #ffffff; --fg: #0f1b3d; --sub: #3b4a6b; --faint: #6b7896; --line: #dfe4ec; --surface: #f6f8fb;
   --panel: #f2f6fd; --band: #f6f8fb; --band-panel: #e7eefa; --sens-band: #faf8fe;
-  --h0: #fde2df; --hm1: #fbd5d1; --hm2: #fdebe9; --h1: #f9d3cd; --h2: #fbe6e3; --h3: #f1e3f6; --h4: #f5ecd2; --h5: #dbe8fa; --h6: #e2f2e7; --h7: #fde4ea; --h8: #eceef2;
-  --tu: #3d74d6; --ak: #1f9e89; --yf: #7b4fb0; --pv: #4f8f87; --ehg: #c98a00; --si: #6b7280; --ours: #e8710a; --cl: #b03a6b;
-  --tu-ink: #3d74d6; --ak-ink: #1a8a77; --yf-ink: #7b4fb0; --pv-ink: #4f8f87; --ehg-ink: #a87300; --si-ink: #6b7280; --ours-ink: #d9650a; --cl-ink: #b03a6b;
+  --h0: #fde2df; --h1: #f9d3cd; --h2: #fbe6e3; --h3: #f1e3f6; --h4: #f5ecd2; --h5: #dbe8fa; --h6: #e2f2e7; --h7: #fde4ea; --h8: #eceef2;
+  --tu: #3d74d6; --ak: #1f9e89; --yf: #7b4fb0; --pv: #4f8f87; --ehg: #c98a00; --si: #6b7280; --ours: #e8710a;
+  --tu-ink: #3d74d6; --ak-ink: #1a8a77; --yf-ink: #7b4fb0; --pv-ink: #4f8f87; --ehg-ink: #a87300; --si-ink: #6b7280; --ours-ink: #d9650a;
   --muted-name: #5d6780; --in: #1565c0; --gap: #c62828; --on-pill: #ffffff;
   --ctg: #44506a; --ctg-fill: #e4e8ef;
   --sens: #5e35b1; --sens-fill: #f1ecfb;
@@ -28,8 +24,8 @@
   :root:not([data-theme="light"]) {
     --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
     --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
-    --h0: #3f2724; --hm1: #472b27; --hm2: #372422; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
-    --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45; --cl-ink: #ec8db4;
+    --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
+    --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
     --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
     --ctg: #c3cbda; --ctg-fill: #2a3140;
     --sens: #b9a2ea; --sens-fill: #241c3b;
@@ -42,8 +38,8 @@
 :root[data-theme="dark"] {
   --bg: #0f131b; --fg: #e6eaf3; --sub: #b3bdd1; --faint: #8592ab; --line: #2a3242; --surface: #161c27;
   --panel: #141c2c; --band: #151b26; --band-panel: #1a2539; --sens-band: #18142a;
-  --h0: #3f2724; --hm1: #472b27; --hm2: #372422; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
-  --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45; --cl-ink: #ec8db4;
+  --h0: #3f2724; --h1: #47271f; --h2: #3b2b29; --h3: #33263b; --h4: #3a3220; --h5: #1e2c42; --h6: #1f3327; --h7: #3f2531; --h8: #272b34;
+  --tu-ink: #82a9f0; --ak-ink: #4fc7b1; --yf-ink: #b494e0; --pv-ink: #7fc0b7; --ehg-ink: #e2b043; --si-ink: #a2a9b6; --ours-ink: #ff9a45;
   --muted-name: #9aa4ba; --in: #74a9f0; --gap: #f07a7a;
   --ctg: #c3cbda; --ctg-fill: #2a3140;
   --sens: #b9a2ea; --sens-fill: #241c3b;
@@ -52,8 +48,8 @@
   --hl: #b9a2ea; --hl-fill: rgba(185, 162, 234, 0.08);
   color-scheme: dark;
 }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
-.wrap { max-width: 1740px; margin: 0 auto; padding-block: 28px 56px;
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1500px; margin: 0 auto; padding-block: 28px 56px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex; flex-direction: column; gap: 28px; }
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
@@ -77,13 +73,11 @@ p { margin: 0; }
 .dot.d2 { background: var(--data); }
 .dot.d1 { background: linear-gradient(90deg, var(--data) 50%, transparent 50%); }
 .figbox { overflow-x: auto; background: var(--bg); }
-.figbox svg { display: block; width: 100%; min-width: 1380px; height: auto; font-family: var(--font); }
+.figbox svg { display: block; width: 100%; min-width: 1180px; height: auto; font-family: var(--font); }
 @media (max-width: 720px) {
   h1 { font-size: 24px; }
 }
 </style>
-</head>
-<body>
 
 <div class="wrap">
 
@@ -92,70 +86,66 @@ p { margin: 0; }
 
 <script>
 (() => {
-  const W = 1696, NAME_X = 104, COL0 = 360, CW = 120, ROW_H = 31, SEC_H = 26, PILL = 11, PILL_PX = 8, PILL_H = 21;
+  const NCOL = 12, W = 1576, NAME_X = 104, COL0 = 360, CW = 100, ROW_H = 31, SEC_H = 26, PILL = 11, PILL_PX = 8, PILL_H = 21;
   // sensor chips sit directly above each column header, bottom-aligned (at most 3 per column)
-  const LINE_DY = 13.5, HEAD_Y = 12 + 4 * LINE_DY + 12, HEAD_H = 46, TOP = HEAD_Y + HEAD_H + 14;
-  const NCOL = 11, GRID_END = COL0 + NCOL * CW;
+  const SHOW_SENSORS = false;   // sensor names above the headers (not shown on this page)
+  const LINE_DY = 13.5, HEAD_Y = SHOW_SENSORS ? 12 + 4 * LINE_DY + 12 : 12, HEAD_H = 46, TOP = HEAD_Y + HEAD_H + 14;
+  const GRID_END = COL0 + NCOL * CW;
   const colX = i => COL0 + CW * i;
 
-  // the mother has three columns that mirror the fetal side: circulation, reflexes & heart rate, oxygen
-  const COLS = [["Maternal", "circulation"], ["Maternal", "reflexes & MHR"], ["Maternal", "oxygen"],
+  // The maternal side is split into four columns (pressure, heart rate, thorax, oxygen): that is where Ours differs from the base.
+  const COLS = [["Maternal", "circulation, BP"], ["Maternal", "reflex, HR"], ["Thorax", "pushing"], ["Maternal", "oxygen"],
     ["Uterine", "activity"], ["Uterine", "vessels"], ["IVS &", "placenta"],
     ["Umbilical", "cord"], ["Fetal", "circulation"], ["Reflexes", "& FHR"], ["Fetal", "brain"], ["Acid–base", "pH, BD"]];
-  const HCOL = ["h0", "hm1", "hm2", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"];
-  // Jongen 2016: maternal circulation with a fixed heart rate (no maternal reflex) and maternal O2 transport
-  const JONGEN = [0, 2, 4, 5, 6, 7, 8, 9];
+  const HCOL = i => i < 4 ? 0 : i - 3;   // header colour: one for the four maternal columns
+  const JONGEN = [0, 3, 5, 6, 7, 8, 9, 10];
   const P_UT = "input: p_{ut}";
   // [section, colour key, style, tag, rows]; row = [name, solid, hollow, {col: label}, extras]
+  // extras: keys = per-cell colour (section of the model used there); gap = {col: text} for a part the model does not have
   const SECTIONS = [
-    ["TU/E · MÁXIMA LINEAGE", "tu", "full", "", [
-      ["van der Hout-van der Jagt 2012–13", JONGEN, [3], {3: P_UT, 8: "output: FHR"}, {}],
-      ["Bullens 2014", JONGEN, [3], {3: P_UT, 8: "output: FHR"}, {}],
-      ["Jongen 2016 A/B", JONGEN, [3], {3: P_UT, 8: "output: FHR"}, {}],
-      ["Jongen 2017 · FHR variability", JONGEN, [3], {3: P_UT, 8: "output: FHRV"}, {}],
-      ["van Willigen 2024–25 · PLS twin", [5, 7, 8, 9], [6], {6: "input: occlusion", 7: "output: flows"}, {}]]],
-    ["OURS", "ours", "full", "", [
-      ["Ours · reproduces Jongen 2016", [0, 1, 2, 4, 5, 6, 7, 8, 9], [3],
-        {0: "+ Ursino, Lu", 1: "+ Ursino, Randall", 3: "input: TOCO", 5: "+ Hill", 8: "output: FHR"}, {}]]],
-    // published submodels reimplemented in fetosim as optional modules
-    ["PUBLISHED SUBMODELS IN OURS", "cl", "full", "", [
-      ["Ursino 1998 · baroreflex", [0, 1], [], {0: "output: BP", 1: "output: MHR"}, {}],
-      ["Lu 2001 · thorax, Valsalva", [0, 1], [], {0: "output: BP", 1: "output: MHR"}, {}],
-      ["Randall 2019 · HR reflex", [1], [0], {0: "input: SBP", 1: "output: MHR"}, {}],
-      ["Hill 1972 · placental O_{2}", [5], [4, 6], {4: "input: UtA flow", 5: "output: O_{2} transfer", 6: "input: UA flow"}, {}]]],
+    ["BASE MODEL · TU/E · MÁXIMA LINEAGE", "tu", "full", "", [
+      ["van der Hout-van der Jagt 2012–13", JONGEN, [4], {4: P_UT, 9: "output: FHR"}, {}],
+      ["Bullens 2014", JONGEN, [4], {4: P_UT, 9: "output: FHR"}, {}],
+      ["Jongen 2016 A/B", JONGEN, [4], {0: "no reflex", 4: P_UT, 9: "output: FHR"}, {gap: {1: "fixed 80 bpm", 2: "none"}}],
+      ["Jongen 2017 · FHR variability", JONGEN, [4], {4: P_UT, 9: "output: FHRV"}, {}]]],
+    ["MATERNAL CIRCULATION MODELS", "yf", "full", "", [
+      // rows show each paper's own inputs and outputs, not how Ours uses it. Ursino 1998: input carotid
+      // sinus pressure (its second input, blood loss / transfusion, is not drawn); outputs arterial pressure and heart rate.
+      ["Ursino 1998 · baroreflex", [0], [1], {0: "output: BP, HR", 1: "input: p_{sinus}"}, {}],
+      ["Randall 2019 · heart-rate reflex", [1], [0, 2], {0: "input: BP", 1: "output: HR", 2: "input: p_{th}"}, {}],
+      ["Lu 2001 · thorax", [0], [2], {0: "output: BP", 2: "input: p_{th}"}, {}]]],
+    ["PLACENTAL EXCHANGE MODEL", "pv", "full", "", [
+      ["Hill 1972", [6], [], {6: "output: O_{2} transfer"}, {}]]],
+    // spans = [[first col, last col, label, colour key]]: one pill where neighbouring columns use the same model.
+    // Ours is one model. Only the maternal side differs between the two cases run today, so it is drawn as two branches
+    // that join one shared row (shift = [first shared col, dy]; join = [col, dy]); everything shared is drawn once.
+    ["OURS · ONE MODEL · THE MATERNAL SIDE HAS TWO BRANCHES TODAY", "ours", "full", "", [
+      ["Ours", [0, 1, 3, 5, 6, 7, 8, 9, 10], [4], {3: "Jongen 2016", 4: "p_{ut} from TOCO"},
+        {keys: {3: "tu"}, band: 2, na: {2: "not needed"}, shift: [3, ROW_H / 2], nameDy: ROW_H / 2, branch: "contraction",
+         spans: [[0, 1, "Ursino 1998", "yf"], [5, 10, "Jongen 2016  ·  output: FHR", "tu"]]}],
+      // pushing branch: drawn with Ursino 1998 as the circulation, which is the plan. The pushing result so far
+      // still ran on the Jongen 2016 mother with Randall 2019 and Lu 2001.
+      ["", [0, 1, 2], [], {0: "Ursino 1998"},
+        {keys: {0: "yf"}, join: [3, -ROW_H / 2], branch: "pushing", spans: [[1, 2, "Randall 2019 + Lu 2001", "yf"]]}]]],
     ["AUCKLAND BIOENGINEERING INSTITUTE LINEAGE", "ak", "full", "", [
-      ["Clark 2018 · uterine tree + AVA", [4], [0], {0: "input: iliac wave", 4: "output: UtA PI"}, {}],
-      ["Allerkamp 2022–23 · radial tone", [4], [], {4: "output: radial R"}, {}],
-      ["James 2018 · Saghian 2019 · plugs", [4], [], {4: "output: SA flow, shear"}, {}],
-      ["Saghian 2017 · Lee 2023–26 CFD", [5], [4], {4: "input: SA inflow", 5: "output: IVS shear"}, {}],
-      ["Clark 2015 · Lin 2016 · villous O_{2}", [5], [6], {5: "output: O_{2} uptake", 6: "input: UA flow"}, {}],
-      ["Byrne 2021 · reprosim · fetal side", [5, 6, 7], [], {7: "output: fetal CO"}, {}]]],
-    ["WANG ET AL. LINEAGE", "yf", "muted", "", [
-      ["Wang et al. 2015", [0, 5, 7, 8, 9, 10], [6], {6: "input: occlusion", 10: "output: pH, BD"}, {}],
-      ["Fetal Twin · Frasch 2026", [0, 5, 7, 8, 9, 10], [6], {6: "input: occlusion", 10: "output: pH, BD"}, {}]]],
-    ["PLACENTONE CFD", "pv", "muted", "", [
-      ["Roth 2017 · Najmi 2024–26 (CFD)", [5], [], {5: "output: IVS flow"}, {}]]],
-    ["UTERINE ELECTROPHYSIOLOGY", "ehg", "muted", "", [
-      ["Laforêt · Rabotti · Yochum", [3], [], {3: "output: EHG, force"}, {}],
-      ["Means 2025 · Hussan 2026 · FTU", [3], [], {3: "output: excitation"}, {}]]],
-    ["SYSTEM IDENTIFICATION", "si", "muted", "", [
-      ["Warrick & Kearney 2009–10", [], [], {}, {blackbox: [3, 8, "input: IUP  ·  linear IRF  ·  output: FHR"]}],
-      ["Vargas-Calixto 2022", [], [], {}, {blackbox: [3, 8, "input: IUP  ·  Hammerstein  ·  output: FHR"]}]]],
+      ["Clark 2018 · uterine tree + AVA", [5], [0], {0: "input: iliac wave", 5: "output: UtA PI"}, {}],
+      ["Allerkamp 2022–23 · radial tone", [5], [], {5: "output: radial R"}, {}],
+      ["James 2018 · Saghian 2019 · plugs", [5], [], {5: "output: SA flow, shear"}, {}],
+      ["Saghian 2017 · Lee 2023–26 CFD", [6], [5], {5: "input: SA inflow", 6: "output: IVS shear"}, {}],
+      ["Clark 2015 · Lin 2016 · villous O_{2}", [6], [7], {6: "output: O_{2} uptake", 7: "input: UA flow"}, {}],
+      ["Byrne 2021 · reprosim · fetal side", [6, 7, 8], [], {8: "output: fetal CO"}, {}]]],
   ];
   const LINKS = [["van der Hout-van der Jagt 2012–13", "Bullens 2014", 0], ["Bullens 2014", "Jongen 2016 A/B", 0],
     ["Jongen 2016 A/B", "Jongen 2017 · FHR variability", 0],
     ["Clark 2018 · uterine tree + AVA", "Allerkamp 2022–23 · radial tone", 0],
     ["Clark 2018 · uterine tree + AVA", "James 2018 · Saghian 2019 · plugs", 1],
     ["James 2018 · Saghian 2019 · plugs", "Saghian 2017 · Lee 2023–26 CFD", 0],
-    ["Clark 2015 · Lin 2016 · villous O_{2}", "Byrne 2021 · reprosim · fetal side", 0],
-    ["Warrick & Kearney 2009–10", "Vargas-Calixto 2022", 0]];
+    ["Clark 2015 · Lin 2016 · villous O_{2}", "Byrne 2021 · reprosim · fetal side", 0]];
   const LANES = [94, 82];
 
-  // Sensor / signal names drawn above each compartment header.
+  // Sensor names per compartment (first entry: the maternal signals, spread over the four maternal columns).
   const SIG = [
-    { sigs: [{ chip: "Maternal BP" }] },
-    { sigs: [{ chip: "Maternal ECG" }, { chip: "MHR" }] },
-    { sigs: [{ chip: "Maternal SpO₂" }] },
+    { sigs: [{ chip: "Maternal BP" }, { chip: "Maternal ECG" }, { chip: "MHR" }, { chip: "Maternal SpO₂" }] },
     { sigs: [{ chip: "TOCO" }, { chip: "EHG/HD-EMG" }, { chip: "US patch" }] },
     { sigs: [{ chip: "UtA PI" }, { chip: "fdNIRS StO₂" }, { chip: "SCOS flow" }] },
     { sigs: [{ chip: "Placental O₂" }] },
@@ -216,7 +206,7 @@ p { margin: 0; }
       rect(bg, colX(i), HEAD_Y, CW, yEnd - HEAD_Y, 0, "fill:var(--band)");
     }
     COLS.forEach(([a, b], i) => {
-      rect(bg, colX(i) + 3, HEAD_Y, CW - 6, HEAD_H, 10, `fill:var(--${HCOL[i]})`);
+      rect(bg, colX(i) + 3, HEAD_Y, CW - 6, HEAD_H, 10, `fill:var(--h${HCOL(i)})`);
       text(bg, colX(i) + CW / 2, HEAD_Y + 19, a, 13, true, "fg", "middle");
       text(bg, colX(i) + CW / 2, HEAD_Y + 36, b, 13, true, "fg", "middle");
     });
@@ -226,15 +216,18 @@ p { margin: 0; }
       "Fetal ECG": "fECG", "Fetal EEG": "EEG" };
     const band = el("g", {});
     const yLast = HEAD_Y - 15;
-    line(band, [[COL0 + 6, HEAD_Y - 7], [GRID_END - 6, HEAD_Y - 7]], "var(--line)", 1);   // rule between sensors and headers
-    SIG.forEach((col, i) => {
-      const chips = col.sigs;
+    if (SHOW_SENSORS) line(band, [[COL0 + 6, HEAD_Y - 7], [GRID_END - 6, HEAD_Y - 7]], "var(--line)", 1);   // rule between sensors and headers
+    const M = SIG[0].sigs;   // maternal signals, spread over the four maternal columns
+    const SIGX = [{ sigs: [M[0]] }, { sigs: [M[1], M[2]] }, { sigs: [] }, { sigs: [M[3]] }, ...SIG.slice(1)];
+    if (SHOW_SENSORS) SIGX.forEach((col, i) => {
+      const chips = col.sigs.filter(s => s.chip && s.cls !== "none");   // signals with no listed sensor stay in the details only
       chips.forEach((s, k) => {
         text(band, colX(i) + CW / 2, yLast - (chips.length - 1 - k) * LINE_DY, SHORT[s.chip] || s.chip, 11, false, "sens", "middle");
       });
     });
 
     // rows
+    const underG = el("g", {});   // bands and branch connectors, below every pill
     const rowsG = el("g", {});
     let y = TOP; const rowsY = {}, pills = {}, secColor = {};
     SECTIONS.forEach(([sec, key, style, tag, rows]) => {
@@ -244,16 +237,28 @@ p { margin: 0; }
       y += SEC_H;
       rows.forEach(([name, solid, hollow, labels, ex]) => {
         const cy = y + ROW_H / 2; rowsY[name] = cy; secColor[name] = key;
+        if (ex.band) rect(underG, 16, y + 2, W - 24, ROW_H * ex.band - 4, 8, `fill:${mixv(key, 12)}`);   // the assembled model stands out
         const cells = [...new Set([...solid, ...hollow])].sort((a, b) => a - b);
-        if (cells.length > 1) line(rowsG, [[colX(cells[0]) + CW / 2, cy], [colX(cells[cells.length - 1]) + CW / 2, cy]],
-          mixv(key, strong ? 45 : 25), 3);
-        cells.forEach(i => {
+        const sh = ex.shift, oy = i => sh && i >= sh[0] ? sh[1] : 0, cx = i => colX(i) + CW / 2, lc = mixv(key, strong ? 45 : 25);
+        const lo = sh ? cells.filter(i => i < sh[0]) : cells, hi = sh ? cells.filter(i => i >= sh[0]) : [];
+        if (lo.length > 1) line(rowsG, [[cx(lo[0]), cy], [cx(lo[lo.length - 1]), cy]], lc, 3);
+        if (hi.length > 1) line(rowsG, [[cx(hi[0]), cy + sh[1]], [cx(hi[hi.length - 1]), cy + sh[1]]], lc, 3);
+        if (sh && lo.length && hi.length) line(underG, [[cx(lo[lo.length - 1]), cy], [cx(sh[0] - 1) + CW / 4, cy], [cx(sh[0]) - CW / 4, cy + sh[1]], [cx(sh[0]), cy + sh[1]]], lc, 3);
+        if (ex.join) line(underG, [[cx(cells[cells.length - 1]), cy], [cx(ex.join[0] - 1) + CW / 4, cy], [cx(ex.join[0]) - CW / 4, cy + ex.join[1]], [cx(ex.join[0]), cy + ex.join[1]]], lc, 3);
+        const inSpan = i => (ex.spans || []).some(([a, b]) => i >= a && i <= b);
+        (ex.spans || []).forEach(([a, b, lab, k]) => {
+          const x0 = colX(a) + PILL_PX, x1 = colX(b) + CW - PILL_PX;
+          rect(rowsG, x0, cy + oy(a) - PILL_H / 2, x1 - x0, PILL_H, PILL_H / 2, `fill:var(--${k})`);
+          text(rowsG, (x0 + x1) / 2, cy + oy(a) + 4, lab.replace(/  /g, " "), PILL, true, "on-pill", "middle", { "xml:space": "preserve" });
+        });
+        cells.filter(i => !inSpan(i)).forEach(i => { const cyRow = cy; { const cy = cyRow + oy(i);
           const lab = labels[i]; let w = CW - 2 * PILL_PX;
           if (lab) { const t = tw(lab, PILL, true) + 12, crowded = cells.includes(i - 1) || cells.includes(i + 1);
             w = Math.max(w, crowded ? Math.min(t, CW + 8) : t); }
           const x0 = colX(i) + CW / 2 - w / 2, inp = hollow.includes(i);
           pills[name + "|" + i] = [x0, w, cy];
-          const fill = inp ? "var(--bg)" : strong ? `var(--${key})` : mixv(key, 30);
+          const ck = (ex.keys || {})[i] || key;   // per-cell colour: the section of the model used in this compartment
+          const fill = inp ? "var(--bg)" : strong ? `var(--${ck})` : mixv(key, 30);
           const stroke = inp ? (strong ? `var(--${key})` : mixv(key, 60)) : "none";
           rect(rowsG, x0, cy - PILL_H / 2, w, PILL_H, PILL_H / 2, `fill:${fill};stroke:${stroke};stroke-width:${inp ? 2 : 0}`);
           if (lab) {
@@ -265,6 +270,22 @@ p { margin: 0; }
             el("circle", { cx: bx, cy: by, r: 6 }, rowsG, "fill:var(--bg);stroke:var(--ours);stroke-width:1.5;stroke-dasharray:2.5 2");   // dashed: optional module, off by default
             text(rowsG, bx, by + 4.3, "+", 12.5, true, "ours-ink", "middle");
           }
+        } });
+        Object.entries(ex.plan || {}).forEach(([i, lab]) => {   // planned, not running yet: dashed purple outline
+          const w = CW - 2 * PILL_PX + 12, x0 = colX(+i) + CW / 2 - w / 2;
+          line(underG, [[colX(+i) + CW / 2, cy], [colX(+i + 1) + CW / 2, cy]], lc, 3);
+          rect(rowsG, x0, cy - PILL_H / 2, w, PILL_H, PILL_H / 2, "fill:var(--bg);stroke:var(--yf);stroke-width:1.8", { "stroke-dasharray": "4 3" });
+          text(rowsG, colX(+i) + CW / 2, cy + 4, lab, PILL, true, "yf-ink", "middle");
+        });
+        Object.entries(ex.na || {}).forEach(([i, lab]) => {   // part this case does not need: grey dotted outline
+          const w = CW - 2 * PILL_PX, x0 = colX(+i) + CW / 2 - w / 2;
+          rect(rowsG, x0, cy - PILL_H / 2, w, PILL_H, PILL_H / 2, "fill:var(--bg);stroke:var(--faint);stroke-width:1.5", { "stroke-dasharray": "3 3" });
+          text(rowsG, colX(+i) + CW / 2, cy + 4, lab, PILL, false, "faint", "middle");
+        });
+        Object.entries(ex.gap || {}).forEach(([i, lab]) => {   // part the model does not have: dotted outline, red text
+          const w = CW - 2 * PILL_PX, x0 = colX(+i) + CW / 2 - w / 2;
+          rect(rowsG, x0, cy - PILL_H / 2, w, PILL_H, PILL_H / 2, "fill:var(--bg);stroke:var(--gap);stroke-width:1.5", { "stroke-dasharray": "3 3" });
+          text(rowsG, colX(+i) + CW / 2, cy + 4, lab, PILL, true, "gap", "middle");
         });
         if (ex.blackbox) {
           const [a, b, lab] = ex.blackbox, x0 = colX(a) + PILL_PX, x1 = colX(b) + CW - PILL_PX;
@@ -272,7 +293,8 @@ p { margin: 0; }
             { "stroke-dasharray": "7 5" });
           text(rowsG, (x0 + x1) / 2, cy + 4, lab.replace(/  /g, " "), PILL, true, `${key}-ink`, "middle", { "xml:space": "preserve" });
         }
-        text(rowsG, NAME_X, cy + 5.5, name, 15, true, strong ? "fg" : "muted-name");
+        if (name) text(rowsG, NAME_X, cy + 5.5 + (ex.nameDy || 0), name, 15, true, strong ? "fg" : "muted-name");
+        if (ex.branch) text(rowsG, COL0 - 12, cy + 4, ex.branch, 12, false, "sub", "end");
         y += ROW_H;
       });
     });
@@ -285,5 +307,3 @@ p { margin: 0; }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
 })();
 </script>
-</body>
-</html>
