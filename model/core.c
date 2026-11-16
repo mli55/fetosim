@@ -6,6 +6,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define URSINO_NO_MAIN
+#include "ursino1998.c"   /* Ursino 1998 maternal circulation + carotid baroreflex (u_step), used when MU_MODE = 1 */
+#include "hill1972.c"     /* Hill, Power & Longo 1972 placental O2 exchanger (hill_exchange), used when H_MODE = 1 */
+
 enum {  /* parameters, same order as model/parameters/jongen2016.json */
   /* fetal hemodynamics */
   F_TREF, F_VART0, F_VVEN0, F_VTIS0, F_VCER0, F_VVIL0, F_CART, F_CVEN, F_CTIS, F_CCER, F_CVIL,
@@ -32,7 +36,13 @@ enum {  /* parameters, same order as model/parameters/jongen2016.json */
   MT_MODE, MT_FA, MT_FVAB, MT_KAB, MT_CTH, MT_VTH, MT_V0TH, MT_DPF, MT_RVR,
   /* maternal vasomotor reflex and contraction autotransfusion (model/parameters/maternal_vasomotor.json, appended) */
   MV_MODE, MV_TS0, MV_KR, MV_KV, MV_RMIN, MV_TAUR, MV_TAUV, MA_MODE, MA_VSQ, MA_PREF,
-  NPAR
+  /* maternal circulation switch (model/parameters/maternal_circulation_coupling.json), then all Ursino 1998
+     parameters in the order of ursino1998.c (model/parameters/maternal_circulation_ursino1998.json) */
+  MU_MODE, MU_NSUB, MU_P0,
+  /* then the Hill 1972 placental O2 exchanger parameters in the order of hill1972.c
+     (model/parameters/placental_o2_hill1972.json) */
+  OH_P0 = MU_P0 + U_NPAR,
+  NPAR = OH_P0 + H_NPAR
 };
 
 enum {  /* state */
@@ -43,7 +53,8 @@ enum {  /* state */
   R_EBC = PG0 + 11, R_EBA, R_TPB, R_TPR, R_TS, R_H,   /* maternal HR reflex states (Randall 2019) */
   VM_TH, MM_TH,                                        /* maternal intrathoracic venous + pulmonary blood (MT_MODE 1) */
   MV_XR, MV_XV,                                        /* maternal vasomotor effector states (MV_MODE 1) */
-  NSTATE
+  MU_S0,                                               /* Ursino 1998 state, order of ursino1998.c (MU_MODE 1) */
+  NSTATE = MU_S0 + U_NSTATE
 };
 
 #define NOUT 32
@@ -109,6 +120,20 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    Contraction autotransfusion, MA_MODE 1: the contracting myometrium squeezes its blood into the maternal veins,
    v_sq = MA_VSQ x_c / MA_PREF ml, x_c = uterine pressure above rest not due to abdominal (push) pressure, >= 0. It
    enters as a shift of venous unstressed volume (blood from an unmodelled myometrial pool with venous O2).
+   Maternal circulation after Ursino 1998, MU_MODE 1 (excludes MR/MT/MV/MA modes): the maternal heart, vessels and
+   carotid baroreflex are the published Ursino model (pulsatile; MU_NSUB RK4 substeps per step), with its published
+   non-pregnant parameters. Coupling choices that are not in any paper: the uterine branch of Jongen 2016 (R_uta,
+   intervillous space, collapsible R_utv) leaves the systemic arterial node P_sa and returns to the extrasplanchnic
+   veins P_ev; intervillous blood is outside Ursino's total blood volume (dV_t/dt = q_utv - q_uta), so blood squeezed
+   out of the intervillous space by a contraction returns to the maternal circulation. Jongen's maternal O2 pools
+   keep their volumes (the venous pool mirrors the intervillous volume change) and carry O2 with Ursino's cardiac
+   output and the uterine flows, each averaged over the step.
+   Placental O2 transfer after Hill, Power & Longo 1972, H_MODE 1: the transfer rate of A(16) is replaced by the
+   concurrent capillary exchanger of the paper with its published values (human dissociation curves and hemoglobin;
+   capillary volumes 10 ml and membrane diffusing capacity 2.73 ml/(min mmHg)). Coupling choices that are not in the
+   paper: the blood entering the exchanger has the maternal arterial and the fetal arterial pO2, and the capillary
+   flows are the uterine inflow q_uta and the umbilical arterial flow q_uma. The O2 leaves the intervillous pool and
+   enters the villous pool as before, so at steady state those pools hold the exchanger's end-capillary blood.
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
@@ -124,6 +149,9 @@ int simulate(const double *P, double *S, int n_steps, double dt,
   double *bv = calloc(nb, sizeof(double)), *bs = calloc(nb, sizeof(double));  /* delay buffers, steady-state history e=0 */
   int head = 0, rec = 0, bad = 0;
   double *pg = S + PG0;
+  const int mu = (int)lround(P[MU_MODE]), nsub = mu ? (int)lround(P[MU_NSUB]) : 1;
+  const double *PU = P + MU_P0; double *SU = S + MU_S0; uhist uh; ualg ua; double mu_T = P[M_T];
+  if (mu) u_hist_init(&uh, PU, SU, dt/nsub);
   for (int k = 0; k < n_steps; k++) {
     double t = k*dt;
     double p_ut = interp(put, n_in, t, du);
@@ -161,6 +189,20 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     if (!mt) q_vr = qin_m;                                                                      /* veins feed the heart */
     double qtisa_m = (pa_m - pt_m)/rtisa_m, qtisv_m = (pt_m - pv_m)/P[M_RTISV];
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
+    if (mu) {                                                    /* Ursino 1998 circulation replaces Jongen's mother */
+      double sa = 0, sv = 0, sco = 0, spa = 0, hs = dt/nsub;
+      for (int j = 0; j < nsub; j++) {
+        double psa = SU[X_PSA], pev = SU[X_PEV];
+        double qa = (psa - pivs)/r_uta;                                                           /* A(5) with P_sa */
+        double rv = rvar(0.5*(pivs + pev) - p_ut, P[M_R0UTV], P[M_P0UTV], P[M_P1UTV], P[M_RUTV]);  /* A(6), A(7) */
+        double qv = (pivs - pev)/rv;
+        u_step(PU, SU, &uh, hs, 0.0, 0.0, qv - qa, qa, qv, &ua);
+        sa += qa; sv += qv; sco += ua.fol; spa += psa;
+      }
+      quta = sa/nsub; qutv = sv/nsub; qco_m = sco/nsub; pa_m = spa/nsub; pv_m = SU[X_PEV]; mu_T = ua.T;
+      hm = S[HM_PREV]; qin_m = qco_m; q_vr = qin_m;                                 /* O2 pools: fixed heart volume */
+      qtisa_m = qco_m - quta; qtisv_m = qtisa_m;                                    /* fixed arterial, tissue volume */
+    }
 
     /* ---------- fetus (transmural; p_ext = p_ut cancels in flows) ---------- */
     double xTv = S[XTV], xTs = S[XTS], xE = S[XE], xR = S[XR], xV = S[XV], g = P[S_GAIN];
@@ -201,7 +243,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     pg[10] = pO2_of(c_fh, ahbf, P[O_C1F], P[O_C2F], P[O_BETA], pg[10]);
     /* upwind convection: flow q from X to Y carries c_X if q>0, else c_Y */
 #define UP(q, cx, cy) ((q) > 0 ? (q)*(cx) : (q)*(cy))
-    double qd_pl = P[O_DPLAC]*(pg[3] - pg[9]), qd_lu = P[O_DLUNG]*(P[O_PAIR] - pg[1]);           /* A(16) */
+    double qd_pl = lround(P[OH_P0 + H_MODE]) ? hill_exchange(P + OH_P0, pg[0], pg[5], quta, quma, NULL)
+                                             : P[O_DPLAC]*(pg[3] - pg[9]), qd_lu = P[O_DLUNG]*(P[O_PAIR] - pg[1]);           /* A(16) */
     double qm_tm = pg[2] >= P[O_THTISM] ? P[O_QTISM] : P[O_QTISM]*pg[2]/P[O_THTISM];               /* A(17) */
     double qm_ft = pg[7] >= P[O_THTIS] ? P[O_QTISF] : P[O_QTISF]*pg[7]/P[O_THTIS];
     double qm_fc = pg[8] >= P[O_THCER] ? P[O_QCERF] : P[O_QCERF]*pg[8]/P[O_THCER];
@@ -254,7 +297,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       o[0] = 60.0/T; o[1] = pa; o[2] = pg[5]; o[3] = quta; o[4] = qutv; o[5] = S[VM_IVS]; o[6] = pg[7]; o[7] = pg[8];
       o[8] = qtisa; o[9] = qcera; o[10] = quma; o[11] = qumv; o[12] = S[VF_VIL]; o[13] = rb; o[14] = S[RC];
       o[15] = p_ut; o[16] = es; o[17] = ev; o[18] = zTv; o[19] = zTs; o[20] = qco;
-      o[21] = mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
+      o[21] = mu ? 60.0/mu_T : mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
       o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm; o[29] = rtisa_m; o[30] = v_sh; o[31] = mr ? S[R_TS] : 0.0;
       rec++;
     }
@@ -295,9 +338,16 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     if (mr) for (int i = 0; i < 6; i++) S[R_EBC + i] += dt*d_r[i];
     if (!isfinite(S[VF_ART]) || !isfinite(T) || T <= 0 || S[VF_VIL] <= 0 || S[VM_IVS] <= 0) { bad = 1; break; }
     if (mr && (!isfinite(S[R_H]) || S[R_H] <= 0)) { bad = 1; break; }
+    if (mu && (!isfinite(SU[X_PSA]) || !isfinite(SU[X_VLV]))) { bad = 1; break; }
   }
+  if (mu) u_hist_free(&uh);
   free(bv); free(bs); free(bts);
   return bad;
+}
+
+/* Hill 1972 exchanger alone, for tests: H = its parameter vector; returns ml O2/s, end = {Pm_end, Pf_end, mean Dp}. */
+double hill_exchange_rate(const double *H, double pm_in, double pf_in, double qm, double qf, double *end) {
+  return hill_exchange(H, pm_in, pf_in, qm, qf, end);
 }
 
 int n_par(void) { return NPAR; }

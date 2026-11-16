@@ -1,0 +1,32 @@
+{
+ "model": "Switch for the Ursino 1998 maternal circulation; appended after maternal_vasomotor.json and followed by maternal_circulation_ursino1998.json",
+ "order": "Entries continue the index order of model/core.c after MA_PREF; do not reorder.",
+ "parameters": [
+  {
+   "name": "MU_MODE",
+   "symbol": "switch",
+   "value": 0.0,
+   "unit": "–",
+   "meaning": "maternal circulation: 0 Jongen 2016, 1 Ursino 1998 (excludes MR/MT/MV/MA modes)",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "off by default",
+   "note": ""
+  },
+  {
+   "name": "MU_NSUB",
+   "symbol": "n_sub",
+   "value": 100.0,
+   "unit": "–",
+   "meaning": "Ursino substeps per model time step",
+   "part": "mother",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "RK4 substep 0.02 s / 100 = 0.2 ms",
+   "note": ""
+  }
+ ]
+}

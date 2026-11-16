@@ -25,6 +25,9 @@ PARAMETER_SET = HERE / 'parameters/jongen2016.json'
 MATERNAL_HR_SET = HERE / 'parameters/maternal_hr_randall2019.json'   # appended after Jongen 2016 (core.c MR_*)
 MATERNAL_THORAX_SET = HERE / 'parameters/maternal_thorax_lu2001.json'  # appended after that (core.c MT_*)
 MATERNAL_VASO_SET = HERE / 'parameters/maternal_vasomotor.json'        # appended after that (core.c MV_*, MA_*)
+MATERNAL_CIRC_SETS = (HERE / 'parameters/maternal_circulation_coupling.json',     # core.c MU_MODE, MU_NSUB
+                      HERE / 'parameters/maternal_circulation_ursino1998.json',   # then Ursino 1998 (ursino1998.c U_*)
+                      HERE / 'parameters/placental_o2_hill1972.json')             # then Hill 1972 (hill1972.c H_*)
 
 
 def load_parameter_set(path=PARAMETER_SET):
@@ -38,9 +41,9 @@ PARAMS, ENTRIES, NAMES, IDX = [], [], [], {}
 
 
 def reload_parameters():
-    """(Re)read the four parameter files into PARAMS, ENTRIES, NAMES, IDX and drop the cached steady state."""
+    """(Re)read the parameter files into PARAMS, ENTRIES, NAMES, IDX and drop the cached steady state."""
     PARAMS.clear(); ENTRIES.clear(); NAMES.clear(); IDX.clear()
-    for path in (PARAMETER_SET, MATERNAL_HR_SET, MATERNAL_THORAX_SET, MATERNAL_VASO_SET):
+    for path in (PARAMETER_SET, MATERNAL_HR_SET, MATERNAL_THORAX_SET, MATERNAL_VASO_SET) + MATERNAL_CIRC_SETS:
         p, e = load_parameter_set(path); PARAMS.extend(p); ENTRIES.extend(e)
     NAMES.extend(p[0] for p in PARAMS); IDX.update({n: i for i, n in enumerate(NAMES)})
     _SS.clear()
@@ -51,7 +54,9 @@ reload_parameters()
 STATE = ['VM_ART', 'VM_VEN', 'VM_TIS', 'VM_IVS', 'MM_ART', 'MM_VEN', 'MM_TIS', 'MM_IVS', 'MM_H',
          'VF_ART', 'VF_VEN', 'VF_TIS', 'VF_CER', 'VF_VIL', 'MF_ART', 'MF_VEN', 'MF_TIS', 'MF_CER', 'MF_VIL', 'MF_H',
          'HM_PREV', 'HF_PREV', 'RCERA', 'RB', 'RC', 'XTV', 'XTS', 'XE', 'XR', 'XV'] + [f'PG{i}' for i in range(11)] + \
-        ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H', 'VM_TH', 'MM_TH', 'MV_XR', 'MV_XV']
+        ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H', 'VM_TH', 'MM_TH', 'MV_XR', 'MV_XV'] + \
+        ['MU_' + n for n in ('PPA', 'FPA', 'PPP', 'PPV', 'PSA', 'FSA', 'PSP', 'PEV', 'PLA', 'VLV', 'PRA', 'VRV', 'XI',
+                             'PT', 'DELV', 'DERV', 'DRSP', 'DREP', 'DVSV', 'DVEV', 'DTS', 'DTV', 'VT')]  # ursino1998.c
 SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
        'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
@@ -77,7 +82,9 @@ def _randall():
 def lib():
     global _lib
     if _lib is None:
-        src = HERE / 'core.c'; tag = hashlib.sha256(src.read_bytes()).hexdigest()[:12]
+        src = HERE / 'core.c'
+        tag = hashlib.sha256(src.read_bytes() + (HERE / 'ursino1998.c').read_bytes()
+                             + (HERE / 'hill1972.c').read_bytes()).hexdigest()[:12]
         so = HERE / f'build/core_{tag}.so'
         if not so.exists():
             so.parent.mkdir(exist_ok=True)
@@ -85,6 +92,7 @@ def lib():
         L = ctypes.CDLL(str(so)); d = ctypes.POINTER(ctypes.c_double)
         L.simulate.argtypes = [d, d, ctypes.c_int, ctypes.c_double, d, d, d, d, d, ctypes.c_int, ctypes.c_double, ctypes.c_int, d]
         L.simulate.restype = ctypes.c_int
+        L.hill_exchange_rate.argtypes = [d] + [ctypes.c_double] * 4 + [d]; L.hill_exchange_rate.restype = ctypes.c_double
         assert L.n_par() == len(NAMES) and L.n_state() == len(STATE) and L.n_out() == len(OUT)
         _lib = L
     return _lib
@@ -218,12 +226,46 @@ def steady():
     return _SS['S']
 
 
+def hill_exchange(pm_in, pf_in, qm, qf, **kw):
+    """Hill 1972 exchanger alone: inflowing maternal and fetal pO2 (mmHg), capillary flows (ml/s); kw overrides H_*
+    parameters. Returns (O2 transfer ml/s, maternal end-capillary pO2, fetal end-capillary pO2, mean Dp)."""
+    P = params(**kw); H = np.ascontiguousarray(P[IDX['H_MODE']:]); end = np.zeros(3)
+    r = lib().hill_exchange_rate(_ptr(H), pm_in, pf_in, qm, qf, _ptr(end))
+    return r, end[0], end[1], end[2]
+
+
+def steady_hill():
+    """Resting state with the Hill 1972 placental exchanger (H_MODE 1) and Jongen's mother. Cached."""
+    if 'SH' not in _SS:
+        _SS['SH'] = steady_state(params(H_MODE=1))
+    return _SS['SH']
+
+
+def steady_ursino(t_settle=600.0, placenta=0):
+    """Resting state with the Ursino 1998 maternal circulation (MU_MODE 1): Jongen's resting state with the Ursino
+    states at their own basal state, then t_settle s at rest so that the uterine branch, intervillous space and both
+    O2 systems settle together. placenta=1: with the Hill 1972 exchanger. Cached."""
+    key = 'SU%d' % placenta
+    if key not in _SS:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('fetosim_ursino1998', HERE / 'ursino1998.py')
+        U = importlib.util.module_from_spec(spec); spec.loader.exec_module(U)
+        P = params(MU_MODE=1, H_MODE=placenta); S = (steady_hill() if placenta else steady()).copy()
+        i0 = SI['MU_PPA']; S[i0:i0 + len(U.USTATE)] = U.steady_state(P[IDX['U_CSA']:IDX['U_CSA'] + len(U.NAMES)])
+        rest = np.full(int(t_settle / DU) + 1, P[IDX['S_PREST']])
+        _, S, ok = run_core(P, S, rest, dt=DTS, du=DU, out_every=50)
+        assert ok, 'Ursino steady-state run became non-finite'
+        _SS[key] = S
+    return _SS[key]
+
+
 def maternal_pa(S, P):
     """Maternal arterial pressure p_a,m (mmHg) of state S."""
     return (S[SI['VM_ART']] - P[IDX['M_VART0']]) / P[IDX['M_CART']]
 
 
-def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thorax=0, vaso=0, autotx=0, **kw):
+def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thorax=0, vaso=0, autotx=0, circ=0,
+        placenta=0, **kw):
     """Model output (dict of traces every out_every*dt s), final state and ok flag for uterine pressure `put` sampled
     every `du` s. w_um is the B(2) cord-compression weight (p_um = w_um (p_ut - p_rest)); g multiplies all five
     effector gains k of A(23) (g = 1 is the published regulation). Other parameters by name; when given, the steady
@@ -235,7 +277,18 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
     thorax: 1 = maternal thorax after Lu 2001 (MT_*; pth then also acts on the circulation), 0 = off. Rest is
     unchanged (set_thorax_rest).
     vaso: 1 = maternal vasomotor reflex (MV_*; Randall's sympathetic tone also drives tissue arterial resistance and
-    venous unstressed volume; needs mhr > 0). autotx: 1 = contraction autotransfusion (MA_*). Rest is unchanged."""
+    venous unstressed volume; needs mhr > 0). autotx: 1 = contraction autotransfusion (MA_*). Rest is unchanged.
+    circ: 1 = maternal heart, vessels and baroreflex after Ursino 1998 (MU_MODE 1; see core.c). It replaces Jongen's
+    maternal hemodynamics, so mhr, thorax, vaso and autotx must be 0, and it has its own resting state
+    (steady_ursino); pth is not used. Outputs mhr, pa_m (step mean of P_sa), q_co_m, pv_m, q_uta, q_utv then come
+    from the Ursino circulation.
+    placenta: 1 = placental O2 transfer after Hill, Power & Longo 1972 (H_MODE 1; see core.c) instead of A(16). It
+    has its own resting state (steady_hill) and can be combined with circ=1, not with other overrides."""
+    if circ or placenta:
+        assert not (mhr or thorax or vaso or autotx or kw), 'circ / placenta exclude the other add-ons and overrides'
+        S0 = steady_ursino(placenta=placenta) if circ else steady_hill()
+        return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=circ, H_MODE=placenta), S0, put, dt=dt, du=du,
+                        out_every=out_every)
     P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, MT_MODE=thorax, MV_MODE=vaso, MA_MODE=autotx, **kw)
     assert not vaso or mhr, 'the vasomotor reflex needs the HR reflex (mhr > 0) for its sympathetic tone'
     if not kw:
