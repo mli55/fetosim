@@ -5,6 +5,8 @@ Values are the paper's: human dissociation constants and hemoglobin concentratio
 dissociation curves and hemoglobin concentration"), and the Table 1 capillary volumes and membrane diffusing capacity,
 which the paper measured in sheep and also used for its human calculation. The paper does not print the fetal human
 k'c; the adult human value is used (the paper's human results change by less than 0.1 mmHg for 151-250).
+H_DMC is not from the paper: it is the membrane diffusing capacity used when the exchanger runs inside the model,
+calibrated to Jongen's resting fetal arterial pO2 (tests/test_hill1972.py checks this).
 
 Run from the repo root: python model/parameters/build_placental_o2_hill1972.py
 """
@@ -50,6 +52,9 @@ def entries():
         E('H_C4', 'c4', 0.8142, 'ml/(ml min mmHg)', 'theta fit constant', 'Hill 1972 Eq. 6', 'H(6)'),
         E('H_NSTEP', 'n', 100, '–', 'integration steps along the capillary', 'as the paper (100 steps)', cls='our choice'),
         E('H_QMIN', 'q_min', 0.01, 'ml/s', 'capillary flow below which no exchange is computed', 'numerical guard', cls='our choice'),
+        E('H_DMC', 'D_M,model', 2.0, 'ml/(min mmHg)', 'membrane diffusing capacity used inside the model (H_MODE 1)',
+          'calibrated: resting fetal arterial pO2 18.5 mmHg with the Jongen 2016 mother', 'H(5)', cls='our choice',
+          note='replaces H_DM = 2.73 (19.3 mmHg at rest), because the fetal reflex parameters are tuned to 18.5 mmHg'),
     ]
 
 

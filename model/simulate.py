@@ -282,20 +282,25 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
     maternal hemodynamics, so mhr, thorax, vaso and autotx must be 0, and it has its own resting state
     (steady_ursino); pth is not used. Outputs mhr, pa_m (step mean of P_sa), q_co_m, pv_m, q_uta, q_utv then come
     from the Ursino circulation.
-    placenta: 1 = placental O2 transfer after Hill, Power & Longo 1972 (H_MODE 1; see core.c) instead of A(16). It
-    has its own resting state (steady_hill) and can be combined with circ=1, not with other overrides."""
-    if circ or placenta:
-        assert not (mhr or thorax or vaso or autotx or kw), 'circ / placenta exclude the other add-ons and overrides'
-        S0 = steady_ursino(placenta=placenta) if circ else steady_hill()
-        return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=circ, H_MODE=placenta), S0, put, dt=dt, du=du,
-                        out_every=out_every)
+    placenta: 1 = placental O2 transfer after Hill, Power & Longo 1972 (H_MODE 1; see core.c) instead of A(16), with
+    the membrane diffusing capacity H_DMC calibrated to Jongen's resting fetal arterial pO2. It changes the resting
+    state (steady_hill) and can be combined with every other option and with parameter overrides."""
+    if circ:
+        assert not (mhr or thorax or vaso or autotx or kw), 'circ excludes the other maternal add-ons and overrides'
+        return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta), steady_ursino(placenta=placenta), put,
+                        dt=dt, du=du, out_every=out_every)
+    if placenta:
+        kw = dict(kw, H_MODE=1)
     P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, MT_MODE=thorax, MV_MODE=vaso, MA_MODE=autotx, **kw)
     assert not vaso or mhr, 'the vasomotor reflex needs the HR reflex (mhr > 0) for its sympathetic tone'
     if not kw:
         S = steady().copy()
     else:
         jk = {k: v for k, v in kw.items() if not k.startswith(('MR_', 'MT_', 'MV_', 'MA_'))}
-        S0 = steady_state(params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **jk)) if jk else steady()  # add-ons are off at rest
+        if jk == {'H_MODE': 1}:
+            S0 = steady_hill()
+        else:
+            S0 = steady_state(params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **jk)) if jk else steady()  # add-ons are off at rest
         if 'MR_SBP_OFF' not in kw:
             P[IDX['MR_SBP_OFF']] = P[IDX['MR_SW']] - maternal_pa(S0, P)
         S = S0.copy()

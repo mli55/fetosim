@@ -129,11 +129,14 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    keep their volumes (the venous pool mirrors the intervillous volume change) and carry O2 with Ursino's cardiac
    output and the uterine flows, each averaged over the step.
    Placental O2 transfer after Hill, Power & Longo 1972, H_MODE 1: the transfer rate of A(16) is replaced by the
-   concurrent capillary exchanger of the paper with its published values (human dissociation curves and hemoglobin;
-   capillary volumes 10 ml and membrane diffusing capacity 2.73 ml/(min mmHg)). Coupling choices that are not in the
-   paper: the blood entering the exchanger has the maternal arterial and the fetal arterial pO2, and the capillary
-   flows are the uterine inflow q_uta and the umbilical arterial flow q_uma. The O2 leaves the intervillous pool and
-   enters the villous pool as before, so at steady state those pools hold the exchanger's end-capillary blood.
+   concurrent capillary exchanger of the paper with its published human dissociation curves, hemoglobin and capillary
+   volumes (10 ml). Coupling choices that are not in the paper: the blood entering the exchanger has the maternal
+   arterial and the fetal arterial pO2, and the capillary flows are the uterine inflow q_uta and the umbilical
+   arterial flow q_uma. The O2 leaves the intervillous pool and enters the villous pool as before, so at steady state
+   those pools hold the exchanger's end-capillary blood. The membrane diffusing capacity inside the model is H_DMC,
+   calibrated so that the resting fetal arterial pO2 is Jongen's 18.5 mmHg (the fetal reflexes are tuned to that
+   value); the paper's 2.73 ml/(min mmHg) gives 19.3 mmHg and almost no late deceleration. H_MODE is independent of
+   the maternal modes above and can be combined with any of them.
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
@@ -243,7 +246,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     pg[10] = pO2_of(c_fh, ahbf, P[O_C1F], P[O_C2F], P[O_BETA], pg[10]);
     /* upwind convection: flow q from X to Y carries c_X if q>0, else c_Y */
 #define UP(q, cx, cy) ((q) > 0 ? (q)*(cx) : (q)*(cy))
-    double qd_pl = lround(P[OH_P0 + H_MODE]) ? hill_exchange(P + OH_P0, pg[0], pg[5], quta, quma, NULL)
+    double qd_pl = lround(P[OH_P0 + H_MODE]) ? hill_exchange(P + OH_P0, P[OH_P0 + H_DMC], pg[0], pg[5], quta, quma, NULL)
                                              : P[O_DPLAC]*(pg[3] - pg[9]), qd_lu = P[O_DLUNG]*(P[O_PAIR] - pg[1]);           /* A(16) */
     double qm_tm = pg[2] >= P[O_THTISM] ? P[O_QTISM] : P[O_QTISM]*pg[2]/P[O_THTISM];               /* A(17) */
     double qm_ft = pg[7] >= P[O_THTIS] ? P[O_QTISF] : P[O_QTISF]*pg[7]/P[O_THTIS];
@@ -345,9 +348,10 @@ int simulate(const double *P, double *S, int n_steps, double dt,
   return bad;
 }
 
-/* Hill 1972 exchanger alone, for tests: H = its parameter vector; returns ml O2/s, end = {Pm_end, Pf_end, mean Dp}. */
+/* Hill 1972 exchanger alone with the paper's membrane diffusing capacity H_DM, for tests: H = its parameter vector;
+   returns ml O2/s, end = {Pm_end, Pf_end, mean Dp}. */
 double hill_exchange_rate(const double *H, double pm_in, double pf_in, double qm, double qf, double *end) {
-  return hill_exchange(H, pm_in, pf_in, qm, qf, end);
+  return hill_exchange(H, H[H_DM], pm_in, pf_in, qm, qf, end);
 }
 
 int n_par(void) { return NPAR; }

@@ -44,9 +44,33 @@ def test_in_model():
     assert ok and np.ptp(on['po2_a'][rest]) < 0.01          # the steady-state tolerance (1e-4 mmHg/s) over 100 s
     assert abs(on['po2_a'][rest].mean() - off['po2_a'][rest].mean()) < 2.0
     assert on['po2_a'][t > 100].min() < on['po2_a'][rest].mean() - 1.0
-    assert abs(on['po2_a'][t > 380].mean() - on['po2_a'][rest].mean()) < 0.3
+    late = t > 380                                                 # recovers about as fast as with A(16)
+    assert abs((on['po2_a'][late].mean() - on['po2_a'][rest].mean()) - (off['po2_a'][late].mean() - off['po2_a'][rest].mean())) < 0.1
     both, _, ok2 = S.run(put, placenta=1, circ=1)
     assert ok2 and both['po2_a'][t > 100].min() < both['po2_a'][rest].mean() - 0.5
+
+
+def test_calibrated_rest_matches_jongen():
+    """H_DMC gives Jongen's resting fetal arterial pO2 (18.5 mmHg) and a late deceleration of similar size."""
+    put = S.contraction(400, 0.5, t_con=120)
+    on, _, ok = S.run(put, placenta=1); off = S.run(put)[0]
+    rest = on['t'] < 100
+    assert ok and abs(on['po2_a'][rest].mean() - 18.5) < 0.02
+    d_on = on['fhr'][rest].mean() - on['fhr'].min(); d_off = off['fhr'][rest].mean() - off['fhr'].min()
+    assert d_on > 0.5 * d_off
+
+
+def test_combines_with_maternal_modes():
+    """placenta=1 runs with the Randall HR reflex, Lu thorax, vasomotor reflex and autotransfusion: rest is steady at
+    18.5 mmHg, the maternal heart rate is as without it, and a contraction lowers fetal pO2. Overrides also work."""
+    put = S.contraction(400, 0.5, t_con=120)
+    modes = dict(mhr=2, thorax=1, vaso=1, autotx=1)
+    on, _, ok = S.run(put, placenta=1, **modes); off = S.run(put, **modes)[0]
+    rest = on['t'] < 100
+    assert ok and np.ptp(on['po2_a'][rest]) < 0.01 and abs(on['po2_a'][rest].mean() - 18.5) < 0.02
+    assert np.max(np.abs(on['mhr'] - off['mhr'])) < 1.0
+    assert on['po2_a'].min() < on['po2_a'][rest].mean() - 1.0
+    assert S.run(put, placenta=1, mhr=2, MR_KB=S.params()[S.IDX['MR_KB']] * 1.1)[2]
 
 
 if __name__ == '__main__':

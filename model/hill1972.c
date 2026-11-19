@@ -22,6 +22,7 @@ enum {
   H_KCM, H_KCF, H_KCREF,                    /* O2 - red cell reaction rate constants, 1/(mM s), H(6) */
   H_C1, H_C2, H_C3, H_C4,                   /* H(6) */
   H_NSTEP, H_QMIN,                          /* integration steps; flows below H_QMIN ml/s give no exchange */
+  H_DMC,                                    /* used by core.c: membrane diffusing capacity inside the model (calibrated) */
   H_NPAR
 };
 
@@ -35,9 +36,10 @@ static double h_theta(const double *H, double S, double hb, double kc) {        
   return (H[H_C1]*(1 - exp(-H[H_C2]*(100 - S))) + H[H_C3]*S - H[H_C4])*(1.34*hb/100/0.2)*(kc/H[H_KCREF]);
 }
 
-/* O2 transfer rate (ml O2/s) for inflowing maternal and fetal PO2 (mmHg) and capillary flows qm, qf (ml/s).
+/* O2 transfer rate (ml O2/s) for inflowing maternal and fetal PO2 (mmHg) and capillary flows qm, qf (ml/s), with the
+   membrane diffusing capacity dm, ml/(min mmHg): H[H_DM] for the paper's cases, H[H_DMC] inside the model.
    end[0..3] (may be NULL) receive the end-capillary maternal PO2, fetal PO2 and the mean Dp, ml/(min mmHg). */
-static double hill_exchange(const double *H, double pm_in, double pf_in, double qm, double qf, double *end) {
+static double hill_exchange(const double *H, double dm, double pm_in, double pf_in, double qm, double qf, double *end) {
   if (end) { end[0] = pm_in; end[1] = pf_in; end[2] = 0; }
   if (qm < H[H_QMIN] || qf < H[H_QMIN] || pm_in <= pf_in) return 0.0;
   const double capm = 1.34*H[H_HBM]/100, capf = 1.34*H[H_HBF]/100;                        /* ml O2/ml, H(4) */
@@ -47,7 +49,7 @@ static double hill_exchange(const double *H, double pm_in, double pf_in, double 
   for (int i = 0; i < n; i++) {
     double pm = h_p(sm, H[H_K1M], H[H_K2M], H[H_K3M], H[H_PHM]);
     double pf = h_p(sf, H[H_K1F], H[H_K2F], H[H_K3F], H[H_PHF]);
-    double dp = 1/(1/(h_theta(H, sm, H[H_HBM], H[H_KCM])*H[H_VM]) + 1/H[H_DM]
+    double dp = 1/(1/(h_theta(H, sm, H[H_HBM], H[H_KCM])*H[H_VM]) + 1/dm
                    + 1/(h_theta(H, sf, H[H_HBF], H[H_KCF])*H[H_VF]))/60;                   /* H(5), ml/(s mmHg) */
     sdp += dp;
     double dpdcm = pm*H[H_K3M]*100/(sm*(100 - sm))*100/capm;                               /* dP/dC from H(3), H(4) */

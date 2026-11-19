@@ -300,6 +300,19 @@
    "source": "ours",
    "source_detail": "numerical guard",
    "note": ""
+  },
+  {
+   "name": "H_DMC",
+   "symbol": "D_M,model",
+   "value": 2.0,
+   "unit": "ml/(min mmHg)",
+   "meaning": "membrane diffusing capacity used inside the model (H_MODE 1)",
+   "part": "placenta",
+   "equations": "H(5)",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "calibrated: resting fetal arterial pO2 18.5 mmHg with the Jongen 2016 mother",
+   "note": "replaces H_DM = 2.73 (19.3 mmHg at rest), because the fetal reflex parameters are tuned to 18.5 mmHg"
   }
  ]
 }
