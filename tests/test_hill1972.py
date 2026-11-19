@@ -73,6 +73,17 @@ def test_combines_with_maternal_modes():
     assert S.run(put, placenta=1, mhr=2, MR_KB=S.params()[S.IDX['MR_KB']] * 1.1)[2]
 
 
+
+def test_saturations():
+    """SpO2 / StO2 outputs follow the model's dissociation curves: resting maternal SpO2 near 97.6 %, fetal SpO2 near
+    46.7 % at 18.5 mmHg, tissue below arterial, and a contraction lowers the fetal values."""
+    put = S.contraction(400, 0.5, t_con=120)
+    o, _, ok = S.run(put, w_um=1.0, placenta=1); rest = o['t'] < 100
+    assert ok and abs(o['spo2_m'][rest].mean() - 97.6) < 0.2 and abs(o['spo2_f'][rest].mean() - 46.7) < 0.2
+    for k in ('sto2_f_tis', 'sto2_f_cer'):
+        assert o[k][rest].mean() < o['spo2_f'][rest].mean() and o[k].min() < o[k][rest].mean() - 5
+    assert o['sto2_m'][rest].mean() < o['spo2_m'][rest].mean()
+
 if __name__ == '__main__':
     for name, f in list(globals().items()):
         if name.startswith('test_'):

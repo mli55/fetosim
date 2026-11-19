@@ -57,7 +57,7 @@ enum {  /* state */
   NSTATE = MU_S0 + U_NSTATE
 };
 
-#define NOUT 32
+#define NOUT 35
 
 static double pO2_of(double c, double ahb, double c1, double c2, double beta, double guess) {
   double p = guess > 0.5 ? guess : 20.0;
@@ -302,6 +302,7 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       o[15] = p_ut; o[16] = es; o[17] = ev; o[18] = zTv; o[19] = zTs; o[20] = qco;
       o[21] = mu ? 60.0/mu_T : mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
       o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm; o[29] = rtisa_m; o[30] = v_sh; o[31] = mr ? S[R_TS] : 0.0;
+      o[32] = pg[0]; o[33] = pg[2]; o[34] = pg[6];                                    /* pO2: maternal art, tis; fetal ven */
       rec++;
     }
 

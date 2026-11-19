@@ -60,7 +60,14 @@ STATE = ['VM_ART', 'VM_VEN', 'VM_TIS', 'VM_IVS', 'MM_ART', 'MM_VEN', 'MM_TIS', '
 SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
        'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
-       'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m', 'pv_m', 'q_vr_m', 'pth_tm_m', 'rtisa_m', 'v_sh_m', 'ts_m']
+       'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m', 'pv_m', 'q_vr_m', 'pth_tm_m', 'rtisa_m', 'v_sh_m', 'ts_m',
+       'po2_m_a', 'po2_m_tis', 'po2_v']
+# Oxygen saturations, %, added to every output dict by run_core (not computed in core.c):
+#   spo2_m, spo2_f   arterial saturation of mother and fetus (what a pulse oximeter reads)
+#   sto2_m, sto2_f_tis, sto2_f_cer   tissue saturation as NIRS reads it: STO2_ART x arterial + (1 - STO2_ART) x the
+#                    tissue (cerebral) pool, which holds blood that has given up its O2 (venous side).
+# Saturation is the hemoglobin term of A(13), g / (g + c1) with g = p^3 + c2 p, using the same curves as the model.
+STO2_ART = 0.25     # arterial share of the NIRS volume (our choice; the common 25:75 arterial:venous assumption)
 MR_RANDALL = ['MR_A', 'MR_B', 'MR_KB', 'MR_KPB', 'MR_KPR', 'MR_KS', 'MR_TAUB', 'MR_TAUPB', 'MR_TAUPR', 'MR_TAUS',
               'MR_TAUH', 'MR_QW', 'MR_QPB', 'MR_QPR', 'MR_QS', 'MR_SW', 'MR_SPB', 'MR_SPR', 'MR_SS', 'MR_HI', 'MR_HPB',
               'MR_HPR', 'MR_HS', 'MR_DS']                         # same order as randall2019.NAMES
@@ -184,7 +191,24 @@ def run_core(P, S, put, dt=0.02, du=None, pum=None, ruta=None, noise=None, pth=N
                          _ptr(arr[3]), n_in, du, out_every, _ptr(out))
     o = out.reshape(nrec, len(OUT))
     res = {k: o[:, i] for i, k in enumerate(OUT)}; res['t'] = np.arange(nrec) * out_every * dt
+    add_saturations(res, P)
     return res, S, bad == 0
+
+
+def saturation(p, P, fetal=True):
+    """Hemoglobin O2 saturation, %, for pO2 p (mmHg) on the model's dissociation curve (hemoglobin term of A(13))."""
+    c1, c2 = (P[IDX['O_C1F']], P[IDX['O_C2F']]) if fetal else (P[IDX['O_C1M']], P[IDX['O_C2M']])
+    p = np.maximum(p, 0.0); g = p ** 3 + c2 * p
+    return 100 * g / (g + c1)
+
+
+def add_saturations(res, P):
+    """Add spo2_m, spo2_f, sto2_m, sto2_f_tis, sto2_f_cer (%) to an output dict (see OUT)."""
+    res['spo2_m'] = saturation(res['po2_m_a'], P, fetal=False); res['spo2_f'] = saturation(res['po2_a'], P)
+    mix = lambda a, v: STO2_ART * a + (1 - STO2_ART) * v
+    res['sto2_m'] = mix(res['spo2_m'], saturation(res['po2_m_tis'], P, fetal=False))
+    res['sto2_f_tis'] = mix(res['spo2_f'], saturation(res['po2_tis'], P))
+    res['sto2_f_cer'] = mix(res['spo2_f'], saturation(res['po2_cer'], P))
 
 
 def steady_state(P, dt=0.02, t_max=3000.0, tol=1e-4):
