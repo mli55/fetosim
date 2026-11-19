@@ -10,7 +10,7 @@
    "meaning": "systemic arterial compliance",
    "part": "mother",
    "equations": "U(5)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -23,7 +23,7 @@
    "meaning": "splanchnic peripheral compliance",
    "part": "mother",
    "equations": "U(7)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -36,7 +36,7 @@
    "meaning": "extrasplanchnic peripheral compliance",
    "part": "mother",
    "equations": "U(7)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -49,7 +49,7 @@
    "meaning": "splanchnic venous compliance",
    "part": "mother",
    "equations": "U(9)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -62,7 +62,7 @@
    "meaning": "extrasplanchnic venous compliance",
    "part": "mother",
    "equations": "U(8)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -75,7 +75,7 @@
    "meaning": "pulmonary arterial compliance",
    "part": "mother",
    "equations": "U(1)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -88,7 +88,7 @@
    "meaning": "pulmonary peripheral compliance",
    "part": "mother",
    "equations": "U(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -101,7 +101,7 @@
    "meaning": "pulmonary venous compliance",
    "part": "mother",
    "equations": "U(4)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -114,7 +114,7 @@
    "meaning": "systemic arterial unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -127,7 +127,7 @@
    "meaning": "splanchnic peripheral unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -140,7 +140,7 @@
    "meaning": "extrasplanchnic peripheral unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -153,7 +153,7 @@
    "meaning": "pulmonary arterial unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -166,7 +166,7 @@
    "meaning": "pulmonary peripheral unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -179,7 +179,7 @@
    "meaning": "pulmonary venous unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -192,7 +192,7 @@
    "meaning": "systemic arterial resistance",
    "part": "mother",
    "equations": "U(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -205,7 +205,7 @@
    "meaning": "splanchnic venous resistance",
    "part": "mother",
    "equations": "U(23)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -218,7 +218,7 @@
    "meaning": "extrasplanchnic venous resistance",
    "part": "mother",
    "equations": "U(8)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -231,7 +231,7 @@
    "meaning": "pulmonary arterial resistance",
    "part": "mother",
    "equations": "U(2)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -244,7 +244,7 @@
    "meaning": "pulmonary peripheral resistance",
    "part": "mother",
    "equations": "U(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -257,7 +257,7 @@
    "meaning": "pulmonary venous resistance",
    "part": "mother",
    "equations": "U(4)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -270,7 +270,7 @@
    "meaning": "systemic arterial inertance",
    "part": "mother",
    "equations": "U(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": "Table 1 prints the unit as mmHg ml s-2; dimensionally it is mmHg s2/ml"
@@ -283,7 +283,7 @@
    "meaning": "pulmonary arterial inertance",
    "part": "mother",
    "equations": "U(2)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1",
    "note": ""
@@ -296,7 +296,7 @@
    "meaning": "total blood volume",
    "part": "mother",
    "equations": "U(9), U(11)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 1 footnote",
    "note": ""
@@ -309,7 +309,7 @@
    "meaning": "left atrial compliance",
    "part": "mother",
    "equations": "U(12)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -322,7 +322,7 @@
    "meaning": "left atrial unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -335,7 +335,7 @@
    "meaning": "mitral valve resistance",
    "part": "mother",
    "equations": "U(13)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -348,7 +348,7 @@
    "meaning": "left ventricle end-diastolic pressure-volume scale",
    "part": "mother",
    "equations": "U(18)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -361,7 +361,7 @@
    "meaning": "left ventricle end-diastolic pressure-volume exponent",
    "part": "mother",
    "equations": "U(18)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -374,7 +374,7 @@
    "meaning": "left ventricle unstressed volume",
    "part": "mother",
    "equations": "U(18)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -387,7 +387,7 @@
    "meaning": "left ventricle viscous resistance per unit isometric pressure",
    "part": "mother",
    "equations": "U(16)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -400,7 +400,7 @@
    "meaning": "right atrial compliance",
    "part": "mother",
    "equations": "U(23)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -413,7 +413,7 @@
    "meaning": "right atrial unstressed volume",
    "part": "mother",
    "equations": "U(10)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -426,7 +426,7 @@
    "meaning": "tricuspid valve resistance",
    "part": "mother",
    "equations": "U(24)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -439,7 +439,7 @@
    "meaning": "right ventricle end-diastolic pressure-volume scale",
    "part": "mother",
    "equations": "U(29)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -452,7 +452,7 @@
    "meaning": "right ventricle end-diastolic pressure-volume exponent",
    "part": "mother",
    "equations": "U(29)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -465,7 +465,7 @@
    "meaning": "right ventricle unstressed volume",
    "part": "mother",
    "equations": "U(29)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -478,7 +478,7 @@
    "meaning": "right ventricle viscous resistance per unit isometric pressure",
    "part": "mother",
    "equations": "U(27)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2",
    "note": ""
@@ -491,7 +491,7 @@
    "meaning": "systole duration at infinite heart period",
    "part": "mother",
    "equations": "U(22)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2 footnote",
    "note": ""
@@ -504,7 +504,7 @@
    "meaning": "shortening of systole with heart rate",
    "part": "mother",
    "equations": "U(22)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 2 footnote",
    "note": ""
@@ -517,7 +517,7 @@
    "meaning": "carotid sinus pressure at the centre of the baroreceptor sigmoid",
    "part": "mother",
    "equations": "U(31)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -530,7 +530,7 @@
    "meaning": "lower saturation of sinus nerve firing",
    "part": "mother",
    "equations": "U(31)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -543,7 +543,7 @@
    "meaning": "upper saturation of sinus nerve firing",
    "part": "mother",
    "equations": "U(31)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -556,7 +556,7 @@
    "meaning": "slope parameter of the baroreceptor sigmoid",
    "part": "mother",
    "equations": "U(31), U(32)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -569,7 +569,7 @@
    "meaning": "baroreceptor zero (rate sensitivity) time constant",
    "part": "mother",
    "equations": "U(30)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -582,7 +582,7 @@
    "meaning": "baroreceptor pole time constant",
    "part": "mother",
    "equations": "U(30)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -595,7 +595,7 @@
    "meaning": "sympathetic firing at high sinus nerve firing",
    "part": "mother",
    "equations": "U(33)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -608,7 +608,7 @@
    "meaning": "sympathetic firing at zero sinus nerve firing",
    "part": "mother",
    "equations": "U(33)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -621,7 +621,7 @@
    "meaning": "sympathetic firing decay with sinus nerve firing",
    "part": "mother",
    "equations": "U(33)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -634,7 +634,7 @@
    "meaning": "sympathetic firing threshold of the effectors",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -647,7 +647,7 @@
    "meaning": "vagal firing at low sinus nerve firing",
    "part": "mother",
    "equations": "U(34)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -660,7 +660,7 @@
    "meaning": "vagal firing at high sinus nerve firing",
    "part": "mother",
    "equations": "U(34)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -673,7 +673,7 @@
    "meaning": "slope parameter of the vagal sigmoid",
    "part": "mother",
    "equations": "U(34)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -686,7 +686,7 @@
    "meaning": "sinus nerve firing at the centre of the vagal sigmoid",
    "part": "mother",
    "equations": "U(34)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -699,7 +699,7 @@
    "meaning": "sympathetic gain on left ventricle end-systolic elastance",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -712,7 +712,7 @@
    "meaning": "time constant of left ventricle end-systolic elastance control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -725,7 +725,7 @@
    "meaning": "pure delay of left ventricle end-systolic elastance control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -738,7 +738,7 @@
    "meaning": "left ventricle end-systolic elastance without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -751,7 +751,7 @@
    "meaning": "sympathetic gain on right ventricle end-systolic elastance",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -764,7 +764,7 @@
    "meaning": "time constant of right ventricle end-systolic elastance control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -777,7 +777,7 @@
    "meaning": "pure delay of right ventricle end-systolic elastance control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -790,7 +790,7 @@
    "meaning": "right ventricle end-systolic elastance without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -803,7 +803,7 @@
    "meaning": "sympathetic gain on splanchnic peripheral resistance",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -816,7 +816,7 @@
    "meaning": "time constant of splanchnic peripheral resistance control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -829,7 +829,7 @@
    "meaning": "pure delay of splanchnic peripheral resistance control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -842,7 +842,7 @@
    "meaning": "splanchnic peripheral resistance without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -855,7 +855,7 @@
    "meaning": "sympathetic gain on extrasplanchnic peripheral resistance",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -868,7 +868,7 @@
    "meaning": "time constant of extrasplanchnic peripheral resistance control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -881,7 +881,7 @@
    "meaning": "pure delay of extrasplanchnic peripheral resistance control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -894,7 +894,7 @@
    "meaning": "extrasplanchnic peripheral resistance without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -907,7 +907,7 @@
    "meaning": "sympathetic gain on splanchnic venous unstressed volume",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -920,7 +920,7 @@
    "meaning": "time constant of splanchnic venous unstressed volume control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -933,7 +933,7 @@
    "meaning": "pure delay of splanchnic venous unstressed volume control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -946,7 +946,7 @@
    "meaning": "splanchnic venous unstressed volume without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -959,7 +959,7 @@
    "meaning": "sympathetic gain on extrasplanchnic venous unstressed volume",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -972,7 +972,7 @@
    "meaning": "time constant of extrasplanchnic venous unstressed volume control",
    "part": "mother",
    "equations": "U(36)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -985,7 +985,7 @@
    "meaning": "pure delay of extrasplanchnic venous unstressed volume control",
    "part": "mother",
    "equations": "U(35)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -998,7 +998,7 @@
    "meaning": "extrasplanchnic venous unstressed volume without sympathetic drive",
    "part": "mother",
    "equations": "U(37)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1011,7 +1011,7 @@
    "meaning": "sympathetic gain on heart period",
    "part": "mother",
    "equations": "U(38)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1024,7 +1024,7 @@
    "meaning": "time constant of the sympathetic heart period control",
    "part": "mother",
    "equations": "U(39)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1037,7 +1037,7 @@
    "meaning": "pure delay of the sympathetic heart period control",
    "part": "mother",
    "equations": "U(38)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1050,7 +1050,7 @@
    "meaning": "vagal gain on heart period",
    "part": "mother",
    "equations": "U(40)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1063,7 +1063,7 @@
    "meaning": "time constant of the vagal heart period control",
    "part": "mother",
    "equations": "U(41)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1076,7 +1076,7 @@
    "meaning": "pure delay of the vagal heart period control",
    "part": "mother",
    "equations": "U(40)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""
@@ -1089,7 +1089,7 @@
    "meaning": "heart period without nervous drive",
    "part": "mother",
    "equations": "U(42)",
-   "class": "published",
+   "class": "paper",
    "source": "Ursino 1998",
    "source_detail": "Ursino 1998 Table 3",
    "note": ""

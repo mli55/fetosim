@@ -17,9 +17,9 @@ OUT = Path(__file__).resolve().parent / 'placental_o2_hill1972.json'
 HUM, T1 = 'Hill 1972, human dissociation curves (p. 726)', 'Hill 1972 Table 1'
 
 
-def E(name, symbol, value, unit, meaning, detail, eq='', cls='published', note=''):
+def E(name, symbol, value, unit, meaning, detail, eq='', cls='paper', note=''):
     return dict(name=name, symbol=symbol, value=float(value), unit=unit, meaning=meaning, part='placenta', equations=eq,
-                **{'class': cls}, source='Hill 1972' if cls == 'published' else 'ours', source_detail=detail, note=note)
+                **{'class': cls}, source='Hill 1972' if cls == 'paper' else 'ours', source_detail=detail, note=note)
 
 
 def entries():

@@ -23,7 +23,7 @@
    "meaning": "maternal dissociation curve constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -36,7 +36,7 @@
    "meaning": "maternal Bohr constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -49,7 +49,7 @@
    "meaning": "maternal dissociation curve slope constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -62,7 +62,7 @@
    "meaning": "fetal dissociation curve constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -75,7 +75,7 @@
    "meaning": "fetal Bohr constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -88,7 +88,7 @@
    "meaning": "fetal dissociation curve slope constant",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -101,7 +101,7 @@
    "meaning": "maternal hemoglobin concentration",
    "part": "placenta",
    "equations": "H(4)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -114,7 +114,7 @@
    "meaning": "fetal hemoglobin concentration",
    "part": "placenta",
    "equations": "H(4)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972, human dissociation curves (p. 726)",
    "note": ""
@@ -127,7 +127,7 @@
    "meaning": "maternal blood pH",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Table 1",
    "note": ""
@@ -140,7 +140,7 @@
    "meaning": "fetal blood pH",
    "part": "placenta",
    "equations": "H(3)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Table 1",
    "note": ""
@@ -153,7 +153,7 @@
    "meaning": "maternal placental capillary blood volume",
    "part": "placenta",
    "equations": "H(1), H(5)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Table 1",
    "note": "sheep value, also used by the paper for humans"
@@ -166,7 +166,7 @@
    "meaning": "fetal placental capillary blood volume",
    "part": "placenta",
    "equations": "H(2), H(5)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Table 1",
    "note": "sheep value, also used by the paper for humans"
@@ -179,7 +179,7 @@
    "meaning": "diffusing capacity of the placental membrane",
    "part": "placenta",
    "equations": "H(5)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Table 1",
    "note": "sheep value, also used by the paper for humans"
@@ -192,7 +192,7 @@
    "meaning": "O2 - red cell reaction rate constant, maternal blood",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 p. 722 (human blood)",
    "note": ""
@@ -218,7 +218,7 @@
    "meaning": "reference reaction rate constant of the theta fit",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 p. 722",
    "note": ""
@@ -231,7 +231,7 @@
    "meaning": "theta fit constant",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Eq. 6",
    "note": ""
@@ -244,7 +244,7 @@
    "meaning": "theta fit constant",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Eq. 6",
    "note": ""
@@ -257,7 +257,7 @@
    "meaning": "theta fit constant",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Eq. 6",
    "note": ""
@@ -270,7 +270,7 @@
    "meaning": "theta fit constant",
    "part": "placenta",
    "equations": "H(6)",
-   "class": "published",
+   "class": "paper",
    "source": "Hill 1972",
    "source_detail": "Hill 1972 Eq. 6",
    "note": ""

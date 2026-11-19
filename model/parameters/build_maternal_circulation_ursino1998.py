@@ -15,9 +15,9 @@ OUT = Path(__file__).resolve().parent / 'maternal_circulation_ursino1998.json'
 T1, T2, T3 = 'Ursino 1998 Table 1', 'Ursino 1998 Table 2', 'Ursino 1998 Table 3'
 
 
-def E(name, symbol, value, unit, meaning, detail, eq='', cls='published', note=''):
+def E(name, symbol, value, unit, meaning, detail, eq='', cls='paper', note=''):
     return dict(name=name, symbol=symbol, value=float(value), unit=unit, meaning=meaning, part='mother', equations=eq,
-                **{'class': cls}, source='Ursino 1998' if cls == 'published' else 'ours', source_detail=detail, note=note)
+                **{'class': cls}, source='Ursino 1998' if cls == 'paper' else 'ours', source_detail=detail, note=note)
 
 
 def entries():
