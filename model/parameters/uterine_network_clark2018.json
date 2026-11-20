@@ -1,0 +1,82 @@
+{
+ "model": "Uterine arterial network after Clark et al. 2018 (Placenta 66:74-81); appended after placental_o2_hill1972.json",
+ "order": "Entries continue the index order of model/core.c after H_DMC; do not reorder.",
+ "clark_one_side_Pa_s_mm3": {
+  "uterine": 0.06848636144923122,
+  "arcuate": 0.012327545060861617,
+  "radial": 0.8218363373907743,
+  "anastomosis": 1.2327545060861616,
+  "venous": 0.45132512195043356,
+  "up": 0.9026502439008671,
+  "A": 1.684079628036595
+ },
+ "clark_terminal_load_Pa_s_mm3": 1.6,
+ "n_sides": 2,
+ "parameters": [
+  {
+   "name": "CK_MODE",
+   "symbol": "switch",
+   "value": 0.0,
+   "unit": "–",
+   "meaning": "uterine arteries: 0 Jongen 2016 (single R_uta), 1 Clark 2018 network",
+   "part": "uterus",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "off by default",
+   "note": ""
+  },
+  {
+   "name": "CK_RUP",
+   "symbol": "R_up",
+   "value": 3.385226158851754,
+   "unit": "mmHg s/ml",
+   "meaning": "uterine + arcuate + radial arteries in series, both sides",
+   "part": "uterus",
+   "equations": "",
+   "class": "paper",
+   "source": "Clark 2018",
+   "source_detail": "baseline geometry, 81 mu L/(8 pi r^4)/n; x 7.5006 (unit) / 2 (sides)",
+   "note": "radial arteries are 91% of it"
+  },
+  {
+   "name": "CK_RSA",
+   "symbol": "R_sa",
+   "value": 1.0,
+   "unit": "mmHg s/ml",
+   "meaning": "spiral arteries, from the network node to the intervillous space",
+   "part": "uterus",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "placeholder; simulate.clark_parameters sets it so that the resting intervillous inflow and pressure are Jongen's",
+   "note": "replaces Clark's lumped spiral artery + intervillous load R_L = 1.6 Pa s/mm3"
+  },
+  {
+   "name": "CK_RA",
+   "symbol": "R_A",
+   "value": 6.315835451150579,
+   "unit": "mmHg s/ml",
+   "meaning": "arterio-venous anastomoses and their veins (bypass), both sides",
+   "part": "uterus",
+   "equations": "",
+   "class": "paper",
+   "source": "Clark 2018",
+   "source_detail": "anastomoses 50 x (r 0.2 mm, L 9 mm) + venous resistance = R_up / 2",
+   "note": ""
+  },
+  {
+   "name": "CK_KA",
+   "symbol": "k_A",
+   "value": 0.7,
+   "unit": "–",
+   "meaning": "share of uterine pressure that acts as outflow pressure of the bypass",
+   "part": "uterus",
+   "equations": "",
+   "class": "our choice",
+   "source": "ours",
+   "source_detail": "Starling resistor against max(p_v,m, k_A p_ut); 0 = not compressed. Calibrated on the three Part A contraction scenarios of Jongen 2016 (grid step 0.05)",
+   "note": "Clark 2018 has no contraction"
+  }
+ ]
+}
