@@ -392,8 +392,8 @@ def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02, rlc=0):
 def doppler_indices(o, t0=None, t1=None, r=2.0, e_wall=1.5e6, h_wall=0.1):
     """Uterine artery Doppler indices from a CK_MODE 2 run (uterus=2, circ=1) recorded with out_every=1.
     Velocity at the insonation site as in Clark 2018's code: v = flow of one side / (pi r^2 + C' p), C' = 3 pi r^3 /
-    (2 h r E) the area compliance per length (r mm, E Pa). Beats run from one upstroke (velocity crossing its window
-    mean upwards) to the next. Returns a dict of per-beat arrays PI = (max - min) / mean, RI = (max - min) / max,
+    (2 h r E) the area compliance per length (r mm, E Pa). Beats run from one upstroke (velocity crossing its
+    2-s running mean upwards) to the next. Returns a dict of per-beat arrays PI = (max - min) / mean, RI = (max - min) / max,
     SD = max / min, notch (True when velocity rises again after the systolic fall), the beat start times, and 'v'
     (cm/s) with 't' for the window."""
     t = o['t']; w = np.ones_like(t, bool)
@@ -403,8 +403,9 @@ def doppler_indices(o, t0=None, t1=None, r=2.0, e_wall=1.5e6, h_wall=0.1):
         w &= t <= t1
     cp = 3.0 * np.pi * r ** 3 / (2.0 * h_wall * r * e_wall)                 # mm2/Pa
     v = (o['q_ins'][w] / 2 * 1000.0) / (np.pi * r ** 2 + cp * o['p_ins'][w] * 133.322) / 10.0   # cm/s
-    tw = t[w]; m = v.mean()
-    up = np.flatnonzero((v[:-1] < m) & (v[1:] >= m)) + 1
+    tw = t[w]; nw = max(1, int(round(2.0 / (tw[1] - tw[0]))))
+    m = np.convolve(v, np.ones(nw), 'same') / np.convolve(np.ones_like(v), np.ones(nw), 'same')   # running mean
+    up = np.flatnonzero((v[:-1] < m[:-1]) & (v[1:] >= m[1:])) + 1
     keep = [up[0]] if len(up) else []
     for i in up[1:]:
         if tw[i] - tw[keep[-1]] > 0.35:
