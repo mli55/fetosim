@@ -102,6 +102,54 @@ def test_with_ursino_circulation_contraction():
         assert o[k][con].min() < 0.7 * o[k][rest].mean(), k
 
 
+def test_rlc_parameters_add_up():
+    """CK_MODE 2 uses the same resistances as CK_MODE 1, split by vessel class."""
+    P = S.params(); g = lambda n: P[S.IDX[n]]
+    assert abs(g('CK_RU') + g('CK_RAR') + g('CK_RR') - g('CK_RUP')) < 1e-9
+    assert abs(g('CK_RAV') + g('CK_RD') - g('CK_RA')) < 1e-9
+
+
+def test_rlc_rest_matches_resistive_network():
+    """With inertance and compliance the mean resting flows, pressure and fetal state equal those of the resistive
+    network (the network is linear while the bypass is open, so L and C change only the waveform)."""
+    put = np.full(241, S.TONE); m = {}
+    for u in (1, 2):
+        o, _, ok = S.run(put, du=0.5, circ=1, uterus=u, out_every=1); assert ok
+        w = o['t'] >= 60; m[u] = {k: float(np.mean(o[k][w])) for k in ('pa_m', 'q_ut_art', 'q_uta', 'q_anast', 'fhr')}
+    for k in ('q_ut_art', 'q_uta', 'q_anast'):
+        assert abs(m[2][k] / m[1][k] - 1) < 0.01, k
+    assert abs(m[2]['pa_m'] - m[1]['pa_m']) < 0.3 and abs(m[2]['fhr'] - m[1]['fhr']) < 0.05
+
+
+def test_rlc_doppler_matches_clark_baseline():
+    """Resting Doppler indices at the insonation site are close to the authors' code at baseline geometry
+    (network-wave-transmission RUNME.py: PI 0.527, RI 0.392, S/D 1.645, no notch), although the inlet here is Ursino's
+    pressure waveform instead of their prescribed flow waveform."""
+    o, _, ok = S.run(np.full(241, S.TONE), du=0.5, circ=1, uterus=2, out_every=1); assert ok
+    d = S.doppler_indices(o, 60, 120)
+    assert len(d['PI']) > 30 and not d['notch'].any()
+    assert abs(np.median(d['PI']) - 0.527) < 0.08 and abs(np.median(d['RI']) - 0.392) < 0.05
+    assert abs(np.median(d['SD']) - 1.645) < 0.15
+
+
+def test_rlc_blood_volume_conserved():
+    """Ursino's total volume + intervillous volume + volume stored in the network compliances stays constant
+    through a contraction."""
+    over, S0 = S.steady_clark_ursino(rlc=1); P = S.params(MU_MODE=1, **over); g = lambda n: P[S.IDX[n]]
+    C = [g('CK_CU') / 5] * 5 + [g('CK_CAR'), g('CK_CR'), g('CK_CAV')]
+    vol = lambda X: X[S.SI['MU_VT']] + X[S.SI['VM_IVS']] + sum(c * X[S.SI['CK_P%d' % i]] for i, c in enumerate(C))
+    _, S1, ok = S.run_core(P, S0, S.contraction(200, 0.5), du=0.5)
+    assert ok and abs(vol(S1) - vol(S0)) < 1e-6
+
+
+def test_rlc_needs_ursino_mother():
+    try:
+        S.run(np.full(11, S.TONE), uterus=2)
+    except AssertionError:
+        return
+    raise AssertionError('uterus=2 without circ=1 should be refused')
+
+
 if __name__ == '__main__':
     for name, f in list(globals().items()):
         if name.startswith('test_'):

@@ -44,6 +44,7 @@ enum {  /* parameters, same order as model/parameters/jongen2016.json */
   OH_P0 = MU_P0 + U_NPAR,
   /* then the uterine arterial network after Clark et al. 2018 (model/parameters/uterine_network_clark2018.json) */
   CK_MODE = OH_P0 + H_NPAR, CK_RUP, CK_RSA, CK_RA, CK_KA,
+  CK_RU, CK_LU, CK_CU, CK_RAR, CK_LAR, CK_CAR, CK_RR, CK_LR, CK_CR, CK_RAV, CK_LAV, CK_CAV, CK_RD,  /* CK_MODE 2 */
   NPAR
 };
 
@@ -56,10 +57,12 @@ enum {  /* state */
   VM_TH, MM_TH,                                        /* maternal intrathoracic venous + pulmonary blood (MT_MODE 1) */
   MV_XR, MV_XV,                                        /* maternal vasomotor effector states (MV_MODE 1) */
   MU_S0,                                               /* Ursino 1998 state, order of ursino1998.c (MU_MODE 1) */
-  NSTATE = MU_S0 + U_NSTATE
+  CK_Q0 = MU_S0 + U_NSTATE,                            /* CK_MODE 2: 8 element flows, then 8 node pressures */
+  CK_P0 = CK_Q0 + 8,
+  NSTATE = CK_P0 + 8
 };
 
-#define NOUT 38
+#define NOUT 40
 
 static double pO2_of(double c, double ahb, double c1, double c2, double beta, double guess) {
   double p = guess > 0.5 ? guess : 20.0;
@@ -151,7 +154,44 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    Ursino substep on the pulsatile P_sa and drains into P_ev; the bypass carries no blood volume, so Ursino's total
    blood volume changes only with the intervillous volume, as before. Outputs q_uta, q_anast and p_node are then step
    means.
+   CK_MODE 2 (MU_MODE 1 only; otherwise as CK_MODE 1): the same network with each vessel class's inertance and
+   compliance from the authors' code (after Mo et al. 1988), the uterine artery in five segments (ck_rlc_step). It is
+   a lumped-element version of Clark's transmission lines; their reflections enter through the segment chain. Solved by
+   backward Euler in every Ursino substep on the pulsatile P_sa; blood stored in the network compliances is outside
+   Ursino's total blood volume. Outputs q_ins, p_ins: flow and pressure at the Doppler insonation site (90 mm).
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
+/* CK_MODE 2: one backward-Euler step of length h of the Clark 2018 network with inertance and compliance. Elements
+   (series R, L; flow X[k]): 0-4 uterine artery in five equal segments, 5 arcuate, 6 radial, 7 anastomoses. Nodes
+   (compliance C at the distal end of each element; pressure X[8+i]): element k ends at node k; element 0 starts at
+   P_sa, elements 1-6 at the previous node, element 7 at node 6 (end of the radial arteries). Node 6 also drains
+   through the spiral arteries (R_sa) into the intervillous space (p_ivs), node 7 through R_D against p_out when
+   open (Starling, no backflow). Eliminating the flows leaves a tridiagonal system in the 8 node pressures.
+   rs scales the arterial resistances (input ruta). Returns the spiral-artery and bypass outflows. */
+static void ck_rlc_step(const double *P, double *X, double psa, double pivs, double pout, double rs, double h,
+                        double *q_sa, double *q_d) {
+  double R[8], L[8], C[8], g[8], sk[8], a[8], b[8], c[8], d[8], *q = X, *p = X + 8;
+  for (int k = 0; k < 5; k++) { R[k] = P[CK_RU]*rs/5; L[k] = P[CK_LU]/5; C[k] = P[CK_CU]/5; }
+  R[5] = P[CK_RAR]*rs; L[5] = P[CK_LAR]; C[5] = P[CK_CAR];
+  R[6] = P[CK_RR]*rs;  L[6] = P[CK_LR];  C[6] = P[CK_CR];
+  R[7] = P[CK_RAV];    L[7] = P[CK_LAV]; C[7] = P[CK_CAV];
+  for (int k = 0; k < 8; k++) { g[k] = 1.0/(L[k]/h + R[k]); sk[k] = L[k]/h*q[k]*g[k]; }
+  double gsa = 1.0/P[CK_RSA], gd = p[7] > pout ? 1.0/P[CK_RD] : 0.0;
+  for (int i = 0; i < 8; i++) {                    /* row i: a p[i-1] + b p[i] + c p[i+1] = d */
+    int in = i, out = i < 6 ? i + 1 : (i == 6 ? 7 : -1);
+    a[i] = i ? -g[in] : 0.0; c[i] = out >= 0 ? -g[out] : 0.0;
+    b[i] = C[i]/h + g[in] + (out >= 0 ? g[out] : 0.0) + (i == 6 ? gsa : 0.0) + (i == 7 ? gd : 0.0);
+    d[i] = C[i]/h*p[i] + sk[in] - (out >= 0 ? sk[out] : 0.0) + (i == 0 ? g[0]*psa : 0.0)
+         + (i == 6 ? gsa*pivs : 0.0) + (i == 7 ? gd*pout : 0.0);
+  }
+  for (int i = 1; i < 8; i++) { double m = a[i]/b[i-1]; b[i] -= m*c[i-1]; d[i] -= m*d[i-1]; }   /* Thomas */
+  p[7] = d[7]/b[7];
+  for (int i = 6; i >= 0; i--) p[i] = (d[i] - c[i]*p[i+1])/b[i];
+  q[0] = g[0]*(psa - p[0]) + sk[0];
+  for (int k = 1; k < 7; k++) q[k] = g[k]*(p[k-1] - p[k]) + sk[k];
+  q[7] = g[7]*(p[6] - p[7]) + sk[7];
+  *q_sa = (p[6] - pivs)*gsa; *q_d = gd*(p[7] - pout);
+}
+
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
              int n_in, double du, int out_every, double *out) {
@@ -208,8 +248,9 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
     const int ck = (int)lround(P[CK_MODE]);
     double q_an = 0.0, p_nd = pa_m;                              /* anastomotic bypass flow, node pressure */
+    double q_art_o = 0.0, q_ins = 0.0, p_ins = 0.0;              /* uterine artery inflow (output), insonation site */
     const double gu = 1.0/(P[CK_RUP]*r_uta/P[M_RUTA]), gs = 1.0/P[CK_RSA], ga = 1.0/P[CK_RA];
-    if (ck && !mu) {                                                    /* uterine network after Clark 2018 */
+    if (ck && !mu) {                                             /* CK_MODE 2 needs MU_MODE 1; here as CK_MODE 1 */                                                    /* uterine network after Clark 2018 */
       double pout = P[CK_KA]*p_ut; if (pout < pv_m) pout = pv_m; /* Starling outflow pressure of the bypass */
       p_nd = (pa_m*gu + pivs*gs + pout*ga)/(gu + gs + ga);
       if (p_nd > pout) q_an = (p_nd - pout)*ga;
@@ -217,27 +258,35 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       quta = (p_nd - pivs)*gs;                                   /* spiral arteries -> intervillous space */
     }
     if (mu) {                                                    /* Ursino 1998 circulation replaces Jongen's mother */
-      double sa = 0, sv = 0, sco = 0, spa = 0, san = 0, snd = 0, hs = dt/nsub;
+      double sa = 0, sv = 0, sco = 0, spa = 0, san = 0, snd = 0, sup = 0, sqi = 0, spi = 0, hs = dt/nsub;
       for (int j = 0; j < nsub; j++) {
         double psa = SU[X_PSA], pev = SU[X_PEV];
-        double qa = (psa - pivs)/r_uta, qn = 0.0, pn = psa;                                       /* A(5) with P_sa */
-        if (ck) {                                                /* Clark 2018 network on the pulsatile P_sa */
+        double qa = (psa - pivs)/r_uta, qn = 0.0, pn = psa, qin_a;                               /* A(5) with P_sa */
+        if (ck == 2) {                                           /* Clark network with L and C, implicit */
+          double pout = P[CK_KA]*p_ut; if (pout < pev) pout = pev;
+          ck_rlc_step(P, S + CK_Q0, psa, pivs, pout, r_uta/P[M_RUTA], hs, &qa, &qn);
+          pn = S[CK_P0 + 6]; qin_a = S[CK_Q0];
+          sqi += S[CK_Q0 + 4]; spi += 0.5*(S[CK_P0 + 3] + S[CK_P0 + 4]);              /* insonation site, 90 mm */
+        } else if (ck) {                                         /* Clark 2018 network on the pulsatile P_sa */
           double pout = P[CK_KA]*p_ut; if (pout < pev) pout = pev;
           pn = (psa*gu + pivs*gs + pout*ga)/(gu + gs + ga);
           if (pn > pout) qn = (pn - pout)*ga; else pn = (psa*gu + pivs*gs)/(gu + gs);
           qa = (pn - pivs)*gs;
         }
+        if (ck != 2) qin_a = qa + qn;                            /* flow leaving P_sa */
         double rv = rvar(0.5*(pivs + pev) - p_ut, P[M_R0UTV], P[M_P0UTV], P[M_P1UTV], P[M_RUTV]);  /* A(6), A(7) */
         double qv = (pivs - pev)/rv;
-        u_step(PU, SU, &uh, hs, 0.0, 0.0, qv - qa, qa + qn, qv + qn, &ua);   /* bypass: P_sa -> P_ev, no volume */
-        sa += qa; sv += qv; sco += ua.fol; spa += psa; san += qn; snd += pn;
+        u_step(PU, SU, &uh, hs, 0.0, 0.0, qv + qn - qin_a, qin_a, qv + qn, &ua);  /* network blood is outside V_t */
+        sa += qa; sv += qv; sco += ua.fol; spa += psa; san += qn; snd += pn; sup += qin_a;
       }
       quta = sa/nsub; qutv = sv/nsub; qco_m = sco/nsub; pa_m = spa/nsub; pv_m = SU[X_PEV]; mu_T = ua.T;
-      if (ck) { q_an = san/nsub; p_nd = snd/nsub; }
+      if (ck) { q_an = san/nsub; p_nd = snd/nsub; q_art_o = sup/nsub; }
+      if (ck == 2) { q_ins = sqi/nsub; p_ins = spi/nsub; }
       hm = S[HM_PREV]; qin_m = qco_m; q_vr = qin_m;                                 /* O2 pools: fixed heart volume */
       qtisa_m = qco_m - quta - q_an; qtisv_m = qtisa_m;                             /* fixed arterial, tissue volume */
     }
     const double q_up = quta + q_an;                             /* uterine artery flow (both sides) */
+    if (!(mu && ck)) q_art_o = q_up;
 
     /* ---------- fetus (transmural; p_ext = p_ut cancels in flows) ---------- */
     double xTv = S[XTV], xTs = S[XTS], xE = S[XE], xR = S[XR], xV = S[XV], g = P[S_GAIN];
@@ -343,7 +392,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       o[21] = mu ? 60.0/mu_T : mr ? S[R_H] : 60.0/P[M_T]; o[22] = pa_m; o[23] = qco_m; o[24] = sbp; o[25] = pthv;
       o[26] = pv_m; o[27] = q_vr; o[28] = pth_tm; o[29] = rtisa_m; o[30] = v_sh; o[31] = mr ? S[R_TS] : 0.0;
       o[32] = pg[0]; o[33] = pg[2]; o[34] = pg[6];                                    /* pO2: maternal art, tis; fetal ven */
-      o[35] = q_up; o[36] = q_an; o[37] = p_nd;                    /* uterine artery flow, bypass flow, node pressure */
+      o[35] = q_art_o; o[36] = q_an; o[37] = p_nd;                 /* uterine artery flow, bypass flow, node pressure */
+      o[38] = q_ins; o[39] = p_ins;                                /* CK_MODE 2: flow and pressure at the insonation site */
       rec++;
     }
 
