@@ -57,16 +57,18 @@ STATE = ['VM_ART', 'VM_VEN', 'VM_TIS', 'VM_IVS', 'MM_ART', 'MM_VEN', 'MM_TIS', '
          'HM_PREV', 'HF_PREV', 'RCERA', 'RB', 'RC', 'XTV', 'XTS', 'XE', 'XR', 'XV'] + [f'PG{i}' for i in range(11)] + \
         ['R_EBC', 'R_EBA', 'R_TPB', 'R_TPR', 'R_TS', 'R_H', 'VM_TH', 'MM_TH', 'MV_XR', 'MV_XV'] + \
         ['MU_' + n for n in ('PPA', 'FPA', 'PPP', 'PPV', 'PSA', 'FSA', 'PSP', 'PEV', 'PLA', 'VLV', 'PRA', 'VRV', 'XI',
-                             'PT', 'DELV', 'DERV', 'DRSP', 'DREP', 'DVSV', 'DVEV', 'DTS', 'DTV', 'VT')]  # ursino1998.c
+                             'PT', 'DELV', 'DERV', 'DRSP', 'DREP', 'DVSV', 'DVEV', 'DTS', 'DTV', 'VT')] + \
+        [f'CK_Q{i}' for i in range(8)] + [f'CK_P{i}' for i in range(8)]  # ursino1998.c; CK_MODE 2 network (core.c)
 SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
        'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
        'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m', 'pv_m', 'q_vr_m', 'pth_tm_m', 'rtisa_m', 'v_sh_m', 'ts_m',
        'po2_m_a', 'po2_m_tis', 'po2_v',
-       'q_ut_art', 'q_anast', 'p_node']
+       'q_ut_art', 'q_anast', 'p_node', 'q_ins', 'p_ins']
 # q_ut_art, q_anast (ml/s), p_node (mmHg): uterine artery flow, anastomotic bypass flow and network node pressure of the
 # Clark 2018 uterine network (CK_MODE 1); q_uta is then the spiral-artery flow into the intervillous space. With
-# CK_MODE 0: q_ut_art = q_uta, q_anast = 0, p_node = pa_m.
+# CK_MODE 0: q_ut_art = q_uta, q_anast = 0, p_node = pa_m. q_ins (ml/s), p_ins (mmHg): flow and pressure at the Doppler
+# insonation site, 90 mm along the uterine artery, with CK_MODE 2 (R, L and C; Ursino mother); 0 otherwise.
 # Oxygen saturations, %, added to every output dict by run_core (not computed in core.c):
 #   spo2_m, spo2_f   arterial saturation of mother and fetus (what a pulse oximeter reads)
 #   sto2_m, sto2_f_tis, sto2_f_cer   tissue saturation as NIRS reads it: STO2_ART x arterial + (1 - STO2_ART) x the
@@ -334,13 +336,31 @@ def _rest_means(P, S, t_run=120.0, t_from=60.0):
     return m
 
 
-def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02):
+def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02, rlc=0):
     """(overrides, resting state) with the Clark 2018 network and the Ursino 1998 mother (MU_MODE 1). Cached.
     Target: the resting means of Ursino mode with Jongen's single R_uta (steady_ursino). CK_RSA is set so that the
     intervillous inflow and pressure keep their target means at the target arterial pressure (the network is linear
     in P_sa while the bypass is open, so means give mean flows). The bypass adds systemic conductance; Ursino's
     peripheral resistances U_RSP0 and U_REP0 are scaled by one factor, found by secant iteration (each trial settles
-    t_settle s at rest), so that the mean arterial pressure keeps its target (to tol mmHg)."""
+    t_settle s at rest), so that the mean arterial pressure keeps its target (to tol mmHg).
+    rlc=1: CK_MODE 2 (per-vessel inertance and compliance) with the same resistances and calibration; the network
+    states start at the mean flows and pressures of the resistive network, then t_settle s at rest."""
+    if rlc:
+        key = 'SCUL%d' % placenta
+        if key not in _SS:
+            over, S = steady_clark_ursino(placenta, t_settle, tol)
+            over = dict(over, CK_MODE=2); P = params(MU_MODE=1, H_MODE=placenta, **over); g = lambda n: P[IDX[n]]
+            m = _rest_means(params(MU_MODE=1, H_MODE=placenta, **dict(over, CK_MODE=1)), S, t_run=30.0, t_from=10.0)
+            q_an = m['q_anast']; q = m['q_uta'] + q_an; S = S.copy()
+            R = [g('CK_RU') / 5] * 5 + [g('CK_RAR'), g('CK_RR'), g('CK_RAV')]
+            p = m['pa_m']
+            for k in range(7):
+                p -= R[k] * q; S[SI['CK_Q%d' % k]] = q; S[SI['CK_P%d' % k]] = p
+            S[SI['CK_Q7']] = q_an; S[SI['CK_P7']] = p - R[7] * q_an
+            _, S, ok = run_core(P, S, np.full(int(t_settle / DU) + 1, g('S_PREST')), dt=DTS, du=DU, out_every=50)
+            assert ok, 'Clark R-L-C + Ursino steady-state run became non-finite'
+            _SS[key] = (over, S)
+        return _SS[key]
     key = 'SCU%d' % placenta
     if key not in _SS:
         P0 = params(MU_MODE=1, H_MODE=placenta); g = lambda n: P0[IDX[n]]
@@ -367,6 +387,39 @@ def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02):
         assert abs(e1) < tol, 'Clark + Ursino rest calibration did not converge'
         _SS[key] = (o1, S1)
     return _SS[key]
+
+
+def doppler_indices(o, t0=None, t1=None, r=2.0, e_wall=1.5e6, h_wall=0.1):
+    """Uterine artery Doppler indices from a CK_MODE 2 run (uterus=2, circ=1) recorded with out_every=1.
+    Velocity at the insonation site as in Clark 2018's code: v = flow of one side / (pi r^2 + C' p), C' = 3 pi r^3 /
+    (2 h r E) the area compliance per length (r mm, E Pa). Beats run from one upstroke (velocity crossing its window
+    mean upwards) to the next. Returns a dict of per-beat arrays PI = (max - min) / mean, RI = (max - min) / max,
+    SD = max / min, notch (True when velocity rises again after the systolic fall), the beat start times, and 'v'
+    (cm/s) with 't' for the window."""
+    t = o['t']; w = np.ones_like(t, bool)
+    if t0 is not None:
+        w &= t >= t0
+    if t1 is not None:
+        w &= t <= t1
+    cp = 3.0 * np.pi * r ** 3 / (2.0 * h_wall * r * e_wall)                 # mm2/Pa
+    v = (o['q_ins'][w] / 2 * 1000.0) / (np.pi * r ** 2 + cp * o['p_ins'][w] * 133.322) / 10.0   # cm/s
+    tw = t[w]; m = v.mean()
+    up = np.flatnonzero((v[:-1] < m) & (v[1:] >= m)) + 1
+    keep = [up[0]] if len(up) else []
+    for i in up[1:]:
+        if tw[i] - tw[keep[-1]] > 0.35:
+            keep.append(i)
+    res = {k: [] for k in ('PI', 'RI', 'SD', 'notch', 't_beat')}
+    for a, b in zip(keep[:-1], keep[1:]):
+        x = v[a:b]; mx, mn, me = x.max(), x.min(), x.mean(); k = int(np.argmax(x))
+        d = np.diff(x[k:]); fall = np.flatnonzero(d < 0)
+        notch = bool(len(fall) and np.any(d[fall[0]:] > 0) and np.argmax(d[fall[0]:] > 0) < len(d) - fall[0] - 2
+                     and x[k + fall[0] + int(np.argmax(d[fall[0]:] > 0))] > mn + 0.02 * (mx - mn))
+        res['PI'].append((mx - mn) / me); res['RI'].append((mx - mn) / mx); res['SD'].append(mx / mn)
+        res['notch'].append(notch); res['t_beat'].append(tw[a])
+    res = {k: np.array(v_) for k, v_ in res.items()}
+    res['v'], res['t'] = v, tw
+    return res
 
 
 def maternal_pa(S, P):
@@ -401,11 +454,14 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
     p_node. The resting state keeps Jongen's pressures, cardiac output, intervillous flow and fetal state
     (clark_parameters). Combines with the other options and with parameter overrides (CK_KA sets the compression of
     the bypass). With circ=1 the network runs on Ursino's pulsatile arterial pressure (steady_clark_ursino; the
-    resting intervillous inflow is Ursino mode's, and Ursino's baroreflex absorbs the bypass)."""
+    resting intervillous inflow is Ursino mode's, and Ursino's baroreflex absorbs the bypass).
+    uterus=2 (circ=1 only): the same network with Clark's per-vessel inertance and compliance (CK_MODE 2), solved on
+    Ursino's pulsatile pressure; q_ins and p_ins give the Doppler insonation site (doppler_indices)."""
+    assert uterus != 2 or circ, 'uterus=2 (inertance and compliance) needs the pulsatile Ursino mother (circ=1)'
     if circ:
         assert not (mhr or thorax or vaso or autotx or kw), 'circ excludes the other maternal add-ons and overrides'
         if uterus:
-            over, S0 = steady_clark_ursino(placenta)
+            over, S0 = steady_clark_ursino(placenta, rlc=int(uterus == 2))
             return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta, **over), S0, put,
                             dt=dt, du=du, out_every=out_every)
         return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta), steady_ursino(placenta=placenta), put,

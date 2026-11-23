@@ -106,21 +106,21 @@ run_card = ('<section class="step" id="run"><header><span class="n">▶</span><s
 
 # ---------------------------------------------------------------- block cards
 cards = [
-    card(1, 'Thoracic excess', 'dpth', [(180, 182)], [
+    card(1, 'Thoracic excess', 'dpth', [(220, 222)], [
         row('in', 'pth', 'thoracic pressure, mmHg', '← call'),
         row('given', 'MR_PTH_REST', '= %.1f mmHg, resting thoracic pressure' % PAR['MR_PTH_REST']),
         row('out', 'dpth', 'thoracic pressure above rest, mmHg', '→ 2 3 4 5', S1('dpth'))]),
-    card(2, 'Arterial pressure', 'pa_m', [(183, 183)], [
+    card(2, 'Arterial pressure', 'pa_m', [(223, 223)], [
         row('loop', 'V_art', 'arterial volume, ml, from the previous step', L(10)),
         row('in', 'dpth', 'thoracic excess, mmHg', L(1)),
         row('given', 'MT_FA', '= %.3f, share of the arterial compliance inside the chest (Lu 2001; fitted to Fox phase-1 SBP +18 mmHg)' % PAR['MT_FA']),
         row('out', 'pa_m', 'maternal arterial pressure, mmHg', '→ 5 6 7', S1('pa_m'))]),
-    card(3, 'Venous pressure', 'pv_m', [(188, 188)], [
+    card(3, 'Venous pressure', 'pv_m', [(228, 228)], [
         row('loop', 'V_ven', 'venous volume, ml, from the previous step', L(10)),
         row('in', 'dpth', 'thoracic excess, mmHg', L(1)),
         row('given', 'MT_FVAB', '= %.3f, share of the venous compliance in the abdomen, pressed by the strain (our addition; fitted to Fox phase-2 CO 39 %%)' % PAR['MT_FVAB']),
         row('out', 'pv_m', 'maternal venous pressure, mmHg', '→ 4 6', S1('pv_m'))]),
-    card(4, 'Venous return', 'q_vr', [(197, 198)], [
+    card(4, 'Venous return', 'q_vr', [(237, 238)], [
         row('loop', 'V_TH', 'intrathoracic venous and pulmonary blood, ml', L(10)),
         row('in', 'pv_m', 'venous pressure, mmHg', L(3)),
         row('in', 'dpth', 'thoracic excess, mmHg', L(1)),
@@ -128,79 +128,79 @@ cards = [
         row('given', 'MT_RVR', '= %.3f mmHg·s/ml, vena cava resistance (Lu 2001); no backflow' % PAR['MT_RVR']),
         row('out', 'pth_tm', 'transmural pressure of the intrathoracic reservoir, mmHg', '→ 5', S1('pth_tm')),
         row('out', 'q_vr', 'venous return into the chest, ml/s (4-s mean)', '→ 10', S1('q_vr'))]),
-    card(5, 'Heart', 'qco_m', [(199, 204)], [
+    card(5, 'Heart', 'qco_m', [(239, 244)], [
         row('in', 'pth_tm', 'filling pressure, mmHg', L(4)),
         row('in', 'pa_m', 'arterial pressure, mmHg', L(2)),
         row('in', 'dpth', 'the heart ejects against pa_m − dpth', L(1)),
         row('loop', 'H', 'heart rate, bpm; heart period t_m = 60 / H', '<a href="#b9">← 9</a>'),
         row('given', 'M_EMIN, M_EMAX', 'Jongen 2016 heart: end-diastolic and end-systolic volume from the pressures'),
         row('out', 'qco_m', 'cardiac output, ml/s (4-s mean)', '→ 10', S1('q_co'))]),
-    card(6, 'Uterine inflow', 'quta', [(190, 193), (208, 208)], [
+    card(6, 'Uterine inflow', 'quta', [(230, 233), (248, 248)], [
         row('in', 'pa_m', 'arterial pressure, mmHg', L(2)),
         row('in', 'pv_m', 'venous pressure, mmHg', L(3)),
         row('in', 'p_ut', 'uterine pressure = 15 + dp, mmHg; compresses the uterine veins', '← call', S1('p_ut', 'in')),
         row('loop', 'V_IVS', 'intervillous volume, ml', L(10)),
         row('given', 'M_RUTA', '= %.2f mmHg·s/ml, uterine arterial resistance (Jongen 2016)' % PAR['M_RUTA']),
         row('out', 'quta', 'uterine blood flow, ml/s (4-s mean)', '→ 10 11 12', S1('q_uta'))]),
-    card(7, 'Baroreceptors', 'nb_r', [(319, 323), (330, 331)], [
+    card(7, 'Baroreceptors', 'nb_r', [(368, 372), (379, 380)], [
         row('in', 'pa_m', 'SBP = pa_m + MR_SBP_OFF (%.1f mmHg); Jongen\'s heart is not pulsatile' % PAR['MR_SBP_OFF'], L(2)),
         row('in', 'pthv', 'thoracic pressure; the aortic receptor sees SBP − P_th', '← call'),
         row('out', 'sbp', 'systolic pressure, mmHg', '', S1('sbp')),
         row('out', 'ewc', 'carotid wall strain, from SBP', '', S1('ewc')),
         row('out', 'ewa', 'aortic wall strain, from SBP − P_th', '', S1('ewa')),
         row('out', 'nb_r', 'afferent signal: strain minus its slow adapting part, carotid and aortic weighted by MR_B = %.1f' % PAR['MR_B'], '→ 8', S1('nb'))]),
-    card(8, 'Autonomic outflow', 'T_pb, T_pr, T_s', [(324, 325), (328, 328), (332, 334)], [
+    card(8, 'Autonomic outflow', 'T_pb, T_pr, T_s', [(373, 374), (377, 377), (381, 383)], [
         row('in', 'nb_r', 'afferent signal', L(7)),
         row('in', 'pthv', 'thoracic pressure, drives the respiratory parasympathetic part', '← call'),
         row('given', 'MR_TAU*', 'time constants %.1f / %.1f / %.1f s; sympathetic delay MR_DS = %.0f s' % (PAR['MR_TAUPB'], PAR['MR_TAUPR'], PAR['MR_TAUS'], PAR['MR_DS'])),
         row('out', 'T_pb', 'parasympathetic tone from the baroreflex', '→ 9', S1('tpb')),
         row('out', 'T_pr', 'parasympathetic tone from thoracic pressure', '→ 9', S1('tpr')),
         row('out', 'T_s', 'sympathetic tone', '→ 9', S1('ts'))]),
-    card(9, 'Heart rate', 'H', [(326, 326), (335, 335)], [
+    card(9, 'Heart rate', 'H', [(375, 375), (384, 384)], [
         row('in', 'T_pb, T_pr, T_s', 'autonomic tones', L(8)),
         row('given', 'MR_HI', '= %.1f bpm intrinsic heart rate; MR_TAUH = %.1f s' % (PAR['MR_HI'], PAR['MR_TAUH'])),
         row('out', 'H', 'maternal heart rate, bpm', '→ 5, out', S1('mhr'))]),
-    card(10, 'Volume update', 'Euler, dt = 0.02 s', [(351, 354), (359, 359)], [
+    card(10, 'Volume update', 'Euler, dt = 0.02 s', [(401, 404), (409, 409)], [
         row('in', 'qco_m', 'cardiac output', L(5)),
         row('in', 'quta', 'uterine inflow', L(6)),
         row('in', 'q_vr', 'venous return', L(4)),
         row('out', 'V_art, V_ven, V_TH, V_IVS', 'volumes for the next step', '→ 2 3 4 6 11')]),
-    card(11, 'Maternal O2 pools', 'pg[0], pg[2]', [(207, 207), (263, 265), (268, 272), (282, 283), (286, 291), (355, 360)], [
+    card(11, 'Maternal O2 pools', 'pg[0], pg[2]', [(247, 247), (312, 314), (317, 321), (331, 332), (335, 340), (405, 410)], [
         row('in', 'qco_m', 'cardiac output', L(5)),
         row('in', 'quta, qutv', 'uterine inflow and outflow', L(6)),
         row('in', 'q_vr', 'venous return into the chest', L(4)),
-        row('in', 'qtisa_m, qtisv_m', 'maternal tissue flows, line 207 (from pa_m, pv_m and tissue pressure)'),
+        row('in', 'qtisa_m, qtisv_m', 'maternal tissue flows, line 247 (from pa_m, pv_m and tissue pressure)'),
         row('loop', 'qd_pl', 'O2 leaving the intervillous pool into the fetus', '<a href="#b12">← 12</a>'),
         row('loop', 'V_*, MM_*', 'blood volumes and O2 contents of the maternal pools, from the previous step', L(10)),
         row('given', 'O_DLUNG, O_PAIR', 'lung uptake qd_lu = O_DLUNG (O_PAIR − pg[1]) into the venous pool, A(16)'),
         row('given', 'O_QTISM, O_THTISM', 'maternal tissue O2 use, reduced below a tissue pO2 threshold, A(17)'),
         row('out', 'pg[0]', 'maternal arterial pO2, mmHg', '→ 12 17', S1('po2_m_a')),
         row('out', 'pg[2]', 'maternal tissue pO2, mmHg', '→ 17', S1('po2_m_tis'))]),
-    card(12, 'Placental O2 transfer', 'qd_pl', [(281, 281)], [
+    card(12, 'Placental O2 transfer', 'qd_pl', [(330, 330)], [
         row('in', 'pg[0]', 'maternal arterial pO2 = pO2 of the blood entering the exchanger, mmHg', L(11)),
         row('in', 'pg[5]', 'fetal arterial pO2 = pO2 of the fetal blood entering, mmHg', '<a href="#b14">← 14</a>'),
         row('in', 'quta', 'maternal capillary flow, ml/s (4-s mean)', L(6), S1('q_uta', 'in')),
         row('in', 'quma', 'fetal capillary flow (umbilical arterial), ml/s (4-s mean)', '<a href="#b13">← 13</a>', S1('q_uma', 'in')),
         row('given', 'H_DMC', '= %.2f ml/(min·mmHg), membrane diffusing capacity in the model; calibrated so that fetal arterial pO2 is 18.5 mmHg at rest (Hill 1972 Table 1: %.2f)' % (PAR['H_DMC'], PAR['H_DM'])),
         row('given', 'H_K*, H_HB*, H_VM, H_VF', 'Hill 1972 human dissociation curves, hemoglobin, capillary volumes 10 ml'),
-        row('out', 'qd_pl', 'O2 transfer, ml/min: out of the intervillous pool, into the villous pool (lines 357, 369)', '→ 11 14', S1('qd_pl'))]),
-    card(13, 'Fetal circulation', 'quma, pa', [(246, 260)], [
+        row('out', 'qd_pl', 'O2 transfer, ml/min: out of the intervillous pool, into the villous pool (lines 407, 419)', '→ 11 14', S1('qd_pl'))]),
+    card(13, 'Fetal circulation', 'quma, pa', [(295, 309)], [
         row('in', 'T', 'fetal heart period, s', '<a href="#b16">← 16</a>'),
         row('in', 'zE, zR, zV', 'effector signals: heart contractility, tissue resistance, venous unstressed volume', '<a href="#b16">← 16</a>'),
         row('loop', 'R_cera', 'cerebral arterial resistance (autoregulation)', '<a href="#b15">← 15</a>'),
-        row('loop', 'V_F*', 'fetal blood volumes, from the previous step (update lines 361–365)'),
+        row('loop', 'V_F*', 'fetal blood volumes, from the previous step (update lines 411–415)'),
         row('given', 'p_um', '= 0: S_WUM = 0 in this run, so the cord is not compressed; p_ut cancels in the fetal transmural pressures'),
         row('out', 'quma', 'umbilical arterial flow, ml/s (4-s mean)', '→ 12 14', S1('q_uma')),
         row('out', 'qco, qtisa, qcera', 'fetal cardiac output (shown, 4-s mean) and tissue and cerebral flows, ml/s', '→ 14', S1('q_co_f')),
         row('out', 'pa', 'fetal arterial pressure, mmHg', '→ 15', S1('pa_f'))]),
-    card(14, 'Fetal O2 pools', 'pg[5], pg[7], pg[8]', [(266, 267), (273, 278), (284, 285), (298, 301), (366, 371)], [
+    card(14, 'Fetal O2 pools', 'pg[5], pg[7], pg[8]', [(315, 316), (322, 327), (333, 334), (347, 350), (416, 421)], [
         row('in', 'qd_pl', 'O2 entering the villous pool, ml/min', '<a href="#b12">← 12</a>'),
         row('in', 'qco, quma, qtisa, qcera', 'fetal flows that carry O2 between the pools', '<a href="#b13">← 13</a>'),
         row('loop', 'MF_*', 'O2 contents of the fetal pools, from the previous step'),
         row('given', 'O_QTISF, O_QCERF', 'fetal tissue and cerebral O2 use, A(17)'),
         row('out', 'pg[5]', 'fetal arterial pO2, mmHg', '→ 12 15 17', S1('po2_a')),
         row('out', 'pg[7], pg[8]', 'fetal tissue and cerebral pO2, mmHg (cerebral shown)', '→ 17', S1('po2_cer'))]),
-    card(15, 'Fetal reflexes', 'r_b, r_c, e_v, e_s', [(304, 316), (373, 380)], [
+    card(15, 'Fetal reflexes', 'r_b, r_c, e_v, e_s', [(353, 365), (423, 430)], [
         row('in', 'pg[5]', 'fetal arterial pO2, mmHg', '<a href="#b14">← 14</a>'),
         row('in', 'pa', 'fetal arterial pressure, mmHg', '<a href="#b13">← 13</a>'),
         row('given', 'G_*', 'Jongen 2016 baro- and chemoreceptor curves (Gompertz), weights, delays and time constants; noise N = 0'),
@@ -210,15 +210,15 @@ cards = [
         row('out', 'e_s', 'sympathetic efferent', '', S1('e_s')),
         row('loop', 'x_Tv, x_Ts, x_E, x_R, x_V', 'delayed, filtered efferents (state), read in the next step', '→ 16'),
         row('loop', 'R_cera', 'cerebral resistance from fetal arterial O2 content, A(18), A(19)', '→ 13')]),
-    card(16, 'Fetal heart rate', 'T', [(243, 245)], [
+    card(16, 'Fetal heart rate', 'T', [(292, 294)], [
         row('loop', 'x_Tv, x_Ts, x_E, x_R, x_V', 'filtered efferents from the previous step', '<a href="#b15">← 15</a>'),
         row('given', 'F_TREF', '= %.3f s, resting fetal heart period; S_GAIN = 1' % PAR['F_TREF']),
         row('out', 'T', 'fetal heart period; FHR = 60 / T, bpm', '→ 13, out', S1('fhr')),
         row('out', 'zE, zR, zV', 'effector signals', '→ 13')]),
     ('<section class="step" id="b17"><header><span class="n">17</span><span class="tt">O2 saturation</span>'
-     '<code class="fn">SpO2, StO2</code><a class="at" href="%s#L203">simulate.py:203</a></header>'
+     '<code class="fn">SpO2, StO2</code><a class="at" href="%s#L205">simulate.py:205</a></header>'
      '<p class="note">Not part of the 0.02 s loop: run_core computes it from the recorded pO2 after core.c returns.</p>%s<div class="rows">%s</div></section>'
-     % (GH.replace('core.c', 'simulate.py'), code(SIMPY, [(75, 75), (203, 216)]), ''.join([
+     % (GH.replace('core.c', 'simulate.py'), code(SIMPY, [(77, 77), (205, 218)]), ''.join([
         row('in', 'pg[0], pg[2]', 'maternal arterial and tissue pO2, mmHg', L(11)),
         row('in', 'pg[5], pg[7], pg[8]', 'fetal arterial, tissue and cerebral pO2, mmHg', '<a href="#b14">← 14</a>'),
         row('given', 'O_C1M, O_C1F, O_C2*', 'Jongen 2016 dissociation curves, A(13): saturation = g / (g + c1), g = p³ + c2·p'),
