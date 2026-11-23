@@ -1,6 +1,7 @@
-/* Block-by-block section: one run of the model version chosen in the model tab above (window.FS_MODEL, event
-   'modelchange'), as functions with inputs, outputs, constants and state, grouped by the numbered parts of the cross-section
-   (1 Mother … 8 Chemoreceptor), and a chart of the hovered block.
+/* Blocks of the model version chosen in the model tab (window.FS_MODEL, event 'modelchange'): a flow diagram of one
+   0.02-s step under the cross-section (in place of the circuit), and in the explorer's panel the blocks of the selected
+   part, each a function with inputs, outputs, constants and state, with its signal from one 20-minute run on top.
+   Labels are the cross-section's part numbers (1 Mother … 8 Chemoreceptor; 1a, 1b … when a part has several blocks).
    Data: BK_DATA (docs/blocks/traces.json, made by docs/blocks/run.py). */
 (() => {
 "use strict";
@@ -181,6 +182,88 @@ const MOTHER = {
   ],
 };
 const KEYS = {0: ['placenta', 'oxygen', 'sat', 'heart', 'mcirc'], 1: ['placenta', 'oxygen', 'sat', 'heart', 'mcirc'], 2: ['placenta', 'oxygen', 'sat', 'heart', 'uhv']};
+
+/* ---------- diagram: mother band per version, fetal band shared ---------- */
+const PUT_F = `<polyline class="w" points="130,405 150,405 150,882 178,882" marker-end="url(#bk-fa)"/>
+  <line class="w" x1="150" y1="635" x2="168" y2="635" marker-end="url(#bk-fa)"/><text class="wl" x="156" y="520">p_ut</text>
+  <g class="nd src" data-k="put" tabindex="0"><rect x="20" y="370" width="110" height="70" rx="6"/>
+    <text class="nt" x="75" y="400" text-anchor="middle">p_ut(t)</text><text class="nf" x="75" y="420" text-anchor="middle">from f2</text></g>`;
+const LINK = (up1, up2, dn1, dn2, up3) => `<polyline class="w" points="220,600 220,285 440,285 440,242" marker-end="url(#bk-fa)"/>
+  ${up3 ? `<text class="wl" x="214" y="386" text-anchor="end">${up1}</text><text class="wl" x="214" y="400" text-anchor="end">${up2}</text><text class="wl" x="214" y="414" text-anchor="end">${up3}</text>`
+    : `<text class="wl" x="226" y="400">${up1}</text><text class="wl" x="226" y="414">${up2}</text>`}
+  <polyline class="fbw" points="480,240 480,320 290,320 290,598" marker-end="url(#bk-fb)"/>
+  <text class="fbl" x="296" y="400">${dn1}</text><text class="fbl" x="296" y="414">${dn2}</text>`;
+const ND = (k, x, y, w, t, f, key) => `<g class="nd${key ? ' bkkey' : ''}" data-k="${k}" tabindex="0"><rect x="${x}" y="${y}" width="${w}" height="70" rx="6"/>
+  <text class="nt" x="${x + 12}" y="${y + 28}">${t}</text><text class="nf" x="${x + 12}" y="${y + 50}">${f}</text></g>`;
+const OUTN = (k, x, y, t) => `<g class="nd" data-k="${k}" tabindex="0"><rect x="${x}" y="${y}" width="${t.length * 10 + 14}" height="40" fill="transparent" stroke="none"/>
+  <text class="outl" x="${x + 4}" y="${y + 25}">${t}</text></g>`;
+const MBAND = {
+  0: PUT_F + LINK('q_uta,', 'q_utv', 'p_a,m,', 'p_v,m') +
+    `<line class="w" x1="570" y1="205" x2="1280" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="925" y="196" text-anchor="middle">T_m fixed</text>` +
+    ND('mcirc', 400, 170, 170, 'M1 · Maternal circ.', 'maternal_circulation', 1) + OUTN('out', 1282, 185, 'MHR'),
+  1: `<polyline class="w" points="130,405 150,405 150,75 178,75" marker-end="url(#bk-fa)"/>
+  <polyline class="w" points="150,405 150,882 178,882" marker-end="url(#bk-fa)"/>
+  <line class="w" x1="150" y1="635" x2="168" y2="635" marker-end="url(#bk-fa)"/><text class="wl" x="156" y="250">p_ut</text>
+  <polyline class="w" points="340,75 372,75 372,205 398,205" marker-end="url(#bk-fa)"/><text class="wl" x="378" y="140">v_sq</text>
+  <line class="w" x1="570" y1="205" x2="628" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="599" y="196" text-anchor="middle">p_a,m</text>
+  <line class="w" x1="790" y1="205" x2="848" y2="205" marker-end="url(#bk-fa)"/>
+  <polyline class="w" points="820,205 820,335 848,335" marker-end="url(#bk-fa)"/><text class="wl" x="819" y="196" text-anchor="middle">n_b</text>
+  <polyline class="w" points="1010,75 1045,75 1045,190 1068,190" marker-end="url(#bk-fa)"/><text class="wl" x="1051" y="130">T_pr</text>
+  <line class="w" x1="1010" y1="205" x2="1068" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="1027" y="199" text-anchor="middle">T_pb</text>
+  <polyline class="w" points="1010,322 1045,322 1045,220 1068,220" marker-end="url(#bk-fa)"/><text class="wl" x="1051" y="280">T_s</text>
+  <line class="w" x1="1010" y1="350" x2="1068" y2="350" marker-end="url(#bk-fa)"/><text class="wl" x="1039" y="366" text-anchor="middle">T_s</text>
+  <line class="w" x1="1230" y1="205" x2="1280" y2="205" marker-end="url(#bk-fa)"/>` + LINK('q_uta,', 'q_utv', 'p_a,m,', 'p_v,m') +
+  `<polyline class="fbw" points="1150,170 1150,24 520,24 520,168" marker-end="url(#bk-fb)"/><text class="fbl" x="835" y="16" text-anchor="middle">T_m</text>
+  <polyline class="fbw" points="1150,370 1150,420 540,420 540,242" marker-end="url(#bk-fb)"/><text class="fbl" x="845" y="414" text-anchor="middle">R_tis,a,m, v_vaso</text>
+  <g class="nd src" data-k="put" tabindex="0"><rect x="20" y="370" width="110" height="70" rx="6"/>
+    <text class="nt" x="75" y="400" text-anchor="middle">p_ut(t)</text><text class="nf" x="75" y="420" text-anchor="middle">from f2</text></g>` +
+    ND('autotx', 180, 40, 160, 'M1 · Autotransfusion', 'autotransfusion') + ND('mcirc', 400, 170, 170, 'M2 · Maternal circ.', 'maternal_circulation', 1) +
+    ND('mbaro', 630, 170, 160, 'M3 · Baroreceptor', 'baroreceptor') + ND('resp', 850, 40, 160, 'M4 · Respiratory', 'P_th = 4.5 (fixed)') +
+    ND('para', 850, 170, 160, 'M5 · Parasympathetic', 'parasympathetic') + ND('symp', 850, 300, 160, 'M6 · Sympathetic', 'sympathetic') +
+    ND('mheart', 1070, 170, 160, 'M7 · Heart rate', 'heart_rate') + ND('vaso', 1070, 300, 160, 'M8 · Vasomotor', 'vasomotor') + OUTN('out', 1282, 185, 'MHR'),
+  2: PUT_F + LINK('q_ut,art,', 'q_utv,', 'P_sa,', 'P_ev', 'q_an') +
+    `<line class="w" x1="570" y1="205" x2="628" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="599" y="196" text-anchor="middle">P_sa</text>
+  <line class="w" x1="790" y1="205" x2="848" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="819" y="196" text-anchor="middle">f_cs</text>
+  <polyline class="w" points="1010,220 1040,220 1040,335 1068,335" marker-end="url(#bk-fa)"/><text class="wl" x="1046" y="290">f_es, f_ev</text>
+  <line class="w" x1="1150" y1="300" x2="1150" y2="242" marker-end="url(#bk-fa)"/><text class="wl" x="1158" y="276">ΔT_s, ΔT_v</text>
+  <line class="w" x1="1230" y1="205" x2="1280" y2="205" marker-end="url(#bk-fa)"/>
+  <polyline class="fbw" points="1150,170 1150,24 520,24 520,168" marker-end="url(#bk-fb)"/><text class="fbl" x="835" y="16" text-anchor="middle">T_m</text>
+  <polyline class="fbw" points="1150,370 1150,420 540,420 540,242" marker-end="url(#bk-fb)"/><text class="fbl" x="845" y="414" text-anchor="middle">E_max,lv, E_max,rv, R_sp, R_ep, V_u,sv, V_u,ev</text>` +
+    ND('uhv', 400, 170, 170, 'M1 · Heart, vessels', 'ursino_circulation', 1) + ND('ucs', 630, 170, 160, 'M2 · Carotid sinus', 'carotid_afferent') +
+    ND('ueff', 850, 170, 160, 'M3 · Symp., vagal', 'efferent') + ND('uhp', 1070, 170, 160, 'M5 · Heart period', 'heart_period') +
+    ND('ueffec', 1070, 300, 160, 'M4 · Effectors', 'effectors') + OUTN('out', 1282, 185, 'MHR'),
+};
+const FBAND = m => `<g transform="translate(0,560)">
+  <line class="w" x1="340" y1="75" x2="398" y2="75" marker-end="url(#bk-fa)"/>
+  <text class="wl" x="369" y="64" text-anchor="middle">q_uta,</text><text class="wl" x="369" y="92" text-anchor="middle">q_utv</text>
+  <line class="w" x1="340" y1="322" x2="398" y2="322" marker-end="url(#bk-fa)"/><text class="wl" x="369" y="311" text-anchor="middle">R_um</text>
+  <line class="w" x1="485" y1="300" x2="485" y2="112" marker-end="url(#bk-fa)"/><text class="wl" x="492" y="205">q, V</text>
+  <line class="w" x1="570" y1="65" x2="628" y2="65" marker-end="url(#bk-fa)"/><text class="wl" x="599" y="56" text-anchor="middle">pO2_a</text>
+  <polyline class="w" points="570,95 600,95 600,205 628,205" marker-end="url(#bk-fa)"/><text class="wl" x="606" y="150">c_a</text>
+  <line class="w" x1="570" y1="335" x2="628" y2="335" marker-end="url(#bk-fa)"/><text class="wl" x="599" y="326" text-anchor="middle">p_a</text>
+  <polyline class="w" points="790,75 820,75 820,195 848,195" marker-end="url(#bk-fa)"/><text class="wl" x="826" y="140">r_c</text>
+  <polyline class="w" points="790,335 820,335 820,215 848,215" marker-end="url(#bk-fa)"/><text class="wl" x="826" y="280">r_b</text>
+  <line class="w" x1="1010" y1="205" x2="1068" y2="205" marker-end="url(#bk-fa)"/><text class="wl" x="1039" y="196" text-anchor="middle">e_v, e_s</text>
+  <line class="w" x1="1150" y1="170" x2="1150" y2="112" marker-end="url(#bk-fa)"/><text class="wl" x="1158" y="145">z_Tv, z_Ts</text>
+  <line class="w" x1="1230" y1="65" x2="1280" y2="65" marker-end="url(#bk-fa)"/>
+  <polyline class="w" points="485,40 485,-40 628,-40" marker-end="url(#bk-fa)"/><text class="wl" x="556" y="-49" text-anchor="middle">pO2_i</text>
+  <line class="ow" x1="790" y1="-40" x2="848" y2="-40" marker-end="url(#bk-fb)"/>
+  <line class="fbw" x1="400" y1="352" x2="342" y2="352" marker-end="url(#bk-fb)"/><text class="fbl" x="370" y="392" text-anchor="middle">p_a, p_vil, p_v</text>
+  <polyline class="fbw" points="710,240 710,272 530,272 530,298" marker-end="url(#bk-fb)"/><text class="fbl" x="620" y="265" text-anchor="middle">R_cera</text>
+  <polyline class="fbw" points="1150,240 1150,420 510,420 510,372" marker-end="url(#bk-fb)"/><text class="fbl" x="830" y="414" text-anchor="middle">z_E, z_R, z_V</text>
+  <polyline class="fbw" points="1230,95 1260,95 1260,450 470,450 470,372" marker-end="url(#bk-fb)"/><text class="fbl" x="830" y="444" text-anchor="middle">T</text>` +
+  (m === 2 ? ND('placenta', 170, 40, 170, '1 · Uterine network', 'uterine_network', 1) : ND('placenta', 170, 40, 170, '1 · Uterine blood flow', 'placenta_inflow', 1)) +
+  ND('cord', 180, 300, 160, '2 · Cord', 'cord') + ND('circ', 400, 300, 170, '3 · Fetal circulation', 'fetal_circulation') +
+  ND('oxygen', 400, 40, 170, '4 · Oxygen', 'oxygen', 1) + ND('chemo', 630, 40, 160, '5 · Chemoreceptor', 'chemoreceptor') +
+  ND('baro', 630, 300, 160, '6 · Baroreceptor', 'baroreceptor') + ND('brain', 630, 170, 160, '7 · Brain autoreg.', 'brain_autoregulation') +
+  ND('reflex', 850, 170, 160, '8 · Vagal, sympathetic', 'autonomic') + ND('effectors', 1070, 170, 160, '9 · Effectors', 'effectors') +
+  ND('heart', 1070, 40, 160, '10 · Heart period', 'heart', 1) + ND('sat', 630, -75, 160, '11 · O2 saturation', 'add_saturations', 1) +
+  OUTN('sat', 852, -60, 'SpO2, StO2') + OUTN('out', 1282, 45, 'FHR') + '</g>';
+const diagram = m => `<svg class="bkflow" viewBox="0 0 1340 1030" role="img" aria-label="Maternal blocks (top) and fetal blocks (bottom) of one model step, linked by block 1">
+  <defs><marker id="bk-fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  <marker id="bk-fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ahf"/></marker></defs>
+  <line class="sep" x1="170" y1="458" x2="1330" y2="458"/><text class="band" x="20" y="60">MOTHER</text><text class="band" x="20" y="620">FETUS</text>
+  ${MBAND[m]}${FBAND(m)}</svg>`;
 
 /* ---------- charts ---------- */
 const range = (a, d = 1) => `${Math.min(...a).toFixed(d)} to ${Math.max(...a).toFixed(d)}`;
@@ -374,11 +457,10 @@ function niceTicks(lo, hi, n = 5) {
   const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
   return out;
 }
-let D = null, CH = null, pinned = 'out', model = -1;
-const MAIN = () => ({title: $b('#bk-ptitle'), note: $b('#bk-pnote'), ro: $b('#bk-readout'), leg: $b('#bk-plegend'), chart: $b('#bk-chart')});
-function draw(k, box = MAIN()) {
+let D = null, CH = null, model = -1;
+function draw(k, box) {
   const b = CH[k] || CH.out, W = box.W || 1000, H = box.H || 220, L = box.L || 56, sw = box.sw || 1.8, BT = box.BT || 30;
-  box.title.textContent = b.title; box.note.textContent = b.note || '';
+  box.note.textContent = b.note || '';
   const ro = box.ro; ro.textContent = '';
   const leg = box.leg; leg.innerHTML = '';
   b.s.forEach(([, , lab], i) => { const g = look(lab), long = g && g[0].replace(/\s*\([^)]*\)$/, '');
@@ -414,98 +496,83 @@ function draw(k, box = MAIN()) {
 }
 /* blocks grouped by the numbered parts of the cross-section; labels are the part number (+ a, b, … when a part has several) */
 const PARTS = m => [
-  ['mother', 1, 'Mother', MOTHER[m]],
-  ['uterus', 2, 'Uterine wall & TOCO', pipe(m).slice(0, 2)],
-  ['spiral', 3, 'Uterine & spiral arteries', [m === 2 ? PLACENTA_CK : PLACENTA_J('p_a,m', 'p_v,m', m === 0 ? 'M1' : 'M2')]],
-  ['placenta', 4, 'Placenta & IVS', ['oxygen', 'sat'].map(k => FETAL.find(b => b.k === k))],
-  ['cord', 5, 'Umbilical cord', ['cord'].map(k => FETAL.find(b => b.k === k))],
-  ['heart', 6, 'Fetal heart & circulation', ['circ', 'brain', 'reflex', 'effectors', 'heart'].map(k => FETAL.find(b => b.k === k))],
-  ['baro', 7, 'Baroreceptor', ['baro'].map(k => FETAL.find(b => b.k === k))],
-  ['chemo', 8, 'Chemoreceptor', ['chemo'].map(k => FETAL.find(b => b.k === k))],
+  ['mother', 1, MOTHER[m]],
+  ['uterus', 2, pipe(m).slice(0, 2)],
+  ['spiral', 3, [m === 2 ? PLACENTA_CK : PLACENTA_J('p_a,m', 'p_v,m', m === 0 ? 'M1' : 'M2')]],
+  ['placenta', 4, ['oxygen', 'sat'].map(k => FETAL.find(b => b.k === k))],
+  ['cord', 5, ['cord'].map(k => FETAL.find(b => b.k === k))],
+  ['heart', 6, ['circ', 'brain', 'reflex', 'effectors', 'heart'].map(k => FETAL.find(b => b.k === k))],
+  ['baro', 7, ['baro'].map(k => FETAL.find(b => b.k === k))],
+  ['chemo', 8, ['chemo'].map(k => FETAL.find(b => b.k === k))],
 ];
-let LAB = {};                                  // block key -> new label
+let LAB = {}, OLD = {};                        // block key -> label; old block number -> label
+const relab = b => Object.assign({}, b, {n: LAB[b.k], in: b.in.map(([v, f, fb]) => [v, OLD[f] || f, fb])});
+function GROUP_OF_BLOCK(k) { const p = PARTS(model).find(p => p[2].some(b => b.k === k)); return p ? p[0] : null; }
+const sel = () => (typeof current !== 'undefined' ? current : null);
+const flowNodes = () => [...root.querySelectorAll('.bkflow .nd')];
+const lit = k => flowNodes().forEach(n => n.classList.toggle('on', n.dataset.k === k));
+
+/* the flow diagram (in place of the circuit) */
 function render(m) {
   if (m === model) return; model = m;
   D = Object.assign({}, DATA, DATA['cm' + m]); CH = charts(m, D);
-  const parts = PARTS(m), out = pipe(m)[2], old = {};   // old block number -> new label (for the inputs' sources)
-  LAB = {};
-  parts.forEach(([, n, , bs]) => bs.forEach((b, i) => { const l = bs.length > 1 ? n + 'abcdefgh'[i] : String(n); old[b.n] = l; LAB[b.k] = l; }));
-  old.f3 = LAB.out = 'out';
-  const relab = b => Object.assign({}, b, {n: LAB[b.k], in: b.in.map(([v, f, fb]) => [v, old[f] || f, fb])});
+  LAB = {}; OLD = {};
+  PARTS(m).forEach(([, n, bs]) => bs.forEach((b, i) => { const l = bs.length > 1 ? n + 'abcdefgh'[i] : String(n); OLD[b.n] = l; LAB[b.k] = l; }));
+  OLD.f3 = LAB.out = 'out';
   for (const k in CH) if (LAB[k]) CH[k].title = CH[k].title.replace(/^[^·]*·/, LAB[k] + ' ·');
-  const host = $b('#bk-parts'); host.replaceChildren();
-  parts.concat([['out', null, 'FHR and MHR out', [out]]]).forEach(([g, n, name, bs]) => {
-    const sec = mk('section', 'bkgroup'); sec.dataset.g = g;
-    const h = mk('h3', 'bkgh'); h.tabIndex = n ? 0 : -1;
-    if (n) { h.insertAdjacentHTML('beforeend', `<span class="num" aria-hidden="true">${n}</span>`);
-      h.addEventListener('click', () => { if (typeof select === 'function') select(g, false); });
-      h.addEventListener('pointerenter', () => { if (typeof hoverPart === 'function') hoverPart(g); });
-      h.addEventListener('pointerleave', () => { if (typeof hoverPart === 'function') hoverPart(null); }); }
-    h.append(name); sec.append(h);
-    const grid = mk('div', 'bkcards'); grid.append(...bs.map(b => card(relab(b)))); sec.append(grid);
-    host.append(sec);
+  $b('#bk-flow').innerHTML = diagram(m);
+  root.querySelectorAll('.bkflow .nd .nt').forEach(t => { const k = t.closest('.nd').dataset.k; if (LAB[k]) t.textContent = t.textContent.replace(/^[^·]*·/, LAB[k] + ' ·'); });
+  root.querySelectorAll('.bkflow .nf').forEach(t => { t.textContent = t.textContent.replace(/^from (f\d)$/, (_, f) => 'from ' + OLD[f]); });
+  root.querySelectorAll('.bkflow .wl, .bkflow .fbl').forEach(t => tipOn(t, () => t.textContent.split(/,?\s+/).filter(Boolean)));
+  flowNodes().forEach(n => {
+    const k = n.dataset.k, g = GROUP_OF_BLOCK(k) || (k === 'out' ? null : undefined);
+    n.addEventListener('pointerenter', () => { lit(k); if (typeof hoverPart === 'function' && g) hoverPart(g); cardOf(k)?.classList.add('on'); });
+    n.addEventListener('pointerleave', () => { lit(null); if (typeof hoverPart === 'function') hoverPart(null); cardOf(k)?.classList.remove('on'); });
+    n.addEventListener('click', () => { if (typeof select === 'function') select(g || null, false); focusCard(k); });
   });
-  root.querySelectorAll('.bkcard').forEach(c => c.classList.toggle('bkkey', KEYS[m].includes(c.dataset.k)));
-  $b('#bk-version').textContent = ['Jongen 2016', 'fetosim: + maternal layers', 'fetosim: Ursino + Clark'][m];
-  const chips = [...root.querySelectorAll('.bkchip[data-v]')];
+  const pb = document.querySelector('#panel .bk-pblocks'); if (pb) pb.remove();
+  panelBlocks(); markPart(sel());
+}
+function markPart(g) {                         // outline the selected part's blocks in the flow diagram
+  const ks = g ? (PARTS(model).find(p => p[0] === g) || [, , []])[2].map(b => b.k) : ['out'];
+  flowNodes().forEach(n => n.classList.toggle('bkpart', ks.includes(n.dataset.k)));
+}
+
+/* the explorer's panel: the selected part's blocks, each with its signal on top (FHR and MHR out when nothing is selected) */
+const cardOf = k => document.querySelector(`#panel .bk-pblocks .bkcard[data-k="${k}"]`);
+function focusCard(k) {
+  const c = cardOf(k); if (!c) return;
+  c.scrollIntoView({behavior: 'smooth', block: 'nearest'}); c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 900);
+}
+function blockCard(b) {
+  const el = card(relab(b)), box = mk('div', 'bk-cchart');
+  box.innerHTML = '<div class="bk-plegend"></div><div class="bk-mchart"></div><span class="bk-readout"></span><p class="bknote"></p>';
+  el.querySelector('h3').after(box);
+  draw(b.k, {note: box.querySelector('.bknote'), ro: box.querySelector('.bk-readout'), leg: box.querySelector('.bk-plegend'),
+    chart: box.querySelector('.bk-mchart'), W: 1000, H: 360, L: 120, sw: 4, BT: 56});
+  el.classList.toggle('bkkey', KEYS[model].includes(b.k));
+  el.addEventListener('pointerenter', () => lit(b.k)); el.addEventListener('pointerleave', () => lit(null));
+  return el;
+}
+function panelBlocks() {
+  const panel = document.getElementById('panel'); if (!panel || !CH || panel.querySelector('.bk-pblocks')) return;
+  if (!panel.children.length) return;          // sensor views leave the panel empty
+  const g = sel(), part = g && PARTS(model).find(p => p[0] === g);
+  [...panel.children].forEach(c => { if (!c.classList.contains('ptitle')) c.remove(); });
+  const wrap = mk('div', 'bk bk-pblocks');
+  if (!part) wrap.append(mk('p', 'muted', 'Pick a part on the cross-section or a block in the flow diagram: its blocks open here, each with its signal from one 20-minute run on a synthetic TOCO.'));
+  wrap.append(...(part ? part[2] : [pipe(model)[2]]).map(blockCard));
+  panel.append(wrap);
+  const chips = [...wrap.querySelectorAll('.bkchip[data-v]')];
   chips.forEach(c => {
     c.addEventListener('pointerenter', () => chips.forEach(o => o.classList.toggle('hl', o.dataset.v === c.dataset.v)));
     c.addEventListener('pointerleave', () => chips.forEach(o => o.classList.remove('hl')));
     tipOn(c, () => [c.dataset.g], () => c.dataset.from);
   });
-  cards = [...root.querySelectorAll('.bkcard')];
-  if (!CH[pinned]) pinned = 'out';
-  const hov = k => { if (typeof hoverPart === 'function') hoverPart(k ? GROUP_OF_BLOCK(k) : null); };
-  cards.forEach(c => {
-    const k = c.dataset.k;
-    c.addEventListener('pointerenter', () => { show(k); hov(k); });
-    c.addEventListener('pointerleave', () => { show(pinned); hov(null); });
-    c.addEventListener('click', () => { pinned = k; show(k); pickPart(k); });
-    c.addEventListener('focus', () => { pinned = k; show(k); });
-  });
-  show(pinned); markPart(typeof current !== 'undefined' ? current : null); mini();
 }
-let cards = [];
-function show(k) { draw(k); cards.forEach(c => c.classList.toggle('on', c.dataset.k === k)); }
-
-/* ---------- link with the cross-section above (numbered parts: GROUP keys of the explorer) ---------- */
-const PART_CHART = m => ({mother: ['mcirc', 'mcirc', 'uhv'][m], uterus: 'put', spiral: 'placenta', placenta: 'oxygen', cord: 'cord',
-  heart: 'heart', baro: 'baro', chemo: 'chemo'});
-function GROUP_OF_BLOCK(k) {
-  const p = PARTS(model).find(p => p[3].some(b => b.k === k)); return p ? p[0] : null;
-}
-let picking = false;
-function pickPart(k) {                       // a block click selects its part above (and zooms the cross-section there)
-  const g = GROUP_OF_BLOCK(k); if (!g || typeof select !== 'function') return;
-  picking = true; select(g, false); picking = false;
-}
-function markPart(g) {                       // outline the group of the selected part
-  root.querySelectorAll('.bkgroup').forEach(s => s.classList.toggle('bkpart', s.dataset.g === g));
-}
-/* the explorer's part panel gets the signal of the selected part (FHR and MHR when nothing is selected) */
-function mini() {
-  const panel = document.getElementById('panel'); if (!panel || !CH) return;
-  let box = panel.querySelector('.bk-mini');
-  if (!box) {
-    box = mk('div', 'bk-mini');
-    box.innerHTML = '<div class="bk-phead"><h4></h4><span class="bk-readout"></span></div><div class="bk-plegend"></div><div class="bk-mchart"></div><p class="bknote"></p><button type="button" class="bk-go">Blocks and signals ↓</button>';
-    const h = panel.querySelector('.ptitle'); h ? h.after(box) : panel.prepend(box);
-    box.querySelector('.bk-go').addEventListener('click', () => {
-      const g = typeof current !== 'undefined' ? current : null;
-      const d = g && root.querySelector(`.bkgroup[data-g="${g}"]`);
-      (d || root).scrollIntoView({behavior: 'smooth', block: 'start'});
-    });
-  }
-  const g = typeof current !== 'undefined' ? current : null;
-  draw(g ? PART_CHART(model)[g] : 'out', {title: box.querySelector('h4'), note: box.querySelector('.bknote'), ro: box.querySelector('.bk-readout'),
-    leg: box.querySelector('.bk-plegend'), chart: box.querySelector('.bk-mchart'), W: 1000, H: 420, L: 120, sw: 4, BT: 56});
-}
-if (typeof hooks !== 'undefined') hooks.select.push(g => {
-  markPart(g);
-  if (!picking && g) { const k = PART_CHART(model)[g]; if (CH[k]) { pinned = k; show(k); } }
-});
+if (typeof hooks !== 'undefined') hooks.select.push(g => markPart(g));
 const pnl = document.getElementById('panel');
-if (pnl) new MutationObserver(() => { if (!pnl.querySelector('.bk-mini')) mini(); }).observe(pnl, {childList: true});
+if (pnl) new MutationObserver(() => panelBlocks()).observe(pnl, {childList: true});
 document.addEventListener('modelchange', e => render(+e.detail.cm));
 render(+(window.FS_MODEL || 0));
 })();

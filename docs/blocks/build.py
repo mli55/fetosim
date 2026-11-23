@@ -1,5 +1,5 @@
-"""Put the block-by-block section into docs/index.html: blocks.css before </head>, section.html before the circuit
-section, traces.json and blocks.js before </body>, each between marker comments (replaced on every build).
+"""Put the blocks into docs/index.html: blocks.css before </head>, section.html (the flow diagram) under the cross-section
+in the explorer, traces.json and blocks.js before </body>, each between marker comments (replaced on every build).
 Run after docs/blocks/run.py: python docs/blocks/build.py [page.html]"""
 import re
 import sys
@@ -21,7 +21,7 @@ def put(html, name, body, anchor):
 
 html = PAGE.read_text()
 html = put(html, 'css', '<style>\n' + (HERE / 'blocks.css').read_text() + '</style>', '</head>')
-html = put(html, 'section', (HERE / 'section.html').read_text().strip(), '<section id="circuit-sec"')
+html = put(html, 'section', (HERE / 'section.html').read_text().strip(), '\n    </div>\n    <aside class="panel" id="panel"')
 data = (HERE / 'traces.json').read_text().replace('</', '<\\/')
 html = put(html, 'script', f'<script type="application/json" id="bk-traces">{data}</script>\n<script>\n'
            + (HERE / 'blocks.js').read_text() + '</script>', '</body>')
