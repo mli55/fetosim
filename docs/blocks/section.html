@@ -1,0 +1,28 @@
+<section id="blocks" aria-label="TOCO to FHR and MHR, block by block">
+  <header>
+    <h2>TOCO to FHR and MHR, block by block</h2>
+    <p class="muted">One 20-minute run of the model version chosen above (<span id="bk-version"></span>) on a synthetic TOCO, written as functions; hover a block to plot its output.</p>
+  </header>
+  <div class="bk-legend" aria-label="Colour key">
+    <span><span class="bkchip in">input</span> read from another block</span>
+    <span><span class="bkchip in fb">input</span> comes back from a later block, read from the state at the start of the step</span>
+    <span><span class="bkchip out">output</span> returned</span>
+    <span><span class="bkchip par">constant = value</span> fixed parameter, with its source</span>
+    <span><span class="bkchip st">state</span> remembered between 0.02-s steps</span>
+    <span><span class="keysw"></span>uterine blood flow, oxygenation, FHR, maternal blood pressure</span>
+  </div>
+  <h3 class="sub2">The three functions you call</h3>
+  <div class="bkcards" id="bk-pipe"></div>
+  <h3 class="sub2">Inside the run, every 0.02 s</h3>
+  <div class="bkscroll" id="bk-flow"></div>
+  <h3 class="sub2" id="bk-mother-h">Mother</h3>
+  <div class="bkcards" id="bk-mother"></div>
+  <h3 class="sub2">Fetus: blocks 1 to 11</h3>
+  <div class="bkcards" id="bk-fetus"></div>
+  <div class="bk-panel" aria-live="polite">
+    <div class="bk-phead"><h3 id="bk-ptitle">FHR and MHR</h3><span class="bk-readout" id="bk-readout"></span></div>
+    <div class="bk-plegend" id="bk-plegend"></div>
+    <div id="bk-chart"></div>
+    <p class="bknote" id="bk-pnote"></p>
+  </div>
+</section>
