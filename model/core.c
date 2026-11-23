@@ -276,6 +276,8 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     double fm_h_a = UP(qco_m, c_mh, c_ma), fm_v_h = UP(qin_m, c_mth, c_mh), fm_v_th = UP(q_vr, c_mv, c_mth);
     if (!mt) fm_v_th = fm_v_h;
     double fm_a_t = UP(qtisa_m, c_ma, c_mt), fm_t_v = UP(qtisv_m, c_mt, c_mv);
+    if (mu) { fm_a_t = qtisa_m*c_ma; fm_t_v = qtisv_m*c_mt; }   /* pulsatile: tissue flow < 0 in diastole; carry the
+                                     source concentration both ways, so a beat carries its mean flow at c_ma, c_mt */
     double fm_a_i = UP(quta, c_ma, c_mi), fm_i_v = UP(qutv, c_mi, c_mv);
     double fm_a_n = fm_a_i, fm_n_v = 0.0;                        /* arteries -> uterine network, bypass -> veins */
     if (ck) {                                                    /* node blood: inflow-weighted mix (no volume) */
