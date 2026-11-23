@@ -54,27 +54,6 @@
 #blocks #bk-chart .gl { stroke: var(--line); stroke-width: 1; }
 #blocks #bk-chart .pk { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; opacity: .6; }
 #blocks #bk-chart .xh { stroke: var(--muted); stroke-width: 1; }
-#blocks .bkscroll { overflow-x: auto; }
-#blocks svg.bkflow { display: block; width: 100%; min-width: 900px; height: auto; color: var(--ink); }
-#blocks .bkflow .nd rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.3; }
-#blocks .bkflow .nd.src rect { fill: var(--bk-in-bg); stroke: var(--bk-in); }
-#blocks .bkflow .nd.src text { fill: var(--bk-in); }
-#blocks .bkflow .nd { cursor: pointer; outline: none; }
-#blocks .bkflow .nd.bkkey rect { fill: color-mix(in srgb, var(--bk-hl) 26%, var(--surface)); stroke: var(--bk-hl); stroke-width: 2.4; }
-#blocks .bkflow .nd:hover rect, #blocks .bkflow .nd:focus-visible rect { stroke: var(--muted); stroke-width: 2; }
-#blocks .bkflow .nd.on rect { stroke: var(--ink); stroke-width: 2.4; }
-#blocks .bkflow .nt { font: 600 13px var(--font-body); fill: currentColor; }
-#blocks .bkflow .nf { font: 11px var(--font-mono); fill: var(--muted); }
-#blocks .bkflow .w { fill: none; stroke: var(--muted); stroke-width: 1.4; }
-#blocks .bkflow .wl { font: 11px var(--font-mono); fill: var(--bk-in); cursor: help; }
-#blocks .bkflow .fbw { fill: none; stroke: var(--bk-out); stroke-width: 1.5; stroke-dasharray: 6 4; }
-#blocks .bkflow .fbl { font: 11px var(--font-mono); fill: var(--bk-out); cursor: help; }
-#blocks .bkflow .outl { font: 600 14px var(--font-mono); fill: var(--bk-out); }
-#blocks .bkflow .ow { fill: none; stroke: var(--bk-out); stroke-width: 1.5; }
-#blocks .bkflow .ah { fill: var(--muted); }
-#blocks .bkflow .ahf { fill: var(--bk-out); }
-#blocks .bkflow .band { font: 600 12px var(--font-body); fill: var(--muted); letter-spacing: .08em; }
-#blocks .bkflow .sep { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 5; }
 #blocks .keysw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px;
   background: color-mix(in srgb, var(--bk-hl) 26%, var(--surface)); border: 2px solid var(--bk-hl); }
 .bk-tip { position: fixed; z-index: 50; max-width: min(340px, calc(100vw - 24px)); background: var(--surface); color: var(--ink);
@@ -84,7 +63,13 @@
 .bk-tip .nm { font-weight: 600; }
 .bk-tip .mn { color: var(--muted); }
 body.fig #blocks { display: none !important; }
-#blocks .bkcard.bkpart { outline: 2px solid var(--accent); outline-offset: 2px; }
+#blocks #bk-parts { display: grid; gap: 22px; }
+#blocks .bkgroup { display: grid; gap: 10px; padding: 12px; margin: -12px; border-radius: 10px; scroll-margin-top: 16px; }
+#blocks .bkgroup.bkpart { background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 2px var(--accent); }
+#blocks .bkgh { margin: 0; font-size: 17px; display: flex; gap: 10px; align-items: center; cursor: pointer; width: fit-content; }
+#blocks .bkgroup[data-g="out"] .bkgh { cursor: default; }
+#blocks .bkgh .num { width: 26px; height: 26px; font-size: 13px; }
+#blocks .bkgh:hover .num, #blocks .bkgroup.bkpart .bkgh .num { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 /* signal of the selected part inside the explorer's panel */
 .bk-mini { display: grid; gap: 4px; padding: 10px 12px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .bk-mini { --bk-s1: var(--c4); --bk-s2: var(--c2); --bk-s3: var(--c3); }
