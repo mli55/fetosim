@@ -27,7 +27,8 @@ MATERNAL_THORAX_SET = HERE / 'parameters/maternal_thorax_lu2001.json'  # appende
 MATERNAL_VASO_SET = HERE / 'parameters/maternal_vasomotor.json'        # appended after that (core.c MV_*, MA_*)
 MATERNAL_CIRC_SETS = (HERE / 'parameters/maternal_circulation_coupling.json',     # core.c MU_MODE, MU_NSUB
                       HERE / 'parameters/maternal_circulation_ursino1998.json',   # then Ursino 1998 (ursino1998.c U_*)
-                      HERE / 'parameters/placental_o2_hill1972.json')             # then Hill 1972 (hill1972.c H_*)
+                      HERE / 'parameters/placental_o2_hill1972.json',             # then Hill 1972 (hill1972.c H_*)
+                      HERE / 'parameters/uterine_network_clark2018.json')         # then Clark 2018 network (core.c CK_*)
 
 
 def load_parameter_set(path=PARAMETER_SET):
@@ -61,7 +62,11 @@ SI = {n: i for i, n in enumerate(STATE)}
 OUT = ['fhr', 'ptm_a', 'po2_a', 'q_uta', 'q_utv', 'v_ivs', 'po2_tis', 'po2_cer', 'q_tisa', 'q_cera', 'q_uma', 'q_umv',
        'v_villi', 'r_b', 'r_c', 'p_ut', 'e_s', 'e_v', 'z_tv', 'z_ts', 'q_co',
        'mhr', 'pa_m', 'q_co_m', 'sbp_m', 'pth_m', 'pv_m', 'q_vr_m', 'pth_tm_m', 'rtisa_m', 'v_sh_m', 'ts_m',
-       'po2_m_a', 'po2_m_tis', 'po2_v']
+       'po2_m_a', 'po2_m_tis', 'po2_v',
+       'q_ut_art', 'q_anast', 'p_node']
+# q_ut_art, q_anast (ml/s), p_node (mmHg): uterine artery flow, anastomotic bypass flow and network node pressure of the
+# Clark 2018 uterine network (CK_MODE 1); q_uta is then the spiral-artery flow into the intervillous space. With
+# CK_MODE 0: q_ut_art = q_uta, q_anast = 0, p_node = pa_m.
 # Oxygen saturations, %, added to every output dict by run_core (not computed in core.c):
 #   spo2_m, spo2_f   arterial saturation of mother and fetus (what a pulse oximeter reads)
 #   sto2_m, sto2_f_tis, sto2_f_cer   tissue saturation as NIRS reads it: STO2_ART x arterial + (1 - STO2_ART) x the
@@ -253,7 +258,7 @@ def steady():
 def hill_exchange(pm_in, pf_in, qm, qf, **kw):
     """Hill 1972 exchanger alone: inflowing maternal and fetal pO2 (mmHg), capillary flows (ml/s); kw overrides H_*
     parameters. Returns (O2 transfer ml/s, maternal end-capillary pO2, fetal end-capillary pO2, mean Dp)."""
-    P = params(**kw); H = np.ascontiguousarray(P[IDX['H_MODE']:]); end = np.zeros(3)
+    P = params(**kw); H = np.ascontiguousarray(P[IDX['H_MODE']:IDX['CK_MODE']]); end = np.zeros(3)
     r = lib().hill_exchange_rate(_ptr(H), pm_in, pf_in, qm, qf, _ptr(end))
     return r, end[0], end[1], end[2]
 
@@ -283,13 +288,94 @@ def steady_ursino(t_settle=600.0, placenta=0):
     return _SS[key]
 
 
+def clark_parameters(S0, P, k_a=None):
+    """Parameter overrides that switch on the uterine network after Clark 2018 (CK_MODE 1) without changing the
+    resting state S0 of parameter vector P (which has CK_MODE 0). k_a = CK_KA (None: the value in P).
+    CK_RUP and CK_RA are Clark's. Derived from the resting state:
+      CK_RSA            so that the resting intervillous inflow and pressure stay as they are;
+      M_RTISA, M_RTISV  both scaled by q_tis / (q_tis - q_anast): the bypass flow is taken out of the maternal tissue
+                        flow, so maternal cardiac output and arterial and venous pressure stay as they are.
+    Returns (overrides, info); info holds the resting flows (ml/s) and pressures (mmHg)."""
+    g = lambda n: P[IDX[n]]
+    k_a = g('CK_KA') if k_a is None else k_a
+    pa = maternal_pa(S0, P); pv = (S0[SI['VM_VEN']] - g('M_VVEN0')) / g('M_CVEN')
+    pt = (S0[SI['VM_TIS']] - g('M_VTIS0')) / g('M_CTIS')
+    p_ivs = g('IVS_P0') + g('IVS_P1') * np.tan(np.pi * (S0[SI['VM_IVS']] / g('IVS_VMAX') - 0.5)) + g('S_PREST')   # A(3)
+    q_ivs = (pa - p_ivs) / g('M_RUTA'); q_tis = (pa - pt) / g('M_RTISA')
+    p_out = max(pv, k_a * g('S_PREST'))
+    p_n = (pa / g('CK_RUP') + p_out / g('CK_RA') - q_ivs) / (1 / g('CK_RUP') + 1 / g('CK_RA'))
+    assert p_n > p_ivs and p_n > p_out, 'CK_RUP is too high for the resting intervillous flow'
+    q_an = (p_n - p_out) / g('CK_RA'); s = q_tis / (q_tis - q_an)
+    over = dict(CK_MODE=1, CK_KA=k_a, CK_RSA=(p_n - p_ivs) / q_ivs, M_RTISA=g('M_RTISA') * s, M_RTISV=g('M_RTISV') * s)
+    info = dict(p_node=p_n, p_out=p_out, p_ivs=p_ivs, pa=pa, pv=pv, q_ivs=q_ivs, q_anast=q_an, q_ut_art=q_ivs + q_an,
+                ivs_share=q_ivs / (q_ivs + q_an), tissue_scale=s)
+    return over, info
+
+
+def steady_clark(placenta=0):
+    """(overrides, resting state) with the Clark 2018 uterine network at the default parameters and Jongen's mother.
+    placenta=1: with the Hill 1972 exchanger. Cached."""
+    key = 'SC%d' % placenta
+    if key not in _SS:
+        P = params(H_MODE=placenta)
+        over, _ = clark_parameters(steady_hill() if placenta else steady(), P)
+        _SS[key] = (over, steady_state(params(H_MODE=placenta, **over)))
+    return _SS[key]
+
+
+def _rest_means(P, S, t_run=120.0, t_from=60.0):
+    """Means of pa_m, pv_m, q_uta, q_anast and the intervillous pressure over [t_from, t_run] s of rest from state S.
+    Ursino runs start with a short reflex transient (the baroreflex delay buffers restart), hence the late window."""
+    o, _, ok = run_core(P, S, np.full(int(t_run / DU) + 1, P[IDX['S_PREST']]), du=DU, out_every=1)
+    assert ok
+    w = o['t'] >= t_from; m = {k: float(np.mean(o[k][w])) for k in ('pa_m', 'pv_m', 'q_uta', 'q_anast', 'v_ivs')}
+    m['p_ivs'] = P[IDX['IVS_P0']] + P[IDX['IVS_P1']] * np.tan(np.pi * (m['v_ivs'] / P[IDX['IVS_VMAX']] - 0.5)) \
+        + P[IDX['S_PREST']]
+    return m
+
+
+def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02):
+    """(overrides, resting state) with the Clark 2018 network and the Ursino 1998 mother (MU_MODE 1). Cached.
+    Target: the resting means of Ursino mode with Jongen's single R_uta (steady_ursino). CK_RSA is set so that the
+    intervillous inflow and pressure keep their target means at the target arterial pressure (the network is linear
+    in P_sa while the bypass is open, so means give mean flows). The bypass adds systemic conductance; Ursino's
+    peripheral resistances U_RSP0 and U_REP0 are scaled by one factor, found by secant iteration (each trial settles
+    t_settle s at rest), so that the mean arterial pressure keeps its target (to tol mmHg)."""
+    key = 'SCU%d' % placenta
+    if key not in _SS:
+        P0 = params(MU_MODE=1, H_MODE=placenta); g = lambda n: P0[IDX[n]]
+        tgt = _rest_means(P0, steady_ursino(placenta=placenta))
+        p_out = max(tgt['pv_m'], g('CK_KA') * g('S_PREST'))
+        p_n = (tgt['pa_m'] / g('CK_RUP') + p_out / g('CK_RA') - tgt['q_uta']) / (1 / g('CK_RUP') + 1 / g('CK_RA'))
+        assert p_n > tgt['p_ivs'] and p_n > p_out, 'CK_RUP is too high for the resting intervillous flow'
+        base = dict(CK_MODE=1, CK_RSA=(p_n - tgt['p_ivs']) / tgt['q_uta'])
+        rest = np.full(int(t_settle / DU) + 1, g('S_PREST'))
+
+        def trial(f):
+            over = dict(base, U_RSP0=g('U_RSP0') * f, U_REP0=g('U_REP0') * f)
+            P = params(MU_MODE=1, H_MODE=placenta, **over)
+            _, S, ok = run_core(P, steady_ursino(placenta=placenta), rest, dt=DTS, du=DU, out_every=50)
+            assert ok, 'Clark + Ursino steady-state run became non-finite'
+            return over, S, _rest_means(P, S)['pa_m'] - tgt['pa_m']
+        f0, (o0, S0, e0) = 1.0, trial(1.0)
+        f1 = 1.0 + 0.05; o1, S1, e1 = trial(f1)
+        for _ in range(8):
+            if abs(e1) < tol:
+                break
+            f0, e0, f1 = f1, e1, f1 - e1 * (f1 - f0) / (e1 - e0)
+            o1, S1, e1 = trial(f1)
+        assert abs(e1) < tol, 'Clark + Ursino rest calibration did not converge'
+        _SS[key] = (o1, S1)
+    return _SS[key]
+
+
 def maternal_pa(S, P):
     """Maternal arterial pressure p_a,m (mmHg) of state S."""
     return (S[SI['VM_ART']] - P[IDX['M_VART0']]) / P[IDX['M_CART']]
 
 
 def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thorax=0, vaso=0, autotx=0, circ=0,
-        placenta=0, **kw):
+        placenta=0, uterus=0, **kw):
     """Model output (dict of traces every out_every*dt s), final state and ok flag for uterine pressure `put` sampled
     every `du` s. w_um is the B(2) cord-compression weight (p_um = w_um (p_ut - p_rest)); g multiplies all five
     effector gains k of A(23) (g = 1 is the published regulation). Other parameters by name; when given, the steady
@@ -308,16 +394,34 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
     from the Ursino circulation.
     placenta: 1 = placental O2 transfer after Hill, Power & Longo 1972 (H_MODE 1; see core.c) instead of A(16), with
     the membrane diffusing capacity H_DMC calibrated to Jongen's resting fetal arterial pO2. It changes the resting
-    state (steady_hill) and can be combined with every other option and with parameter overrides."""
+    state (steady_hill) and can be combined with every other option and with parameter overrides.
+    uterus: 1 = uterine arteries after Clark et al. 2018 (CK_MODE 1; see core.c) instead of Jongen's single R_uta:
+    uterine, arcuate and radial arteries, then spiral arteries into the intervillous space in parallel with an
+    arterio-venous bypass. Outputs q_ut_art (uterine artery flow), q_uta (intervillous inflow), q_anast (bypass) and
+    p_node. The resting state keeps Jongen's pressures, cardiac output, intervillous flow and fetal state
+    (clark_parameters). Combines with the other options and with parameter overrides (CK_KA sets the compression of
+    the bypass). With circ=1 the network runs on Ursino's pulsatile arterial pressure (steady_clark_ursino; the
+    resting intervillous inflow is Ursino mode's, and Ursino's baroreflex absorbs the bypass)."""
     if circ:
         assert not (mhr or thorax or vaso or autotx or kw), 'circ excludes the other maternal add-ons and overrides'
+        if uterus:
+            over, S0 = steady_clark_ursino(placenta)
+            return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta, **over), S0, put,
+                            dt=dt, du=du, out_every=out_every)
         return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta), steady_ursino(placenta=placenta), put,
                         dt=dt, du=du, out_every=out_every)
     if placenta:
         kw = dict(kw, H_MODE=1)
     P = params(S_WUM=w_um, S_GAIN=g, MR_MODE=mhr, MT_MODE=thorax, MV_MODE=vaso, MA_MODE=autotx, **kw)
     assert not vaso or mhr, 'the vasomotor reflex needs the HR reflex (mhr > 0) for its sympathetic tone'
-    if not kw:
+    if uterus and not {k for k in kw if not k.startswith(('MR_', 'MT_', 'MV_', 'MA_'))} - {'H_MODE'}:
+        over, S0 = steady_clark(placenta)                           # default network: cached resting state
+        for k, v in over.items():
+            P[IDX[k]] = v
+        if 'MR_SBP_OFF' not in kw:
+            P[IDX['MR_SBP_OFF']] = P[IDX['MR_SW']] - maternal_pa(S0, P)
+        S = S0.copy()
+    elif not kw:
         S = steady().copy()
     else:
         jk = {k: v for k, v in kw.items() if not k.startswith(('MR_', 'MT_', 'MV_', 'MA_'))}
@@ -325,6 +429,12 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
             S0 = steady_hill()
         else:
             S0 = steady_state(params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **jk)) if jk else steady()  # add-ons are off at rest
+        if uterus:                                                  # network calibrated on the overridden rest
+            over, _ = clark_parameters(S0, params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **jk))
+            jk.update(over)
+            for k, v in over.items():
+                P[IDX[k]] = v
+            S0 = steady_state(params(S_WUM=w_um, S_GAIN=g, MR_MODE=0, **jk))
         if 'MR_SBP_OFF' not in kw:
             P[IDX['MR_SBP_OFF']] = P[IDX['MR_SW']] - maternal_pa(S0, P)
         S = S0.copy()
