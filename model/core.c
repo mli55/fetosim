@@ -139,7 +139,7 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    calibrated so that the resting fetal arterial pO2 is Jongen's 18.5 mmHg (the fetal reflexes are tuned to that
    value); the paper's 2.73 ml/(min mmHg) gives 19.3 mmHg and almost no late deceleration. H_MODE is independent of
    the maternal modes above and can be combined with any of them.
-   Uterine arterial network after Clark et al. 2018, CK_MODE 1 (Jongen mother only, not with MU_MODE 1): Jongen's single
+   Uterine arterial network after Clark et al. 2018, CK_MODE 1 (with Jongen's mother or with MU_MODE 1): Jongen's single
    resistance R_uta between the maternal arteries and the intervillous space is replaced by Clark's network. The
    uterine, arcuate and radial arteries in series (CK_RUP, multiplied by the input ruta) end in a node N. From N the
    spiral arteries (CK_RSA) feed Jongen's intervillous pool, whose volume, pressure and collapsible uterine vein are
@@ -147,7 +147,10 @@ static double wall_strain(double p, double A, double qw, double sw) {  /* Randal
    The node has no volume, so its pressure follows from flow balance. Contraction coupling of the bypass (ours, not in
    Clark 2018, which has no contraction): it drains as a Starling resistor against max(p_v,m, CK_KA p_ut), without
    backflow. O2: the bypass carries the node's blood (arterial, or mixed with intervillous blood when the spiral
-   arteries flow backwards) into the venous pool without O2 uptake.
+   arteries flow backwards) into the venous pool without O2 uptake. With MU_MODE 1 the network is solved in every
+   Ursino substep on the pulsatile P_sa and drains into P_ev; the bypass carries no blood volume, so Ursino's total
+   blood volume changes only with the intervillous volume, as before. Outputs q_uta, q_anast and p_node are then step
+   means.
    Records NOUT outputs every out_every steps into out (row-major). Returns 0, or 1 if the state became non-finite. */
 int simulate(const double *P, double *S, int n_steps, double dt,
              const double *put, const double *pum, const double *ruta, const double *noise, const double *pth,
@@ -203,10 +206,10 @@ int simulate(const double *P, double *S, int n_steps, double dt,
     if (!mt) q_vr = qin_m;                                                                      /* veins feed the heart */
     double qtisa_m = (pa_m - pt_m)/rtisa_m, qtisv_m = (pt_m - pv_m)/P[M_RTISV];
     double quta = (pa_m - pivs)/r_uta, qutv = (pivs - pv_m)/rutv;
-    const int ck = !mu && lround(P[CK_MODE]);
+    const int ck = (int)lround(P[CK_MODE]);
     double q_an = 0.0, p_nd = pa_m;                              /* anastomotic bypass flow, node pressure */
-    if (ck) {                                                    /* uterine network after Clark 2018 */
-      double gu = 1.0/(P[CK_RUP]*r_uta/P[M_RUTA]), gs = 1.0/P[CK_RSA], ga = 1.0/P[CK_RA];
+    const double gu = 1.0/(P[CK_RUP]*r_uta/P[M_RUTA]), gs = 1.0/P[CK_RSA], ga = 1.0/P[CK_RA];
+    if (ck && !mu) {                                                    /* uterine network after Clark 2018 */
       double pout = P[CK_KA]*p_ut; if (pout < pv_m) pout = pv_m; /* Starling outflow pressure of the bypass */
       p_nd = (pa_m*gu + pivs*gs + pout*ga)/(gu + gs + ga);
       if (p_nd > pout) q_an = (p_nd - pout)*ga;
@@ -214,18 +217,25 @@ int simulate(const double *P, double *S, int n_steps, double dt,
       quta = (p_nd - pivs)*gs;                                   /* spiral arteries -> intervillous space */
     }
     if (mu) {                                                    /* Ursino 1998 circulation replaces Jongen's mother */
-      double sa = 0, sv = 0, sco = 0, spa = 0, hs = dt/nsub;
+      double sa = 0, sv = 0, sco = 0, spa = 0, san = 0, snd = 0, hs = dt/nsub;
       for (int j = 0; j < nsub; j++) {
         double psa = SU[X_PSA], pev = SU[X_PEV];
-        double qa = (psa - pivs)/r_uta;                                                           /* A(5) with P_sa */
+        double qa = (psa - pivs)/r_uta, qn = 0.0, pn = psa;                                       /* A(5) with P_sa */
+        if (ck) {                                                /* Clark 2018 network on the pulsatile P_sa */
+          double pout = P[CK_KA]*p_ut; if (pout < pev) pout = pev;
+          pn = (psa*gu + pivs*gs + pout*ga)/(gu + gs + ga);
+          if (pn > pout) qn = (pn - pout)*ga; else pn = (psa*gu + pivs*gs)/(gu + gs);
+          qa = (pn - pivs)*gs;
+        }
         double rv = rvar(0.5*(pivs + pev) - p_ut, P[M_R0UTV], P[M_P0UTV], P[M_P1UTV], P[M_RUTV]);  /* A(6), A(7) */
         double qv = (pivs - pev)/rv;
-        u_step(PU, SU, &uh, hs, 0.0, 0.0, qv - qa, qa, qv, &ua);
-        sa += qa; sv += qv; sco += ua.fol; spa += psa;
+        u_step(PU, SU, &uh, hs, 0.0, 0.0, qv - qa, qa + qn, qv + qn, &ua);   /* bypass: P_sa -> P_ev, no volume */
+        sa += qa; sv += qv; sco += ua.fol; spa += psa; san += qn; snd += pn;
       }
       quta = sa/nsub; qutv = sv/nsub; qco_m = sco/nsub; pa_m = spa/nsub; pv_m = SU[X_PEV]; mu_T = ua.T;
+      if (ck) { q_an = san/nsub; p_nd = snd/nsub; }
       hm = S[HM_PREV]; qin_m = qco_m; q_vr = qin_m;                                 /* O2 pools: fixed heart volume */
-      qtisa_m = qco_m - quta; qtisv_m = qtisa_m;                                    /* fixed arterial, tissue volume */
+      qtisa_m = qco_m - quta - q_an; qtisv_m = qtisa_m;                             /* fixed arterial, tissue volume */
     }
     const double q_up = quta + q_an;                             /* uterine artery flow (both sides) */
 

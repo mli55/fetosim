@@ -78,12 +78,28 @@ def test_maternal_blood_volume_conserved():
     assert ok and abs(vol(S1) - vol(S0)) < 1e-6
 
 
-def test_not_with_ursino_circulation():
-    try:
-        S.run(np.full(11, S.TONE), circ=1, uterus=1)
-    except AssertionError:
-        return
-    raise AssertionError('uterus=1 with circ=1 should be refused')
+def test_with_ursino_circulation_rest():
+    """With the Ursino 1998 mother the network keeps the resting means of Ursino mode (arterial pressure, intervillous
+    inflow, fetal arterial pO2 and FHR) and adds the bypass."""
+    put = np.full(241, S.TONE)
+    m = {}
+    for u in (0, 1):
+        o, _, ok = S.run(put, du=0.5, circ=1, uterus=u, out_every=1); assert ok
+        w = o['t'] >= 60; m[u] = {k: float(np.mean(o[k][w])) for k in ('pa_m', 'q_uta', 'q_anast', 'po2_a', 'fhr')}
+    assert abs(m[1]['pa_m'] - m[0]['pa_m']) < 0.1
+    assert abs(m[1]['q_uta'] / m[0]['q_uta'] - 1) < 0.005
+    assert abs(m[1]['po2_a'] - m[0]['po2_a']) < 0.1 and abs(m[1]['fhr'] - m[0]['fhr']) < 0.05
+    assert m[0]['q_anast'] == 0 and m[1]['q_anast'] > 2
+
+
+def test_with_ursino_circulation_contraction():
+    """With the Ursino mother a contraction lowers uterine artery flow and intervillous inflow, and the bypass is
+    squeezed but stays open (k_A p_ut below the node pressure at 85 mmHg is not required; flow only has to fall)."""
+    put = S.contraction(300, 0.5, t_con=120)
+    o, _, ok = S.run(put, du=0.5, circ=1, uterus=1, out_every=50); assert ok
+    rest, con = o['t'] < 110, (o['t'] > 120) & (o['t'] < 200)
+    for k in ('q_ut_art', 'q_uta', 'q_anast'):
+        assert o[k][con].min() < 0.7 * o[k][rest].mean(), k
 
 
 if __name__ == '__main__':

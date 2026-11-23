@@ -323,6 +323,52 @@ def steady_clark(placenta=0):
     return _SS[key]
 
 
+def _rest_means(P, S, t_run=120.0, t_from=60.0):
+    """Means of pa_m, pv_m, q_uta, q_anast and the intervillous pressure over [t_from, t_run] s of rest from state S.
+    Ursino runs start with a short reflex transient (the baroreflex delay buffers restart), hence the late window."""
+    o, _, ok = run_core(P, S, np.full(int(t_run / DU) + 1, P[IDX['S_PREST']]), du=DU, out_every=1)
+    assert ok
+    w = o['t'] >= t_from; m = {k: float(np.mean(o[k][w])) for k in ('pa_m', 'pv_m', 'q_uta', 'q_anast', 'v_ivs')}
+    m['p_ivs'] = P[IDX['IVS_P0']] + P[IDX['IVS_P1']] * np.tan(np.pi * (m['v_ivs'] / P[IDX['IVS_VMAX']] - 0.5)) \
+        + P[IDX['S_PREST']]
+    return m
+
+
+def steady_clark_ursino(placenta=0, t_settle=600.0, tol=0.02):
+    """(overrides, resting state) with the Clark 2018 network and the Ursino 1998 mother (MU_MODE 1). Cached.
+    Target: the resting means of Ursino mode with Jongen's single R_uta (steady_ursino). CK_RSA is set so that the
+    intervillous inflow and pressure keep their target means at the target arterial pressure (the network is linear
+    in P_sa while the bypass is open, so means give mean flows). The bypass adds systemic conductance; Ursino's
+    peripheral resistances U_RSP0 and U_REP0 are scaled by one factor, found by secant iteration (each trial settles
+    t_settle s at rest), so that the mean arterial pressure keeps its target (to tol mmHg)."""
+    key = 'SCU%d' % placenta
+    if key not in _SS:
+        P0 = params(MU_MODE=1, H_MODE=placenta); g = lambda n: P0[IDX[n]]
+        tgt = _rest_means(P0, steady_ursino(placenta=placenta))
+        p_out = max(tgt['pv_m'], g('CK_KA') * g('S_PREST'))
+        p_n = (tgt['pa_m'] / g('CK_RUP') + p_out / g('CK_RA') - tgt['q_uta']) / (1 / g('CK_RUP') + 1 / g('CK_RA'))
+        assert p_n > tgt['p_ivs'] and p_n > p_out, 'CK_RUP is too high for the resting intervillous flow'
+        base = dict(CK_MODE=1, CK_RSA=(p_n - tgt['p_ivs']) / tgt['q_uta'])
+        rest = np.full(int(t_settle / DU) + 1, g('S_PREST'))
+
+        def trial(f):
+            over = dict(base, U_RSP0=g('U_RSP0') * f, U_REP0=g('U_REP0') * f)
+            P = params(MU_MODE=1, H_MODE=placenta, **over)
+            _, S, ok = run_core(P, steady_ursino(placenta=placenta), rest, dt=DTS, du=DU, out_every=50)
+            assert ok, 'Clark + Ursino steady-state run became non-finite'
+            return over, S, _rest_means(P, S)['pa_m'] - tgt['pa_m']
+        f0, (o0, S0, e0) = 1.0, trial(1.0)
+        f1 = 1.0 + 0.05; o1, S1, e1 = trial(f1)
+        for _ in range(8):
+            if abs(e1) < tol:
+                break
+            f0, e0, f1 = f1, e1, f1 - e1 * (f1 - f0) / (e1 - e0)
+            o1, S1, e1 = trial(f1)
+        assert abs(e1) < tol, 'Clark + Ursino rest calibration did not converge'
+        _SS[key] = (o1, S1)
+    return _SS[key]
+
+
 def maternal_pa(S, P):
     """Maternal arterial pressure p_a,m (mmHg) of state S."""
     return (S[SI['VM_ART']] - P[IDX['M_VART0']]) / P[IDX['M_CART']]
@@ -353,11 +399,15 @@ def run(put, w_um=0.0, g=1.0, dt=DTS, du=DU, out_every=OE, mhr=0, pth=None, thor
     uterine, arcuate and radial arteries, then spiral arteries into the intervillous space in parallel with an
     arterio-venous bypass. Outputs q_ut_art (uterine artery flow), q_uta (intervillous inflow), q_anast (bypass) and
     p_node. The resting state keeps Jongen's pressures, cardiac output, intervillous flow and fetal state
-    (clark_parameters). Not available with circ=1; combines with the other options and with parameter overrides
-    (CK_KA sets the compression of the bypass)."""
-    assert not (uterus and circ), 'the Clark 2018 uterine network is not wired into the Ursino 1998 circulation'
+    (clark_parameters). Combines with the other options and with parameter overrides (CK_KA sets the compression of
+    the bypass). With circ=1 the network runs on Ursino's pulsatile arterial pressure (steady_clark_ursino; the
+    resting intervillous inflow is Ursino mode's, and Ursino's baroreflex absorbs the bypass)."""
     if circ:
         assert not (mhr or thorax or vaso or autotx or kw), 'circ excludes the other maternal add-ons and overrides'
+        if uterus:
+            over, S0 = steady_clark_ursino(placenta)
+            return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta, **over), S0, put,
+                            dt=dt, du=du, out_every=out_every)
         return run_core(params(S_WUM=w_um, S_GAIN=g, MU_MODE=1, H_MODE=placenta), steady_ursino(placenta=placenta), put,
                         dt=dt, du=du, out_every=out_every)
     if placenta:
