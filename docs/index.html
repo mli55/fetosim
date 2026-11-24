@@ -615,6 +615,17 @@ body.fig-circ .circ-key { font-size: 15px; }
 #circ .nd.ua, #circ .bx.ua { stroke: var(--vr); } #circ .nd.uv, #circ .bx.uv { stroke: var(--vb); }
 #circ .ndot.ua { fill: var(--vr); } #circ .ndot.uv { fill: var(--vb); }
 #circ .bx.sm + text, #circ .sm-t { font-size: 26px; }
+/* the three causes of a deceleration, under the cross-section */
+.decel { border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 4px 12px; display: grid; font-size: 13.5px; }
+.decel .dc-h, .decel .dc { display: grid; grid-template-columns: 1.25fr .8fr 1.2fr 1.5fr; gap: 4px 16px; align-items: baseline; padding: 7px 0; text-align: left; }
+.decel .dc-h { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.decel .dc { border: 0; border-top: 1px solid var(--line); background: none; font: inherit; color: var(--ink); width: 100%; }
+.decel button.dc { cursor: pointer; }
+.decel button.dc:hover, .decel button.dc:focus-visible { color: var(--accent); }
+.decel .dc span:first-child { font-weight: 600; }
+.decel .dc-off span:last-child { color: var(--muted); }
+body.fig .decel { display: none !important; }
+@media (max-width: 640px) { .decel .dc-h { display: none; } .decel .dc { grid-template-columns: 1fr 1fr; } }
 </style>
 <!-- blocks:css -->
 <style>
@@ -745,6 +756,12 @@ body.fig-circ #explore, body.fig-dia #circuit-sec { display: none !important; }
         </div>
         <div class="annlist" id="annlist" hidden></div>
         <div class="key" id="key"></div>
+      </div>
+      <div class="decel" id="decel" role="group" aria-label="Three causes of a deceleration">
+        <div class="dc-h"><span>Cause</span><span>Deceleration</span><span>Timing</span><span>In the model</span></div>
+        <div class="dc dc-off"><span>Head compression, through a vagal reflex</span><span>Early</span><span>In step with the contraction; acts within seconds</span><span>Not in the model</span></div>
+        <button type="button" class="dc" data-part="cord"><span>Cord compression</span><span>Variable</span><span>The deepest and the fastest</span><span><i>w</i><sub>um</sub></span></button>
+        <button type="button" class="dc" data-part="spiral"><span>Reduced uteroplacental perfusion</span><span>Late</span><span>Slow, shallow, delayed</span><span>The uterine path; the part that Clark 2018 and the maternal models change</span></button>
       </div><!-- blocks:section -->
 <div class="bk bkflowbox" id="blocks" aria-label="Blocks of one model step">
   <div class="bkscroll" id="bk-flow"></div>
@@ -1719,6 +1736,7 @@ dia.addEventListener('click', e => {
   select(g ? g.dataset.part : null, false);
 });
 $('#key').addEventListener('click', e => { const b = e.target.closest('[data-part]'); if (b) select(b.dataset.part, false); });
+$('#decel').addEventListener('click', e => { const b = e.target.closest('[data-part]'); if (b) select(b.dataset.part, false); });
 $('#zoomOut').addEventListener('click', () => select(null, false));
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && zoomKey) select(null, false); });
 
